@@ -166,6 +166,7 @@
       {/if}
 
       <button class="btn btn-warning" on:click={esci}>Esci</button>
+      <button class="btn btn-warning" on:click={accedi}>View Pair</button>
     </div>
   {/if}
 </main>

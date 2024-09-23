@@ -42,7 +42,7 @@
       urlPassword = pParam;
       hash = window.location.hash.slice(1);
       console.log("hash:", hash);
-      let authorPubKey = await gunInstance.get("gun-eth.space#").get(hash).promOnce();
+      let authorPubKey = await gunInstance.get("gun-eth.telegraph").get(hash).promOnce();
       console.log("authorPubKey:", authorPubKey);
       authorPubKey = authorPubKey.data;
       let localstorageKeyPair = localStorage.getItem(authorPubKey);
@@ -115,7 +115,7 @@
 
   async function publish() {
     localStorage.setItem(myKeys.pub, JSON.stringify(myKeys));
-    await gunInstance.get(`gun-eth.space#`).get(hash).promPut(myKeys.pub);
+    await gunInstance.get(`gun-eth.telegraph`).get(hash).promPut(myKeys.pub);
     let url = `?t=${encodeURIComponent(currentTitle.replace(/\s+/g, "-").toLowerCase())}&p=${encodeURIComponent(urlPassword)}#${hash}`;
     window.history.pushState({}, "", url);
     location.reload();
@@ -127,13 +127,18 @@
 </script>
 
 <main>
-  <h1 class="title">Gun-ETH.Space</h1>
-
   {#if isLoading}
+    <h1 class="title">Telegraph</h1>
+
+    <h1 class="title">node: gun-eth.telegraph</h1>
+
     <p>Caricamento in corso...</p>
-  {:else}
+  {:else if isEditing}
+    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Telegraph</h1>
+    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">✒️</h1>
+    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">node: gun-eth.telegraph</h3>
     <input
-      class="input-title"
+      class="input-title my-5"
       bind:value={title}
       placeholder="Titolo"
       on:input={() => {
@@ -150,26 +155,24 @@
       on:input={save}
       disabled={!isEditing}
     ></textarea>
-
-    {#if !isEditing}
-      <p>Ultimo aggiornamento: {lastUpdated}</p>
+    <input
+      class="input-verification"
+      bind:value={verification}
+      placeholder="Verifica la paternità con un link a un post sui social media"
+      on:input={save}
+    />
+    <button on:click={publish}>🔗 Crea Link</button>
+  {:else}
+    <article class="post">
+      <h2 class="text-2xl font-bold">{title}</h2>
+      <p><span class="font-semibold">{author}</span></p>
+      <div class="content font-medium">{content}</div>
       {#if verification}
-        <p>Verifica: <a href={verification}>{verification}</a></p>
+        <p><span class="font-base">Verifica:</span> <a href={verification}>{verification}</a></p>
       {/if}
-    {:else}
-      <input
-        class="input-verification"
-        bind:value={verification}
-        placeholder="Verifica la paternità con un link a un post sui social media"
-        on:input={save}
-      />
-    {/if}
-
-    {#if isEditing}
-      <button on:click={publish}>🔗 Crea Link</button>
-    {:else}
-      <button on:click={copyLink}>🔗 Copia Link</button>
-    {/if}
+      <p><span class="font-base">Ultimo aggiornamento:</span> {lastUpdated}</p>
+    </article>
+    <button class="my-5" on:click={copyLink}>🔗 Copia Link</button>
   {/if}
 </main>
 
@@ -212,5 +215,21 @@
     margin-bottom: 20px;
     background-color: #f0f0f0;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .post {
+    padding: 20px;
+    border-radius: 5px;
+  }
+  .post h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    width: auto;
+  }
+  .post p {
+    margin-bottom: 10px;
+  }
+  .post .content {
+    margin-bottom: 20px;
+    white-space: pre-wrap; /* Mantiene i ritorni a capo */
   }
 </style>
