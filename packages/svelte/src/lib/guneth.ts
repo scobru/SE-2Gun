@@ -11,8 +11,6 @@ Gun.chain.verifySignature = async function (message, signature) {
         return null;
     }
 };
-
-// Funzione per generare una password dalla firma
 Gun.chain.generatePassword = function (signature) {
     try {
         // Usa SHA-256 per derivare una password dalla firma
@@ -32,8 +30,9 @@ Gun.chain.createSignature = async function (message) {
         // Controlla se window.ethereum è disponibile (metamask o altro provider)
         if (typeof window.ethereum !== 'undefined') {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const provider = new ethers.JsonRpcProvider(window.ethereum)
-            const signer = provider.getSigner();
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            console.log(provider)
+            const signer = await provider.getSigner();
 
             const signature = await signer.signMessage(message);
             console.log('Firma creata:', signature);

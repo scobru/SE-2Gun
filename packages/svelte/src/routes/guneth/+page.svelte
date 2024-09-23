@@ -47,7 +47,7 @@
       }
 
 
-      const signature = await signMessage(wagmiConfig,{ address: account.address, message: MESSAGE_TO_SIGN });
+      const signature = await gun.createSignature(MESSAGE_TO_SIGN)
       const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
 
       console.log("recoveredAddress",recoveredAddress)
@@ -83,8 +83,8 @@
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
+
       const signature = await gun.createSignature(MESSAGE_TO_SIGN)
-      // const signature = await signMessage(wagmiConfig,{ address: account.address, message: MESSAGE_TO_SIGN });
       const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
 
       if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
