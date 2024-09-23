@@ -5,10 +5,10 @@
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
   import "$lib/guneth"; // Assicurati che il percorso sia corretto
+  import { currentUser, gun } from "$lib/stores";
+  import { get } from "svelte/store";
 
-  let gun;
   let user;
-  let currentUser = null;
   let errorMessage = "";
   let account = null;
   let userPair = null;
@@ -17,30 +17,35 @@
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
-    gun = Gun();
-    user = gun.user();
+    gun.set(new Gun());
+
+    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
+    user = gunInstance.user();
+    account = getAccount(wagmiConfig);
 
     user.recall({ sessionStorage: true }, async ack => {
       if (ack.err) {
         console.error("Errore nel recupero della sessione:", ack.err);
       } else if (user.is) {
-        currentUser = user.is.alias;
+        currentUser.set(user.is.alias);
         await loadUserData();
       }
     });
 
     user.on("auth", async () => {
       console.log("Utente autenticato:", user.is.alias);
-      currentUser = user.is.alias;
+      currentUser.set(user.is.alias);
       await loadUserData();
     });
   });
 
   async function loadUserData() {
     console.log("Loading user data...");
-    console.log("Current User:", currentUser);
+    currentUser.subscribe(value => currentUser.set(value));
+    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
+
     if (currentUser) {
-      userPair = await gun.getAndDecryptPair(account.address, signature);
+      userPair = await gunInstance.getAndDecryptPair(account.address, signature);
       console.log("User Pair:", userPair);
     }
   }
@@ -48,21 +53,23 @@
   async function registra() {
     console.log("Registrazione in corso...");
     errorMessage = "";
+    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
+    account = getAccount(wagmiConfig);
+    user = gunInstance.user();
 
     try {
-      account = getAccount(wagmiConfig);
       if (!account.address) {
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
 
-      signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
       if (!signature) {
         errorMessage = "Errore durante la firma del messaggio";
         return;
       }
 
-      await gun.createAndStoreEncryptedPair(account.address, signature);
+      await gunInstance.createAndStoreEncryptedPair(account.address, signature);
 
       user.create(account.address, signature, async ack => {
         if (ack.err) {
@@ -70,6 +77,7 @@
         } else {
           alert("Registrazione completata! Ora puoi accedere.");
           await loadUserData();
+          currentUser.set(user.is.alias);
         }
       });
     } catch (error) {
@@ -80,6 +88,8 @@
   async function accedi() {
     console.log("Accesso in corso...");
     errorMessage = "";
+    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
+    user = gunInstance.user();
 
     try {
       account = getAccount(wagmiConfig);
@@ -88,13 +98,13 @@
         return;
       }
 
-      signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
       if (!signature) {
         errorMessage = "Errore durante la firma del messaggio";
         return;
       }
 
-      const pair = await gun.getAndDecryptPair(account.address, signature);
+      const pair = await gunInstance.getAndDecryptPair(account.address, signature);
       console.log("Pair:", pair);
       if (!pair) {
         errorMessage = "Errore nel recupero del pair dell'utente";
@@ -107,7 +117,7 @@
           errorMessage = "Errore di accesso: " + ack.err;
         } else {
           console.log("Accesso riuscito");
-          currentUser = user.is.alias;
+          currentUser.set(user.is.alias);
           await loadUserData();
         }
       });
@@ -118,15 +128,15 @@
 
   function esci() {
     user.leave();
-    currentUser = null;
+    currentUser.set(null);
     userPair = null;
     errorMessage = "";
   }
 </script>
 
-<main class="container mx-auto p-4">
-  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">GunETH</h1>
-  <h1 class="text-base-content mb-8 text-center text-4xl font-bold">🔫🔷</h1>
+<main class="container mx-auto w-full p-4">
+  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Auth</h1>
+  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">🔐</h1>
 
   {#if errorMessage}
     <div class="relative mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
@@ -134,21 +144,24 @@
     </div>
   {/if}
 
-  {#if !currentUser}
+  {#if $currentUser === null}
     <div class="flex justify-center space-x-4">
       <button class="btn btn-primary" on:click={registra}>Registra con Ethereum</button>
       <button class="btn btn-secondary" on:click={accedi}>Accedi con Ethereum</button>
     </div>
   {:else}
-    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 shadow-md">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {currentUser}!</h2>
+    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$currentUser}!</h2>
 
-      {#if userPair}
-        <div class="mb-4">
-          <h3 class="mb-2 text-xl font-semibold">Pair dell'utente (privato):</h3>
-          <div class="user-pair-content">
-            <code>{JSON.stringify(userPair, null, 2)}</code>
-          </div>
+      {#if userPair && Object.keys(userPair).length > 0}
+        <div class="my-5 items-center">
+          <ul class="mx-auto w-2/4 text-left">
+            {#each Object.entries(userPair) as [key, value]}
+              <li class="mb-2">
+                <strong>{key}:</strong> <span class="text-base-content">{JSON.stringify(value, null, 2)}</span>
+              </li>
+            {/each}
+          </ul>
         </div>
       {/if}
 

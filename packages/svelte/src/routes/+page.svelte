@@ -10,7 +10,7 @@
   <div class="px-5">
     <h1 class="text-center">
       <span class="mb-2 block text-2xl">Welcome to</span>
-      <span class="block text-8xl font-bold">GunETH</span>
+      <span class="block text-8xl font-bold">Gun-ETH</span>
     </h1>
     <div class="flex items-center justify-center space-x-2">
       <p class="my-2 font-medium">Connected Address:</p>
@@ -20,32 +20,22 @@
 
   <div class="bg-base-300 mt-16 w-full flex-grow px-8 py-12">
     <div class="flex flex-col items-center justify-center gap-12 sm:flex-row">
-      <div class="bg-base-100 flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
-        <svg class="mb-4 h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M12 0L9.5 8.5L12 10L14.5 8.5L12 0ZM12 11.5L9.5 10L12 24L14.5 10L12 11.5ZM12 10L14.5 8.5L12 0L9.5 8.5L12 10Z"
-          />
-        </svg>
-        <p>
-          Tinker with your smart contract using the
-          <a href="/debug" class="link">Debug Contracts</a>
-          tab.
-        </p>
+      <div class="flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
+        <img
+          src="https://camo.githubusercontent.com/e79cc2fa3e42c4007e7d23e3827768b233b019fef64edf9aeb591c02ca8f958a/68747470733a2f2f636c6475702e636f6d2f5445793979476834356c2e737667"
+          class="h-auto w-auto"
+          alt=""
+        />
       </div>
-      <div class="bg-base-100 flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
-        <svg class="mb-4 h-20 w-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 417" fill="currentColor">
-          <path d="M127.9 0L124.6 11.3V279.6L127.9 282.9L255.8 209.1L127.9 0Z" fill="#343434" />
-          <path d="M127.9 0L0 209.1L127.9 282.9V154.2V0Z" fill="#8C8C8C" />
-          <path d="M127.9 306.1L125.8 308.6V416.6L127.9 417.9L255.9 238.3L127.9 306.1Z" fill="#3C3C3B" />
-          <path d="M127.9 417.9V306.1L0 238.3L127.9 417.9Z" fill="#8C8C8C" />
-          <path d="M127.9 282.9L255.8 209.1L127.9 154.2V282.9Z" fill="#141414" />
-          <path d="M0 209.1L127.9 282.9V154.2L0 209.1Z" fill="#393939" />
-        </svg>
-        <p>
-          Explore your local transactions with the
-          <a href="/blockexplorer" class="link">Block Explorer</a>
-          tab.
-        </p>
+      <div class="flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
+        <h2 class="text-5xl font-bold">➕</h2>
+      </div>
+      <div class=" flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
+        <img
+          src="https://imgs.search.brave.com/NGX8HX5KFugNT0f1h-bEFpaI-b5n0oFXxlZiRyGjPyc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdHls/ZXMucmVkZGl0bWVk/aWEuY29tL3Q1XzJ6/ZjltL3N0eWxlcy9j/b21tdW5pdHlJY29u/X2hlYmNrYmQ2NHc4/MTEucG5n"
+          alt=""
+          class="h-auto w-auto"
+        />
       </div>
     </div>
   </div>

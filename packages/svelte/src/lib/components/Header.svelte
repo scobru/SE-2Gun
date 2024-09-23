@@ -28,8 +28,12 @@
       href: "/",
     },
     {
-      label: "GunETH",
-      href: "/guneth",
+      label: "Auth",
+      href: "/auth",
+    },
+    {
+      label: "Inspect",
+      href: "/inspect",
     },
     {
       label: "Telegraph",
@@ -93,12 +97,9 @@
       {/if}
     </div>
     <a href="/" class="ml-4 mr-6 hidden shrink-0 items-center gap-2 lg:flex">
-      <div class="relative flex h-10 w-10">
-        <img alt="SE2 logo" class="cursor-pointer" src={logo} />
-      </div>
       <div class="flex flex-col">
-        <span class="font-bold leading-tight">Scaffold-ETH</span>
-        <span class="text-xs">Ethereum dev stack</span>
+        <span class="text-3xl font-bold leading-tight">🔫Gun-ETH🔷</span>
+        <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
       </div>
     </a>
     <ul class="menu menu-horizontal hidden gap-2 px-1 lg:flex lg:flex-nowrap">
