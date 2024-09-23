@@ -34,6 +34,8 @@
 
     console.log("tParam:", tParam);
     console.log("pParam:", pParam);
+    gunInstance = Gun();
+    user = gunInstance.user ? gunInstance.user() : {}; // Controllo se gunInstance è valido
 
     if (tParam && pParam) {
       console.log("Entrato nel blocco tParam e pParam");
@@ -130,7 +132,16 @@
   {#if isLoading}
     <p>Caricamento in corso...</p>
   {:else}
-    <input class="input-title" bind:value={title} placeholder="Titolo" on:input={save} disabled={!isEditing} />
+    <input
+      class="input-title"
+      bind:value={title}
+      placeholder="Titolo"
+      on:input={() => {
+        currentTitle = title;
+        save();
+      }}
+      disabled={!isEditing}
+    />
     <input class="input-author" bind:value={author} placeholder="Il tuo nome" on:input={save} disabled={!isEditing} />
     <textarea
       class="input-content"
