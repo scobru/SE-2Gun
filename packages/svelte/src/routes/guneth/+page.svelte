@@ -11,6 +11,8 @@
   let currentUser = null;
   let errorMessage = "";
   let account = null;
+  let userPair = null;
+  let userPublicData = null;
 
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
@@ -23,14 +25,26 @@
         console.error("Errore nel recupero della sessione:", ack.err);
       } else if (user.is) {
         currentUser = user.is.alias;
+        loadUserData();
       }
     });
 
     user.on("auth", () => {
       console.log("Utente autenticato:", user.is.alias);
       currentUser = user.is.alias;
+      loadUserData();
     });
   });
+
+  async function loadUserData() {
+    if (currentUser) {
+      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      userPair = await gun.getAndDecryptPair(currentUser, signature);
+      userPublicData = await gun.get(`~@${currentUser}`).then();
+      console.log("User Pair:", userPair);
+      console.log("User Public Data:", userPublicData);
+    }
+  }
 
   async function registra() {
     console.log("Registrazione in corso...");
@@ -81,6 +95,7 @@
       }
 
       const pair = await gun.getAndDecryptPair(account.address, signature);
+      console.log("Pair:", pair);
       if (!pair) {
         errorMessage = "Errore nel recupero del pair dell'utente";
         return;
@@ -103,53 +118,62 @@
   function esci() {
     user.leave();
     currentUser = null;
+    userPair = null;
     errorMessage = "";
   }
 </script>
 
-<main>
-  <h1>Autenticazione con GunDB e Ethereum</h1>
+<main class="container mx-auto p-4">
+  <h1 class="text-primary mb-8 text-center text-4xl font-bold">Autenticazione con GunDB e Ethereum</h1>
 
   {#if errorMessage}
-    <div class="error">{errorMessage}</div>
+    <div class="relative mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
+      <span class="block sm:inline">{errorMessage}</span>
+    </div>
   {/if}
 
   {#if !currentUser}
-    <div>
-      <button type="button" on:click={registra}>Registra con Ethereum</button>
-      <button type="button" on:click={accedi}>Accedi con Ethereum</button>
+    <div class="flex justify-center space-x-4">
+      <button class="btn btn-primary" on:click={registra}>Registra con Ethereum</button>
+      <button class="btn btn-secondary" on:click={accedi}>Accedi con Ethereum</button>
     </div>
   {:else}
-    <div>
-      <h2>Benvenuto, {currentUser}!</h2>
-      <button on:click={esci}>Esci</button>
+    <div class="mb-4 rounded bg-white px-8 pb-8 pt-6 shadow-md">
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {currentUser}!</h2>
+
+      {#if userPublicData}
+        <div class="mb-4">
+          <h3 class="mb-2 text-xl font-semibold">Dati pubblici dell'utente:</h3>
+          <pre class="overflow-x-auto rounded bg-gray-100 p-4">
+            {JSON.stringify(
+              {
+                alias: userPublicData.alias,
+                pub: userPublicData.pub,
+                epub: userPublicData.epub,
+              },
+              null,
+              2,
+            )}
+          </pre>
+        </div>
+      {/if}
+
+      {#if userPair}
+        <div class="mb-4">
+          <h3 class="mb-2 text-xl font-semibold">Pair dell'utente (privato):</h3>
+          <pre class="overflow-x-auto rounded bg-gray-100 p-4">
+            {JSON.stringify(userPair, null, 2)}
+          </pre>
+        </div>
+      {/if}
+
+      <button class="btn btn-warning" on:click={esci}>Esci</button>
     </div>
   {/if}
 </main>
 
 <style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4em;
-    font-weight: 100;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
-  }
-
-  .error {
-    color: red;
-    margin-bottom: 10px;
+  :global(body) {
+    @apply bg-gray-100;
   }
 </style>
