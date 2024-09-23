@@ -47,7 +47,7 @@
     <p class="text-base-content mt-4 text-lg font-semibold">
       GunETH is a cutting-edge decentralized application (dApp) built with Svelte and GunDB, seamlessly integrated with
       Ethereum for robust authentication and data encryption. This project aims to provide a fully decentralized
-      platform where users can securely create, read, and update articles. By leveraging Ethereum signatures, GunETH
+      platform where users can create unique pair and store into GunDB. By leveraging Ethereum signatures, GunETH
       ensures data integrity and privacy through advanced encryption techniques.
     </p>
     <h3 class="text-primary mt-6 text-4xl font-bold">Why GunETH?</h3>

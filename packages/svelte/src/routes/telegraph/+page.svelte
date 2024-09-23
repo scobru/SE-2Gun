@@ -7,8 +7,6 @@
   import { currentUser, gun } from "$lib/stores";
   import { goto } from "$app/navigation"; // Importa la funzione di navigazione
   import { get } from "svelte/store";
-  import { getAccount } from "@wagmi/core";
-  import { wagmiConfig } from "$lib/wagmi";
 
   //const peers = ["https://gun-us.herokuapp.com/gun"];
   let gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
@@ -128,15 +126,20 @@
 
 <main>
   {#if isLoading}
-    <h1 class="title">Telegraph</h1>
+    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Telegraph</h1>
 
-    <h1 class="title">node: gun-eth.telegraph</h1>
+    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">✒️</h1>
+    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">node: gun-eth.telegraph</h3>
+    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">version: 1.0.0</h3>
 
     <p>Caricamento in corso...</p>
   {:else if isEditing}
     <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Telegraph</h1>
+
     <h1 class="text-base-content mb-8 text-center text-6xl font-bold">✒️</h1>
     <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">node: gun-eth.telegraph</h3>
+    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">version: 1.0.0</h3>
+
     <input
       class="input-title my-5"
       bind:value={title}

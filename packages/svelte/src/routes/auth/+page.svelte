@@ -4,9 +4,10 @@
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import "$lib/guneth"; // Assicurati che il percorso sia corretto
+  import "gun-eth";
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
+  import { notification } from "$lib/utils/scaffold-eth/notification";
 
   let user;
   let errorMessage = "";
@@ -86,6 +87,12 @@
   }
 
   async function accedi() {
+    account = getAccount(wagmiConfig);
+
+    if (!account.address) {
+      notification.error("Nessun account Ethereum connesso");
+      return;
+    }
     console.log("Accesso in corso...");
     errorMessage = "";
     const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null

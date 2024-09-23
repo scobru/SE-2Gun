@@ -40,6 +40,10 @@
       href: "/telegraph",
     },
     {
+      label: "Notes",
+      href: "/notes",
+    },
+    {
       label: "Debug Contracts",
       href: "/debug",
       icon: BugAnt,
@@ -76,9 +80,7 @@
   {/each}
 {/snippet}
 
-<div
-  class="navbar bg-base-100 shadow-secondary sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between px-0 shadow-md sm:px-2 lg:static"
->
+<div class="navbar shadow-secondary sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between px-0 sm:px-2 lg:static">
   <div class="navbar-start w-auto lg:w-1/2">
     <div class="dropdown lg:hidden" bind:this={burgerMenu}>
       <button
@@ -102,7 +104,7 @@
         <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
       </div>
     </a>
-    <ul class="menu menu-horizontal hidden gap-2 px-1 lg:flex lg:flex-nowrap">
+    <ul class="menu menu-horizontal hidden gap-2 px-1 font-semibold lg:flex lg:flex-nowrap">
       {@render menuLinksSnippet()}
     </ul>
   </div>
