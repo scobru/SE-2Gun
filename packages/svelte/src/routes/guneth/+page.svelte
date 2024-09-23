@@ -2,78 +2,110 @@
   import Gun from "gun";
   import "gun/sea";
   import { onMount } from "svelte";
+  import { wagmiConfig } from "$lib/wagmi";
+  import { getAccount, signMessage } from "@wagmi/core";
+  import { keccak256 } from "ethers";
+  import "$lib/guneth"
 
   let gun;
   let user;
-  let username = $state(""); // Rimosso $: e inizializzato come stringa vuota
-  let password = $state(""); // Rimosso $: e inizializzato come stringa vuota
   let currentUser = null;
   let errorMessage = "";
+  let account = null;
+
+  const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
     gun = Gun();
     user = gun.user();
 
-    // Controlla se l'utente è già autenticato al caricamento del componente
-    user.recall({ sessionStorage: true });
+    user.recall({ sessionStorage: true }, ack => {
+      if(ack.err) {
+        console.error("Errore nel recupero della sessione:", ack.err);
+      } else if(user.is) {
+        currentUser = user.is.alias;
+      }
+    });
 
-    // Ascolta l'evento 'auth' per aggiornare l'utente corrente
     user.on("auth", () => {
       console.log("Utente autenticato:", user.is.alias);
       currentUser = user.is.alias;
     });
   });
 
-  function registra() {
+  async function registra() {
     console.log("Registrazione in corso...");
-
     errorMessage = "";
 
-    if (!username || !password) {
-      errorMessage = "Per favore, inserisci sia username che password.";
-      return;
-    }
-    user.create(username, password, ack => {
-      if (ack.err) {
-        errorMessage = "Errore durante la registrazione: " + ack.err;
-      } else {
-        alert("Registrazione completata! Ora puoi accedere.");
+    try {
+      account = getAccount(wagmiConfig);
+      if (!account.address) {
+        errorMessage = "Nessun account Ethereum connesso";
+        return;
       }
-    });
+
+
+      const signature = await signMessage({ message: MESSAGE_TO_SIGN });
+      const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
+
+      if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
+        console.log("Signature Verificata")
+      } else {
+        console.log("Errore nella Verifica della Signature")
+        return;
+      }
+
+      const password = await gun.generatePassword(signature)
+
+      user.create(account.address, password, ack => {
+        if (ack.err) {
+          errorMessage = "Errore durante la registrazione: " + ack.err;
+        } else {
+          alert("Registrazione completata! Ora puoi accedere.");
+        }
+      });
+    } catch (error) {
+      errorMessage = "Errore durante la firma: " + error.message;
+    }
   }
 
-  function accedi() {
+  async function accedi() {
     console.log("Accesso in corso...");
     errorMessage = "";
-    console.log("Username:", username);
-    console.log("Password:", password);
-    if (!username || !password) {
-      errorMessage = "Per favore, inserisci sia username che password.";
-      return;
-    }
-    user.auth(username, password, ack => {
-      console.log("Risposta di autenticazione:", ack);
-      if (ack.err) {
-        errorMessage = "Errore di accesso: " + ack.err;
+
+    try {
+      account = getAccount(wagmiConfig);
+      if (!account.address) {
+        errorMessage = "Nessun account Ethereum connesso";
+        return;
       }
-      console.log(user);
-      currentUser = user.is.alias;
-    });
+
+      const signature = await signMessage({ message: MESSAGE_TO_SIGN });
+      const password = keccak256(signature);
+
+      user.auth(account.address, password, ack => {
+        console.log("Risposta di autenticazione:", ack);
+        if (ack.err) {
+          errorMessage = "Errore di accesso: " + ack.err;
+        } else {
+          console.log("Accesso riuscito");
+          currentUser = user.is.alias;
+        }
+      });
+    } catch (error) {
+      errorMessage = "Errore durante la firma: " + error.message;
+    }
   }
 
   function esci() {
     user.leave();
     currentUser = null;
-    username = "";
-    password = "";
     errorMessage = "";
   }
 </script>
 
-$: {console.log(username, password)}
-
 <main>
-  <h1>Autenticazione con GunDB in Svelte</h1>
+  <h1>Autenticazione con GunDB e Ethereum</h1>
 
   {#if errorMessage}
     <div class="error">{errorMessage}</div>
@@ -81,10 +113,8 @@ $: {console.log(username, password)}
 
   {#if !currentUser}
     <div>
-      <input type="text" bind:value={username} placeholder="Nome utente" />
-      <input type="password" bind:value={password} placeholder="Password" />
-      <button type="button" on:click|preventDefault={registra}>Registra</button>
-      <button type="button" on:click|preventDefault={accedi}>Accedi</button>
+      <button type="button" on:click={registra}>Registra con Ethereum</button>
+      <button type="button" on:click={accedi}>Accedi con Ethereum</button>
     </div>
   {:else}
     <div>
