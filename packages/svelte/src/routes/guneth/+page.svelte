@@ -38,15 +38,19 @@
     errorMessage = "";
 
     try {
-      account = getAccount(wagmiConfig);
+      account = await  getAccount(wagmiConfig);
+      console.log("Signer:",account)
+
       if (!account.address) {
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
 
 
-      const signature = await signMessage({ message: MESSAGE_TO_SIGN });
+      const signature = await signMessage(wagmiConfig,{ address: account.address, message: MESSAGE_TO_SIGN });
       const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
+
+      console.log("recoveredAddress",recoveredAddress)
 
       if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
         console.log("Signature Verificata")
@@ -74,14 +78,23 @@
     errorMessage = "";
 
     try {
-      account = getAccount(wagmiConfig);
+      account = await getAccount(wagmiConfig);
       if (!account.address) {
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
+      const signature = await gun.createSignature(MESSAGE_TO_SIGN)
+      // const signature = await signMessage(wagmiConfig,{ address: account.address, message: MESSAGE_TO_SIGN });
+      const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
 
-      const signature = await signMessage({ message: MESSAGE_TO_SIGN });
-      const password = keccak256(signature);
+      if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
+        console.log("Signature Verificata")
+      } else {
+        console.log("Errore nella Verifica della Signature")
+        return;
+      }
+
+      const password = await gun.generatePassword(signature)
 
       user.auth(account.address, password, ack => {
         console.log("Risposta di autenticazione:", ack);
