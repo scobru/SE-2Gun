@@ -6,6 +6,7 @@ import { coinbaseWallet, injected, walletConnect } from "@byteatatime/wagmi-svel
 import { createClient } from "viem";
 import * as chains from "viem/chains";
 import scaffoldConfig from "$lib/scaffold.config";
+import { createWeb3Modal } from '@web3modal/wagmi';
 
 const { onlyLocalBurnerWallet, walletConnectProjectId, targetNetworks } = scaffoldConfig;
 
@@ -22,7 +23,7 @@ const connectors = [
   coinbaseWallet({
     appName: "scaffold-eth-2",
   }),
-  ...(!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet
+  ...(!targetNetworks.some(network => network.id !== (chains.hardhat as Chain).id) || !onlyLocalBurnerWallet
     ? [createBurnerConnector()]
     : []),
 ];
@@ -32,13 +33,19 @@ export const wagmiConfig = createWagmiConfig({
   connectors,
   client({ chain }) {
     return createClient({
-      chain,
-      transport: http(getAlchemyHttpUrl(chain.id)),
-      ...(chain.id === (hardhat as Chain).id
+      chain: chain as Chain,
+      transport: http(getAlchemyHttpUrl(chain.id)) as Transport,
+      ...(chain.id === hardhat.id
         ? {
-            pollingInterval: scaffoldConfig.pollingInterval,
-          }
+          pollingInterval: scaffoldConfig.pollingInterval,
+        }
         : {}),
     });
   },
+});
+
+export const web3Modal = createWeb3Modal({
+  wagmiConfig,
+  projectId: walletConnectProjectId,
+  chains: enabledChains,
 });
