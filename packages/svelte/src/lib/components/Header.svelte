@@ -28,6 +28,14 @@
       href: "/",
     },
     {
+      label: "GunETH",
+      href: "/guneth",
+    },
+    {
+      label: "Telegraph",
+      href: "/telegraph",
+    },
+    {
       label: "Debug Contracts",
       href: "/debug",
       icon: BugAnt,
@@ -49,7 +57,7 @@
         onclick={() => {
           isDrawerOpen = false;
         }}
-        class="grid grid-flow-col gap-2 rounded-full px-3 py-1.5 text-sm hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral {$isCurrentPage(
+        class="hover:bg-secondary focus:!bg-secondary active:!text-neutral grid grid-flow-col gap-2 rounded-full px-3 py-1.5 text-sm hover:shadow-md {$isCurrentPage(
           href,
         )
           ? 'bg-secondary shadow-md'
@@ -65,7 +73,7 @@
 {/snippet}
 
 <div
-  class="navbar sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between bg-base-100 px-0 shadow-md shadow-secondary sm:px-2 lg:static"
+  class="navbar bg-base-100 shadow-secondary sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between px-0 shadow-md sm:px-2 lg:static"
 >
   <div class="navbar-start w-auto lg:w-1/2">
     <div class="dropdown lg:hidden" bind:this={burgerMenu}>
@@ -79,7 +87,7 @@
         <Icon src={Bars3} class="h-1/2" />
       </button>
       {#if isDrawerOpen}
-        <ul tabIndex={0} class="menu-compact menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
+        <ul tabIndex={0} class="menu-compact menu dropdown-content rounded-box bg-base-100 mt-3 w-52 p-2 shadow">
           {@render menuLinksSnippet()}
         </ul>
       {/if}

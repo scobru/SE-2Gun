@@ -12,7 +12,7 @@
   let errorMessage = "";
   let account = null;
   let userPair = null;
-  let userPublicData = null;
+  let signature = null;
 
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
@@ -20,29 +20,28 @@
     gun = Gun();
     user = gun.user();
 
-    user.recall({ sessionStorage: true }, ack => {
+    user.recall({ sessionStorage: true }, async ack => {
       if (ack.err) {
         console.error("Errore nel recupero della sessione:", ack.err);
       } else if (user.is) {
         currentUser = user.is.alias;
-        loadUserData();
+        await loadUserData();
       }
     });
 
-    user.on("auth", () => {
+    user.on("auth", async () => {
       console.log("Utente autenticato:", user.is.alias);
       currentUser = user.is.alias;
-      loadUserData();
+      await loadUserData();
     });
   });
 
   async function loadUserData() {
+    console.log("Loading user data...");
+    console.log("Current User:", currentUser);
     if (currentUser) {
-      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
-      userPair = await gun.getAndDecryptPair(currentUser, signature);
-      userPublicData = await gun.get(`~@${currentUser}`).then();
+      userPair = await gun.getAndDecryptPair(account.address, signature);
       console.log("User Pair:", userPair);
-      console.log("User Public Data:", userPublicData);
     }
   }
 
@@ -57,7 +56,7 @@
         return;
       }
 
-      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      signature = await gun.createSignature(MESSAGE_TO_SIGN);
       if (!signature) {
         errorMessage = "Errore durante la firma del messaggio";
         return;
@@ -65,11 +64,12 @@
 
       await gun.createAndStoreEncryptedPair(account.address, signature);
 
-      user.create(account.address, signature, ack => {
+      user.create(account.address, signature, async ack => {
         if (ack.err) {
           errorMessage = "Errore durante la registrazione: " + ack.err;
         } else {
           alert("Registrazione completata! Ora puoi accedere.");
+          await loadUserData();
         }
       });
     } catch (error) {
@@ -88,7 +88,7 @@
         return;
       }
 
-      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      signature = await gun.createSignature(MESSAGE_TO_SIGN);
       if (!signature) {
         errorMessage = "Errore durante la firma del messaggio";
         return;
@@ -101,13 +101,14 @@
         return;
       }
 
-      user.auth(pair, ack => {
+      user.auth(pair, async ack => {
         console.log("Risposta di autenticazione:", ack);
         if (ack.err) {
           errorMessage = "Errore di accesso: " + ack.err;
         } else {
           console.log("Accesso riuscito");
           currentUser = user.is.alias;
+          await loadUserData();
         }
       });
     } catch (error) {
@@ -124,7 +125,8 @@
 </script>
 
 <main class="container mx-auto p-4">
-  <h1 class="text-primary mb-8 text-center text-4xl font-bold">Autenticazione con GunDB e Ethereum</h1>
+  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">GunETH</h1>
+  <h1 class="text-base-content mb-8 text-center text-4xl font-bold">🔫🔷</h1>
 
   {#if errorMessage}
     <div class="relative mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
@@ -138,32 +140,15 @@
       <button class="btn btn-secondary" on:click={accedi}>Accedi con Ethereum</button>
     </div>
   {:else}
-    <div class="mb-4 rounded bg-white px-8 pb-8 pt-6 shadow-md">
+    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 shadow-md">
       <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {currentUser}!</h2>
-
-      {#if userPublicData}
-        <div class="mb-4">
-          <h3 class="mb-2 text-xl font-semibold">Dati pubblici dell'utente:</h3>
-          <pre class="overflow-x-auto rounded bg-gray-100 p-4">
-            {JSON.stringify(
-              {
-                alias: userPublicData.alias,
-                pub: userPublicData.pub,
-                epub: userPublicData.epub,
-              },
-              null,
-              2,
-            )}
-          </pre>
-        </div>
-      {/if}
 
       {#if userPair}
         <div class="mb-4">
           <h3 class="mb-2 text-xl font-semibold">Pair dell'utente (privato):</h3>
-          <pre class="overflow-x-auto rounded bg-gray-100 p-4">
-            {JSON.stringify(userPair, null, 2)}
-          </pre>
+          <div class="user-pair-content">
+            <code>{JSON.stringify(userPair, null, 2)}</code>
+          </div>
         </div>
       {/if}
 
@@ -175,5 +160,21 @@
 <style>
   :global(body) {
     @apply bg-gray-100;
+  }
+
+  .user-pair-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.5rem; /* Angoli arrotondati */
+    overflow-x: auto; /* Permette lo scorrimento orizzontale se necessario */
+    white-space: pre-wrap; /* Permette il wrapping del testo */
+    word-wrap: break-word; /* Permette il wrapping delle parole */
+    font-family: monospace; /* Font tipico per il codice */
+  }
+
+  .user-pair-content code {
+    white-space: pre-wrap; /* Mantiene il formato del JSON */
   }
 </style>
