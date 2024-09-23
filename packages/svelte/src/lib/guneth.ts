@@ -1,4 +1,5 @@
 import Gun from 'gun/gun';
+import SEA from 'gun/sea';
 import { ethers } from 'ethers';
 
 // Aggiungi il metodo alla catena di Gun
@@ -42,6 +43,37 @@ Gun.chain.createSignature = async function (message) {
         }
     } catch (error) {
         console.error('Errore durante la creazione della firma:', error);
+        return null;
+    }
+};
+
+Gun.chain.createAndStoreEncryptedPair = async function (address: string, signature: string) {
+    try {
+        const gun = this;
+        const pair = await SEA.pair();
+        const encryptedPair = await SEA.encrypt(JSON.stringify(pair), signature);
+
+        await gun.get('users').get(address).put({ encryptedPair });
+        console.log('Pair crittografato e archiviato per:', address);
+    } catch (error) {
+        console.error('Errore durante la creazione e l\'archiviazione del pair crittografato:', error);
+    }
+};
+
+Gun.chain.getAndDecryptPair = async function (address: string, signature: string) {
+    try {
+        const gun = this;
+        const encryptedData = await gun.get('users').get(address).get('encryptedPair').then();
+        if (!encryptedData) {
+            throw new Error('Nessun dato crittografato trovato per questo indirizzo');
+        }
+
+        const decryptedPair = await SEA.decrypt(encryptedData, signature);
+
+        console.log(decryptedPair)
+        return decryptedPair;
+    } catch (error) {
+        console.error('Errore durante il recupero e la decrittazione del pair:', error);
         return null;
     }
 };

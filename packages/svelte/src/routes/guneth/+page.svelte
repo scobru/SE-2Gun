@@ -1,11 +1,10 @@
-<script>
+<script lang="ts">
   import Gun from "gun";
   import "gun/sea";
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
-  import { getAccount, signMessage } from "@wagmi/core";
-  import { keccak256 } from "ethers";
-  import "$lib/guneth"
+  import { getAccount } from "@wagmi/core";
+  import "$lib/guneth"; // Assicurati che il percorso sia corretto
 
   let gun;
   let user;
@@ -20,9 +19,9 @@
     user = gun.user();
 
     user.recall({ sessionStorage: true }, ack => {
-      if(ack.err) {
+      if (ack.err) {
         console.error("Errore nel recupero della sessione:", ack.err);
-      } else if(user.is) {
+      } else if (user.is) {
         currentUser = user.is.alias;
       }
     });
@@ -38,30 +37,21 @@
     errorMessage = "";
 
     try {
-      account = await  getAccount(wagmiConfig);
-      console.log("Signer:",account)
-
+      account = getAccount(wagmiConfig);
       if (!account.address) {
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
 
-
-      const signature = await gun.createSignature(MESSAGE_TO_SIGN)
-      const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
-
-      console.log("recoveredAddress",recoveredAddress)
-
-      if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
-        console.log("Signature Verificata")
-      } else {
-        console.log("Errore nella Verifica della Signature")
+      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      if (!signature) {
+        errorMessage = "Errore durante la firma del messaggio";
         return;
       }
 
-      const password = await gun.generatePassword(signature)
+      await gun.createAndStoreEncryptedPair(account.address, signature);
 
-      user.create(account.address, password, ack => {
+      user.create(account.address, signature, ack => {
         if (ack.err) {
           errorMessage = "Errore durante la registrazione: " + ack.err;
         } else {
@@ -69,7 +59,7 @@
         }
       });
     } catch (error) {
-      errorMessage = "Errore durante la firma: " + error.message;
+      errorMessage = "Errore durante la registrazione: " + error.message;
     }
   }
 
@@ -78,25 +68,25 @@
     errorMessage = "";
 
     try {
-      account = await getAccount(wagmiConfig);
+      account = getAccount(wagmiConfig);
       if (!account.address) {
         errorMessage = "Nessun account Ethereum connesso";
         return;
       }
 
-      const signature = await gun.createSignature(MESSAGE_TO_SIGN)
-      const recoveredAddress = await gun.verifySignature(MESSAGE_TO_SIGN,signature)
-
-      if (recoveredAddress.toLowerCase() == account.address.toLowerCase()) {
-        console.log("Signature Verificata")
-      } else {
-        console.log("Errore nella Verifica della Signature")
+      const signature = await gun.createSignature(MESSAGE_TO_SIGN);
+      if (!signature) {
+        errorMessage = "Errore durante la firma del messaggio";
         return;
       }
 
-      const password = await gun.generatePassword(signature)
+      const pair = await gun.getAndDecryptPair(account.address, signature);
+      if (!pair) {
+        errorMessage = "Errore nel recupero del pair dell'utente";
+        return;
+      }
 
-      user.auth(account.address, password, ack => {
+      user.auth(pair, ack => {
         console.log("Risposta di autenticazione:", ack);
         if (ack.err) {
           errorMessage = "Errore di accesso: " + ack.err;
@@ -106,7 +96,7 @@
         }
       });
     } catch (error) {
-      errorMessage = "Errore durante la firma: " + error.message;
+      errorMessage = "Errore durante l'accesso: " + error.message;
     }
   }
 
