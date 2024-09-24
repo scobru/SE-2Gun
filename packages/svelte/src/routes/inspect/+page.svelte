@@ -1,16 +1,22 @@
 <script lang="ts">
-  import Gun from "gun";
+  import Gun from "gun/gun";
   import "gun/sea";
-  import { onMount } from "svelte";
-  import { writable } from "svelte/store";
 
-  let gun;
+  import { onMount } from "svelte";
+  import { get, writable } from "svelte/store";
+  import { currentUser, gun } from "$lib/stores";
+
+  let gunInstance = null;
   let nodeData = writable({});
   let nodePath = writable("");
   let errorMessage = "";
 
   onMount(() => {
-    gun = Gun();
+    if (get(gun) === null) {
+      gunInstance = gun.set(Gun());
+    } else {
+      gunInstance = get(gun);
+    }
   });
 
   async function loadNodeData() {
@@ -21,8 +27,9 @@
         errorMessage = "Il percorso del nodo non può essere vuoto";
         return;
       }
+      console.log(gun);
 
-      gun.get(path).once(data => {
+      gunInstance.get(path).once((data: {}) => {
         if (data) {
           nodeData.set(data);
         } else {

@@ -8,7 +8,7 @@
   import { goto } from "$app/navigation";
   import { get } from "svelte/store";
 
-  let gunInstance = get(gun) || {};
+  let gunInstance = get(gun) || new Gun();
   let user;
   const SEA = Gun.SEA;
   let hash = "";
@@ -27,7 +27,6 @@
   let userPair;
 
   onMount(async () => {
-    gunInstance = Gun();
     user = gunInstance.user();
     hash = window.location.hash.slice(1);
 
@@ -52,6 +51,8 @@
   });
 
   async function loadPost(postHash) {
+    gunInstance = get(gun);
+    user = gunInstance.user();
     const publicPost = await gunInstance.get("gun-eth.telegraph").get("#").get(postHash).once();
     if (publicPost) {
       const parsedPost = JSON.parse(publicPost);
@@ -84,12 +85,19 @@
   }
 
   async function loadUserPosts() {
+    gunInstance = get(gun);
+    user = gunInstance.user();
     console.log("Inizio caricamento post utente");
-    return new Promise((resolve) => {
-      user.get("gun-eth.notes").once(async (data) => {
+    return new Promise(resolve => {
+      user.get("gun-eth.notes").once(async data => {
         console.log("Dati ricevuti:", data);
         if (data) {
-          const keys = Object.keys(data).filter(key => key !== '_');
+          const keys = Object.keys(data).filter(key => key !== "_");
+          if (keys.length === 0) {
+            console.log("Nessun post trovato");
+            resolve();
+            return;
+          }
           for (let key of keys) {
             const encryptedData = data[key];
             console.log("Dato criptato ricevuto:", key, encryptedData);
@@ -98,7 +106,7 @@
                 const decryptedData = await SEA.decrypt(encryptedData, userPair);
                 console.log("Dato decriptato:", key, decryptedData);
                 if (decryptedData) {
-                  const parsedData = JSON.parse(decryptedData);
+                  const parsedData = decryptedData;
                   updatePosts(key, parsedData, false);
                 }
               } catch (error) {
@@ -106,6 +114,8 @@
               }
             }
           }
+        } else {
+          console.log("Nessun post trovato");
         }
         console.log("Caricamento post completato");
         resolve();
@@ -157,6 +167,7 @@
         const encryptedData = await SEA.encrypt(postString, userPair);
         console.log("Dati criptati", encryptedData);
         await user.get("gun-eth.notes").get(hash).put(encryptedData);
+        // copy post data to public gun-eth.telegraph
       }
 
       console.log("Post pubblicato con successo");
