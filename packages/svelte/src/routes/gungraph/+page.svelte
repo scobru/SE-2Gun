@@ -162,6 +162,31 @@
         const encryptedData = await SEA.encrypt(postString, userPair);
         console.log("Dati criptati", encryptedData);
         await user.get("gungra.ph").get(hash).put(encryptedData);
+
+        const result = user.get("gungra.ph").get(hash);
+        console.log("Result", result);
+        gunInstance
+          .get("gungra.ph")
+          .get("posts")
+          .once(posts => {
+            // Assumiamo che ci sia un ID univoco per ogni post, ad esempio 'ZQGg1vh7AT8LJ19ffyDzMbt3ETjlptftJommtIyxy9Q.qt_NqVBzIjkzEkotNw89_WaIYaxjRrIwQ62PyGq0UhU'
+            let postId = result["_"].back.link;
+
+            if (posts && posts[postId]) {
+              // 2. Crea un link al post effettivo
+              gun
+                .get("gungra.ph")
+                .get("posts")
+                .get(userPair.pub)
+                .put({
+                  link: gunInstance.get(result["_"].back.link),
+                });
+
+              console.log("Link creato con successo");
+            } else {
+              console.log("Post non trovato");
+            }
+          });
       }
 
       // Incrementa il contatore dei post
