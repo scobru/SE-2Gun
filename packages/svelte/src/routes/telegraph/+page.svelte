@@ -5,118 +5,197 @@
   import "gun/lib/promise";
   import DOMPurify from "dompurify";
   import { currentUser, gun } from "$lib/stores";
-  import { goto } from "$app/navigation"; // Importa la funzione di navigazione
+  import { goto } from "$app/navigation";
   import { get } from "svelte/store";
 
-  //const peers = ["https://gun-us.herokuapp.com/gun"];
-  let gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
-  let user = gunInstance.user ? gunInstance.user() : {}; // Controllo se gunInstance è valido
+  let gunInstance = get(gun) || {};
+  let user;
   const SEA = Gun.SEA;
-  let myKeys = {};
-  let urlPassword = "";
-  let currentTitle = "";
   let hash = "";
   let isLoading = true;
+  let isEditing = false;
+  let isPublic = true;
 
   let title = "";
   let author = "";
   let content = "";
   let verification = "";
   let lastUpdated = "";
-  let isEditing = false;
+  let errorMessage = "";
+
+  let posts = [];
+  let userPair;
 
   onMount(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tParam = urlParams.get("t");
-    const pParam = urlParams.get("p");
-
-    console.log("tParam:", tParam);
-    console.log("pParam:", pParam);
     gunInstance = Gun();
-    user = gunInstance.user ? gunInstance.user() : {}; // Controllo se gunInstance è valido
+    user = gunInstance.user();
+    hash = window.location.hash.slice(1);
 
-    if (tParam && pParam) {
-      console.log("Entrato nel blocco tParam e pParam");
-      urlPassword = pParam;
-      hash = window.location.hash.slice(1);
-      console.log("hash:", hash);
-      let authorPubKey = await gunInstance.get("gun-eth.telegraph").get(hash).promOnce();
-      console.log("authorPubKey:", authorPubKey);
-      authorPubKey = authorPubKey.data;
-      let localstorageKeyPair = localStorage.getItem(authorPubKey);
-      if (localstorageKeyPair) {
-        myKeys = JSON.parse(localstorageKeyPair);
-        user.auth(myKeys);
-        if (user.is) {
-          await renderArticle(authorPubKey, hash, "update");
-        }
-      } else {
-        await renderArticle(authorPubKey, hash, "read");
-      }
+    userPair = JSON.parse(sessionStorage.getItem("pair"));
+    console.log("UserPair caricato:", userPair);
+
+    if (!userPair || !get(currentUser)) {
+      console.log("Utente non autenticato, reindirizzamento a /auth");
+      goto("/auth");
+      return;
+    }
+
+    console.log("Utente autenticato, caricamento post...");
+    await loadUserPosts();
+
+    if (hash) {
+      await loadPost(hash);
     } else {
-      // Controlla se l'utente è autenticato
-      if (!get(currentUser)) {
-        goto("/auth"); // Reindirizza alla pagina di autenticazione se non autenticato
-        return;
-      }
-
-      myKeys = await SEA.pair();
-      urlPassword = SEA.random(11).toString("hex");
-      user.auth(myKeys);
-      hash = await SEA.work(myKeys.pub, null, null, { name: "SHA-256" });
-      let encPass = await SEA.encrypt(urlPassword, myKeys);
-      await user.get("articles").get(hash).get("pass").promPut(encPass);
-      await renderArticle(myKeys.pub, hash, "create");
+      isEditing = false;
     }
     isLoading = false;
   });
 
-  async function renderArticle(authorPub, articleHash, audienceType) {
-    if (audienceType === "create") {
-      isEditing = true;
-    } else if (audienceType === "read" || audienceType === "update") {
-      await gunInstance
-        .get(`~${authorPub}`)
-        .get("articles")
-        .get(articleHash)
-        .map()
-        .once(async (node, nodeID) => {
-          if (nodeID !== "pass") {
-            let decNode = await SEA.decrypt(node, urlPassword);
-            if (nodeID === "title") {
-              title = DOMPurify.sanitize(decNode);
-              currentTitle = title;
+  async function loadPost(postHash) {
+    const publicPost = await gunInstance.get("gun-eth.telegraph").get("#").get(postHash).once();
+    if (publicPost) {
+      const parsedPost = JSON.parse(publicPost);
+      title = DOMPurify.sanitize(parsedPost.title);
+      author = DOMPurify.sanitize(parsedPost.author);
+      content = DOMPurify.sanitize(parsedPost.content);
+      verification = DOMPurify.sanitize(parsedPost.verification);
+      lastUpdated = new Date(parsedPost.lastUpdated).toLocaleString();
+      isPublic = true;
+    } else {
+      const privatePost = await user.get("gun-eth.notes").get(postHash).once();
+      if (privatePost) {
+        try {
+          const decryptedData = await SEA.decrypt(privatePost, userPair);
+          const parsedPost = JSON.parse(decryptedData);
+          title = DOMPurify.sanitize(parsedPost.title);
+          author = DOMPurify.sanitize(parsedPost.author);
+          content = DOMPurify.sanitize(parsedPost.content);
+          lastUpdated = new Date(parsedPost.lastUpdated).toLocaleString();
+          isPublic = false;
+        } catch (error) {
+          console.error("Errore durante la decrittazione:", error);
+          errorMessage = "Impossibile decrittare il post privato.";
+        }
+      } else {
+        console.log("Post non trovato");
+        errorMessage = "Post non trovato.";
+      }
+    }
+  }
+
+  async function loadUserPosts() {
+    console.log("Inizio caricamento post utente");
+    return new Promise((resolve) => {
+      user.get("gun-eth.notes").once(async (data) => {
+        console.log("Dati ricevuti:", data);
+        if (data) {
+          const keys = Object.keys(data).filter(key => key !== '_');
+          for (let key of keys) {
+            const encryptedData = data[key];
+            console.log("Dato criptato ricevuto:", key, encryptedData);
+            if (encryptedData) {
+              try {
+                const decryptedData = await SEA.decrypt(encryptedData, userPair);
+                console.log("Dato decriptato:", key, decryptedData);
+                if (decryptedData) {
+                  const parsedData = JSON.parse(decryptedData);
+                  updatePosts(key, parsedData, false);
+                }
+              } catch (error) {
+                console.error("Errore durante la decrittazione:", error, "per la chiave:", key);
+              }
             }
-            if (nodeID === "author") author = DOMPurify.sanitize(decNode);
-            if (nodeID === "content") content = DOMPurify.sanitize(decNode);
-            if (nodeID === "verification") verification = DOMPurify.sanitize(decNode);
-            if (nodeID === "lastUpdated") lastUpdated = new Date(decNode).toLocaleString();
           }
-        });
+        }
+        console.log("Caricamento post completato");
+        resolve();
+      });
+    });
+  }
+
+  function updatePosts(key, postData, isPublic) {
+    console.log("Aggiornamento post:", key, postData, isPublic);
+    const index = posts.findIndex(p => p.id === key);
+    if (index > -1) {
+      posts[index] = { id: key, ...postData, isPublic };
+    } else {
+      posts = [...posts, { id: key, ...postData, isPublic }];
+    }
+    posts = posts; // Trigger Svelte reactivity
+    console.log("Posts aggiornati:", posts);
+  }
+
+  async function publishPost() {
+    console.log("Inizio pubblicazione post", { isPublic, title, content });
+
+    if (!title || !content) {
+      errorMessage = "Titolo e contenuto sono obbligatori.";
+      console.error("Errore: Titolo o contenuto mancante");
+      return;
+    }
+
+    try {
+      const postData = {
+        title,
+        author,
+        content,
+        verification: isPublic ? verification : "",
+        lastUpdated: new Date().toISOString(),
+      };
+
+      console.log("Dati del post preparati", postData);
+
+      const postString = JSON.stringify(postData);
+      hash = await SEA.work(postString, null, null, { name: "SHA-256" });
+      console.log("Hash generato", hash);
+
+      if (isPublic) {
+        console.log("Pubblicazione post pubblico");
+        await gunInstance.get("gun-eth.telegraph").get("#").get(hash).put(postString);
+      } else {
+        console.log("Pubblicazione post privato");
+        const encryptedData = await SEA.encrypt(postString, userPair);
+        console.log("Dati criptati", encryptedData);
+        await user.get("gun-eth.notes").get(hash).put(encryptedData);
+      }
+
+      console.log("Post pubblicato con successo");
+
+      let url = `#${hash}`;
+      window.history.pushState({}, "", url);
+      isEditing = false;
+      await loadPost(hash);
+      await loadUserPosts(); // Ricarica tutti i post dopo la pubblicazione
+      posts = [...posts]; // Trigger reactivity
+    } catch (error) {
+      console.error("Errore durante la pubblicazione del post:", error);
+      errorMessage = "Si è verificato un errore durante la pubblicazione del post.";
     }
   }
 
-  async function save() {
-    if (isEditing) {
-      await user
-        .get("articles")
-        .get(hash)
-        .put({
-          title: await SEA.encrypt(title, urlPassword),
-          author: await SEA.encrypt(author, urlPassword),
-          content: await SEA.encrypt(content, urlPassword),
-          verification: await SEA.encrypt(verification, urlPassword),
-          lastUpdated: await SEA.encrypt(new Date().toISOString(), urlPassword),
-        });
-    }
+  async function deletePost(postId) {
+    await user.get("gun-eth.notes").get(postId).put(null);
+    posts = posts.filter(p => p.id !== postId);
   }
 
-  async function publish() {
-    localStorage.setItem(myKeys.pub, JSON.stringify(myKeys));
-    await gunInstance.get(`gun-eth.telegraph`).get(hash).promPut(myKeys.pub);
-    let url = `?t=${encodeURIComponent(currentTitle.replace(/\s+/g, "-").toLowerCase())}&p=${encodeURIComponent(urlPassword)}#${hash}`;
-    window.history.pushState({}, "", url);
-    location.reload();
+  function editPost(post) {
+    title = post.title;
+    author = post.author;
+    content = post.content;
+    isPublic = post.isPublic;
+    verification = post.verification || "";
+    hash = post.id;
+    isEditing = true;
+  }
+
+  function newPost() {
+    title = "";
+    author = "";
+    content = "";
+    verification = "";
+    hash = "";
+    isEditing = true;
+    isPublic = true;
   }
 
   function copyLink() {
@@ -124,115 +203,89 @@
   }
 </script>
 
-<main>
+<main class="container mx-auto p-4">
+  <h1 class="mb-4 text-center text-4xl font-bold">Telegraph & Notes</h1>
+  <div class="mb-4 text-center text-6xl">✒️📝</div>
+  <h3 class="mb-2 text-center text-xl">node: gun-eth.telegraph</h3>
+  <h3 class="mb-8 text-center text-xl">version: 1.0.0</h3>
+
+  {#if errorMessage}
+    <div class="alert alert-error mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        /></svg
+      >
+      <span>{errorMessage}</span>
+    </div>
+  {/if}
+
   {#if isLoading}
-    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Telegraph</h1>
-
-    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">✒️</h1>
-    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">node: gun-eth.telegraph</h3>
-    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">version: 1.0.0</h3>
-
-    <p>Caricamento in corso...</p>
+    <div class="flex items-center justify-center">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
   {:else if isEditing}
-    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Telegraph</h1>
-
-    <h1 class="text-base-content mb-8 text-center text-6xl font-bold">✒️</h1>
-    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">node: gun-eth.telegraph</h3>
-    <h3 class="text-base-content mb-8 text-center text-2xl font-semibold">version: 1.0.0</h3>
-
-    <input
-      class="input-title my-5"
-      bind:value={title}
-      placeholder="Titolo"
-      on:input={() => {
-        currentTitle = title;
-        save();
-      }}
-      disabled={!isEditing}
-    />
-    <input class="input-author" bind:value={author} placeholder="Il tuo nome" on:input={save} disabled={!isEditing} />
-    <textarea
-      class="input-content"
-      bind:value={content}
-      placeholder="La tua storia..."
-      on:input={save}
-      disabled={!isEditing}
-    ></textarea>
-    <input
-      class="input-verification"
-      bind:value={verification}
-      placeholder="Verifica la paternità con un link a un post sui social media"
-      on:input={save}
-    />
-    <button on:click={publish}>🔗 Crea Link</button>
-  {:else}
-    <article class="post">
-      <h2 class="text-2xl font-bold">{title}</h2>
-      <p><span class="font-semibold">{author}</span></p>
-      <div class="content font-medium">{content}</div>
-      {#if verification}
-        <p><span class="font-base">Verifica:</span> <a href={verification}>{verification}</a></p>
+    <div class="form-control mx-auto w-full max-w-lg">
+      <input type="text" bind:value={title} placeholder="Titolo" class="input input-bordered mb-4 w-full" />
+      <input type="text" bind:value={author} placeholder="Il tuo nome" class="input input-bordered mb-4 w-full" />
+      <textarea
+        bind:value={content}
+        placeholder="Il tuo contenuto..."
+        class="textarea textarea-bordered mb-4 w-full"
+        rows="6"
+      ></textarea>
+      {#if isPublic}
+        <input
+          type="text"
+          bind:value={verification}
+          placeholder="Verifica la paternità con un link a un post sui social media"
+          class="input input-bordered mb-4 w-full"
+        />
       {/if}
-      <p><span class="font-base">Ultimo aggiornamento:</span> {lastUpdated}</p>
+      <label class="label cursor-pointer justify-start">
+        <input type="checkbox" bind:checked={isPublic} class="checkbox mr-2" />
+        <span class="label-text">Post pubblico</span>
+      </label>
+      <button on:click={publishPost} class="btn btn-primary mt-4">🔗 Pubblica</button>
+    </div>
+  {:else if hash}
+    <article class="prose lg:prose-xl mx-auto">
+      <h2>{title}</h2>
+      <p class="font-semibold">{author}</p>
+      <div>{content}</div>
+      {#if isPublic && verification}
+        <p>Verifica: <a href={verification} class="link">{verification}</a></p>
+      {/if}
+      <p>Pubblicato il: {lastUpdated}</p>
+      <p>Tipo: {isPublic ? "Pubblico" : "Privato"}</p>
     </article>
-    <button class="my-5" on:click={copyLink}>🔗 Copia Link</button>
+    <button on:click={copyLink} class="btn btn-secondary mt-4">🔗 Copia Link</button>
+  {:else}
+    <button on:click={newPost} class="btn btn-primary mb-4">Nuovo Post</button>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {#each posts as post (post.id)}
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">{post.title}</h2>
+            <p>{post.content.substring(0, 100)}...</p>
+            <p class="text-sm opacity-70">Creato il: {new Date(post.lastUpdated).toLocaleString()}</p>
+            <p class="text-sm opacity-70">Tipo: {post.isPublic ? "Pubblico" : "Privato"}</p>
+            <div class="card-actions justify-end">
+              <button on:click={() => editPost(post)} class="btn btn-sm btn-primary">Modifica</button>
+              {#if !post.isPublic}
+                <button on:click={() => deletePost(post.id)} class="btn btn-sm btn-error">Elimina</button>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
   {/if}
 </main>
 
 <style>
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  input,
-  textarea {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  textarea {
-    height: 200px;
-  }
-  .saved {
-    background-color: #4caf50;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
-  .title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  .input-title,
-  .input-author,
-  .input-content,
-  .input-verification {
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 20px;
-    background-color: #f0f0f0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  .post {
-    padding: 20px;
-    border-radius: 5px;
-  }
-  .post h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
-    width: auto;
-  }
-  .post p {
-    margin-bottom: 10px;
-  }
-  .post .content {
-    margin-bottom: 20px;
-    white-space: pre-wrap; /* Mantiene i ritorni a capo */
-  }
+  /* Puoi rimuovere gli stili personalizzati se non sono più necessari */
 </style>

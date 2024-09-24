@@ -71,8 +71,8 @@
       const encryptedData = await Gun.SEA.encrypt(JSON.stringify(noteData), userPair);
       const noteId = Gun.SEA.random(16).toString("hex");
 
-      await gunInstance.get("gun-eth.notes").get(noteId).put(encryptedData);
-      await user.get("gun-eth.notes").get(noteId).put(encryptedData);
+      // Usa lo spazio utente corretto
+      await user.get('gun-eth.notes').get(noteId).put(encryptedData);
 
       newNoteTitle = "";
       newNoteContent = "";
