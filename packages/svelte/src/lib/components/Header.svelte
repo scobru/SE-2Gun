@@ -36,6 +36,10 @@
       href: "/inspect",
     },
     {
+      label: "Block Explorer",
+      href: "/blockexplorer",
+    },
+    {
       label: "Gungra.ph",
       href: "/gungraph",
     },
@@ -96,7 +100,7 @@
     </div>
     <a href="/" class="ml-4 mr-6 hidden shrink-0 items-center gap-2 lg:flex">
       <div class="flex flex-col">
-        <span class="text-3xl font-bold leading-tight">🔫Gun-ETH🔷</span>
+        <span class="text-3xl font-bold leading-tight">🏗️SE-2Gun🔫</span>
         <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
       </div>
     </a>

@@ -153,8 +153,10 @@
 
   {#if $currentUser === null}
     <div class="flex justify-center space-x-4">
-      <button class="btn btn-primary" on:click={registra}>Registra con Ethereum</button>
-      <button class="btn btn-secondary" on:click={accedi}>Accedi con Ethereum</button>
+      <button class="btn btn-primary" on:click={registra}><i class="fas fa-user-plus"></i> Registra con Ethereum</button
+      >
+      <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Accedi con Ethereum</button
+      >
     </div>
   {:else}
     <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
@@ -172,30 +174,11 @@
         </div>
       {/if}
 
-      <button class="btn btn-warning" on:click={esci}>Esci</button>
-      <button class="btn btn-warning" on:click={accedi}>View Pair</button>
+      <button class="btn btn-warning" on:click={esci}><i class="fas fa-sign-out-alt"></i> Esci</button>
+      <button class="btn btn-warning" on:click={accedi}><i class="fas fa-eye"></i> View Pair</button>
     </div>
   {/if}
 </main>
 
 <style>
-  :global(body) {
-    @apply bg-gray-100;
-  }
-
-  .user-pair-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    border-radius: 0.5rem; /* Angoli arrotondati */
-    overflow-x: auto; /* Permette lo scorrimento orizzontale se necessario */
-    white-space: pre-wrap; /* Permette il wrapping del testo */
-    word-wrap: break-word; /* Permette il wrapping delle parole */
-    font-family: monospace; /* Font tipico per il codice */
-  }
-
-  .user-pair-content code {
-    white-space: pre-wrap; /* Mantiene il formato del JSON */
-  }
 </style>

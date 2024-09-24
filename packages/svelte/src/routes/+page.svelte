@@ -10,7 +10,7 @@
   <div class="px-5">
     <h1 class="text-center">
       <span class="mb-2 block text-2xl">Welcome to</span>
-      <span class="block text-8xl font-bold">Gun-ETH</span>
+      <span class="block text-8xl font-bold">Scaffold-ETH2Gun</span>
     </h1>
     <div class="flex items-center justify-center space-x-2">
       <p class="my-2 font-medium">Connected Address:</p>
@@ -31,11 +31,7 @@
         <h2 class="text-5xl font-bold">➕</h2>
       </div>
       <div class=" flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">
-        <img
-          src="https://imgs.search.brave.com/NGX8HX5KFugNT0f1h-bEFpaI-b5n0oFXxlZiRyGjPyc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdHls/ZXMucmVkZGl0bWVk/aWEuY29tL3Q1XzJ6/ZjltL3N0eWxlcy9j/b21tdW5pdHlJY29u/X2hlYmNrYmQ2NHc4/MTEucG5n"
-          alt=""
-          class="h-auto w-auto"
-        />
+        <img src="https://scaffoldeth.io/logo.svg" alt="" class="h-auto w-auto" />
       </div>
     </div>
   </div>
@@ -43,7 +39,7 @@
 
 <div class="card bg-base-100 mx-auto my-8 max-w-4xl p-6">
   <div class="card-body">
-    <h2 class="card-title text-primary text-5xl font-extrabold">What is GunETH?</h2>
+    <h2 class="card-title text-primary text-5xl font-extrabold">What is SE-2Gun?</h2>
     <p class="text-base-content mt-4 text-lg font-semibold">
       GunETH is a cutting-edge decentralized application (dApp) built with Svelte and GunDB, seamlessly integrated with
       Ethereum for robust authentication and data encryption. This project aims to provide a fully decentralized

@@ -234,21 +234,21 @@
 </script>
 
 <main class="container mx-auto p-4">
-  <h1 class="mb-4 text-center text-6xl font-bold">Gungra.ph</h1>
-  <div class="mb-4 text-center text-3xl">✒️📡🌏</div>
+  <h1 class="mb-4 text-center text-4xl font-bold">Gungra.ph</h1>
+  <div class="mb-4 text-center text-6xl">✒️📝</div>
   <h3 class="mb-2 text-center text-xl">node: gungra.ph</h3>
   <h3 class="mb-8 text-center text-xl">version: 1.0.0</h3>
 
   {#if errorMessage}
     <div class="alert alert-error mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"
-        ><path
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+        <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
           d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-        /></svg
-      >
+        />
+      </svg>
       <span>{errorMessage}</span>
     </div>
   {/if}
@@ -279,7 +279,7 @@
         <input type="checkbox" bind:checked={isPublic} class="checkbox mr-2" />
         <span class="label-text">Post pubblico</span>
       </label>
-      <button on:click={publishPost} class="btn btn-primary mt-4">🔗 Pubblica</button>
+      <button on:click={publishPost} class="btn btn-primary mt-4"><i class="fas fa-link"></i> Pubblica</button>
     </div>
   {:else if hash}
     <article class="prose lg:prose-xl mx-auto">
@@ -292,10 +292,10 @@
       <p>Pubblicato il: {lastUpdated}</p>
       <p>Tipo: {isPublic ? "Pubblico" : "Privato"}</p>
     </article>
-    <button on:click={copyLink} class="btn btn-secondary mt-4">🔗 Copia Link</button>
-    <button on:click={goBack} class="btn btn-secondary mt-4">🔙 Torna ai post</button>
+    <button on:click={copyLink} class="btn btn-secondary mt-4"><i class="fas fa-copy"></i> Copia Link</button>
+    <button on:click={goBack} class="btn btn-secondary mt-4"><i class="fas fa-arrow-left"></i> Torna ai post</button>
   {:else}
-    <button on:click={newPost} class="btn btn-primary mb-4">Nuovo Post</button>
+    <button on:click={newPost} class="btn btn-primary mb-4"><i class="fas fa-plus"></i> Nuovo Post</button>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {#each posts as post (post.id)}
         <div class="card bg-base-100 shadow-xl">
@@ -305,9 +305,13 @@
             <p class="text-sm opacity-70">Creato il: {new Date(post.lastUpdated).toLocaleString()}</p>
             <p class="text-sm opacity-70">Tipo: {post.isPublic ? "Pubblico" : "Privato"}</p>
             <div class="card-actions justify-end">
-              <button on:click={() => editPost(post)} class="btn btn-sm btn-primary">Modifica</button>
+              <button on:click={() => editPost(post)} class="btn btn-sm btn-primary"
+                ><i class="fas fa-edit"></i> Modifica</button
+              >
               {#if !post.isPublic}
-                <button on:click={() => deletePost(post.id)} class="btn btn-sm btn-error">Elimina</button>
+                <button on:click={() => deletePost(post.id)} class="btn btn-sm btn-error"
+                  ><i class="fas fa-trash"></i> Elimina</button
+                >
               {/if}
             </div>
           </div>
