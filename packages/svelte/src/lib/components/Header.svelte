@@ -36,12 +36,8 @@
       href: "/inspect",
     },
     {
-      label: "Telegraph",
-      href: "/telegraph",
-    },
-    {
-      label: "Notes",
-      href: "/notes",
+      label: "Gungra.ph",
+      href: "/gungraph",
     },
     {
       label: "Debug Contracts",

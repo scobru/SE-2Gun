@@ -3,12 +3,13 @@
   import Gun from "gun";
   import "gun/sea";
   import "gun/lib/promise";
+  import "gun/lib/unset"; // Importa la libreria unset
   import DOMPurify from "dompurify";
   import { currentUser, gun } from "$lib/stores";
   import { goto } from "$app/navigation";
   import { get } from "svelte/store";
 
-  let gunInstance = get(gun) || new Gun();
+  let gunInstance = get(gun) || {};
   let user;
   const SEA = Gun.SEA;
   let hash = "";
@@ -27,6 +28,7 @@
   let userPair;
 
   onMount(async () => {
+    gunInstance = get(gun);
     user = gunInstance.user();
     hash = window.location.hash.slice(1);
 
@@ -53,7 +55,7 @@
   async function loadPost(postHash) {
     gunInstance = get(gun);
     user = gunInstance.user();
-    const publicPost = await gunInstance.get("gun-eth.telegraph").get("#").get(postHash).once();
+    const publicPost = await gunInstance.get("gungra.ph").get(postHash).once();
     if (publicPost) {
       const parsedPost = JSON.parse(publicPost);
       title = DOMPurify.sanitize(parsedPost.title);
@@ -63,7 +65,7 @@
       lastUpdated = new Date(parsedPost.lastUpdated).toLocaleString();
       isPublic = true;
     } else {
-      const privatePost = await user.get("gun-eth.notes").get(postHash).once();
+      const privatePost = await user.get("gungra.ph").get(postHash).once();
       if (privatePost) {
         try {
           const decryptedData = await SEA.decrypt(privatePost, userPair);
@@ -89,7 +91,7 @@
     user = gunInstance.user();
     console.log("Inizio caricamento post utente");
     return new Promise(resolve => {
-      user.get("gun-eth.notes").once(async data => {
+      user.get("gungra.ph").once(async data => {
         console.log("Dati ricevuti:", data);
         if (data) {
           const keys = Object.keys(data).filter(key => key !== "_");
@@ -137,13 +139,6 @@
 
   async function publishPost() {
     console.log("Inizio pubblicazione post", { isPublic, title, content });
-
-    if (!title || !content) {
-      errorMessage = "Titolo e contenuto sono obbligatori.";
-      console.error("Errore: Titolo o contenuto mancante");
-      return;
-    }
-
     try {
       const postData = {
         title,
@@ -161,15 +156,16 @@
 
       if (isPublic) {
         console.log("Pubblicazione post pubblico");
-        await gunInstance.get("gun-eth.telegraph").get("#").get(hash).put(postString);
+        await gunInstance.get("gungra.ph").get(hash).put(postString);
       } else {
         console.log("Pubblicazione post privato");
         const encryptedData = await SEA.encrypt(postString, userPair);
         console.log("Dati criptati", encryptedData);
-        await user.get("gun-eth.notes").get(hash).put(encryptedData);
-        // copy post data to public gun-eth.telegraph
+        await user.get("gungra.ph").get(hash).put(encryptedData);
       }
 
+      // Incrementa il contatore dei post
+      await incrementTotalPosts();
       console.log("Post pubblicato con successo");
 
       let url = `#${hash}`;
@@ -184,8 +180,19 @@
     }
   }
 
+  async function incrementTotalPosts() {
+    const totalPostsRef = gunInstance.get("gungra.ph").get("total_post");
+    totalPostsRef.once(data => {
+      const currentTotal = data || 0;
+      totalPostsRef.put(currentTotal + 1);
+    });
+  }
+
   async function deletePost(postId) {
-    await user.get("gun-eth.notes").get(postId).put(null);
+    let postRef = user.get("gungra.ph").get(postId);
+    console.log("Post da eliminare:", postRef);
+    await postRef.put(null); // Imposta il contenuto del nodo a null
+    await user.get("gungra.ph").unset(postRef); // Rimuovi il nodo dal set
     posts = posts.filter(p => p.id !== postId);
   }
 
@@ -212,12 +219,24 @@
   function copyLink() {
     navigator.clipboard.writeText(location.href);
   }
+
+  function goBack() {
+    title = "";
+    author = "";
+    content = "";
+    verification = "";
+    hash = "";
+    isEditing = false;
+    isLoading = false;
+    errorMessage = "";
+    loadUserPosts();
+  }
 </script>
 
 <main class="container mx-auto p-4">
-  <h1 class="mb-4 text-center text-4xl font-bold">Telegraph & Notes</h1>
-  <div class="mb-4 text-center text-6xl">✒️📝</div>
-  <h3 class="mb-2 text-center text-xl">node: gun-eth.telegraph</h3>
+  <h1 class="mb-4 text-center text-6xl font-bold">Gungra.ph</h1>
+  <div class="mb-4 text-center text-3xl">✒️📡🌏</div>
+  <h3 class="mb-2 text-center text-xl">node: gungra.ph</h3>
   <h3 class="mb-8 text-center text-xl">version: 1.0.0</h3>
 
   {#if errorMessage}
@@ -245,7 +264,7 @@
       <textarea
         bind:value={content}
         placeholder="Il tuo contenuto..."
-        class="textarea textarea-bordered mb-4 w-full"
+        class="textarea textarea-bordered mb-4 w-full rounded-none"
         rows="6"
       ></textarea>
       {#if isPublic}
@@ -274,6 +293,7 @@
       <p>Tipo: {isPublic ? "Pubblico" : "Privato"}</p>
     </article>
     <button on:click={copyLink} class="btn btn-secondary mt-4">🔗 Copia Link</button>
+    <button on:click={goBack} class="btn btn-secondary mt-4">🔙 Torna ai post</button>
   {:else}
     <button on:click={newPost} class="btn btn-primary mb-4">Nuovo Post</button>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
