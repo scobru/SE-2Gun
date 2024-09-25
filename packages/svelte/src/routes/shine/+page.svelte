@@ -38,12 +38,15 @@
 
     try {
       // Genera un nodeId casuale se non è stato fornito
-      const currentNodeId = nodeId || ethers.randomBytes(32).toString("hex");
+      const currentNodeId = nodeId || Strethers.randomBytes(32).toString("hex");
+
+      // Crea un oggetto dati valido
+      const data = { message };
 
       // Usa il plugin SHINE per salvare il messaggio
       const result = await new Promise((resolve, reject) => {
-        gunInstance.shine("optimismSepolia", currentNodeId, { message }, ack => {
-          if (ack.err) reject(new Error(ack.err));
+        gunInstance.shine("optimismSepolia", currentNodeId, data, function (ack) {
+          if (ack && ack.err) reject(new Error(ack.err));
           else resolve(ack);
         });
       });
