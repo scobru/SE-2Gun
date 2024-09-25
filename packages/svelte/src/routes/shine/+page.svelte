@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { toHex } from "viem";
   import { onMount } from "svelte";
   import Gun from "gun/gun";
   import { optimism } from "viem/chains";
@@ -18,6 +19,8 @@
   let isLoading = false;
   let error = "";
   let verificationResult: any = null;
+  let latestRecord: any = null;
+  let verifyOnlyResult: any = null;
 
   let gunInstance: any;
 
@@ -37,13 +40,9 @@
     error = "";
 
     try {
-      // Genera un nodeId casuale se non è stato fornito
-      const currentNodeId = nodeId || Strethers.randomBytes(32).toString("hex");
-
-      // Crea un oggetto dati valido
+      const currentNodeId = nodeId || ethers.keccak256(ethers.randomBytes(32));
       const data = { message };
 
-      // Usa il plugin SHINE per salvare il messaggio
       const result = await new Promise((resolve, reject) => {
         gunInstance.shine("optimismSepolia", currentNodeId, data, function (ack) {
           if (ack && ack.err) reject(new Error(ack.err));
@@ -52,7 +51,7 @@
       });
 
       console.log("Risultato salvataggio:", result);
-      txHash = result.message; // Assumiamo che il plugin restituisca l'hash della transazione
+      txHash = result.txHash;
       savedMessage = message;
       nodeId = currentNodeId;
       message = "";
@@ -74,25 +73,89 @@
     error = "";
 
     try {
-      // Usa il plugin SHINE per verificare il messaggio
-      verificationResult = await new Promise((resolve, reject) => {
-        gunInstance.shine("optimismSepolia", nodeId, null, function (ack) {
-          if (ack.err) reject(new Error(ack.err));
+      const gunData = await new Promise(resolve => {
+        gunInstance.get(nodeId).once(data => resolve(data));
+      });
+
+      if (!gunData) {
+        throw new Error("Nessun dato trovato per questo Node ID");
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        gunInstance.shine("optimismSepolia", nodeId, gunData, function (ack) {
+          if (ack && ack.err) reject(new Error(ack.err));
           else resolve(ack);
         });
       });
 
-      console.log("Risultato verifica:", verificationResult);
-      isVerified = verificationResult.ok;
-
-      // Recupera il messaggio da Gun
-      savedMessage = await new Promise(resolve => {
-        gunInstance.get(nodeId).once(data => resolve(data.message));
-      });
+      console.log("Risultato verifica:", result);
+      isVerified = result.ok;
+      verificationResult = result;
+      savedMessage = gunData.message;
     } catch (err) {
       console.error("Errore durante la verifica:", err);
       error = `Si è verificato un errore durante la verifica del messaggio: ${err.message}`;
       isVerified = false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function getLatestRecord() {
+    if (!nodeId) {
+      error = "Per favore, inserisci un Node ID.";
+      return;
+    }
+
+    isLoading = true;
+    error = "";
+
+    try {
+      latestRecord = await gunInstance.getLatestRecordFromChain(nodeId);
+      console.log("Ultimo record dalla blockchain:", latestRecord);
+    } catch (err) {
+      console.error("Errore nel recupero dell'ultimo record:", err);
+      error = `Si è verificato un errore nel recupero dell'ultimo record: ${err.message}`;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function verifyOnly() {
+    console.log("Verifica solo chiamata");
+
+    /* if (!nodeId || !savedMessage) {
+      error = "Per favore, salva un messaggio prima di verificarlo.";
+      return;
+    } */
+
+    console.log("Node ID:", nodeId);
+
+    isLoading = true;
+    error = "";
+    console.log("Node ID:", nodeId);
+    // get the message from gun
+    const savedMessage = gunInstance.get(nodeId);
+    console.log("Saved Message:", savedMessage);
+    try {
+      const data = { message: savedMessage };
+      console.log("Data:", data);
+      const result = await gunInstance.verifyOnly(nodeId, data);
+      console.log("Risultato verifica solo:", result);
+
+      if (result) {
+        verifyOnlyResult = {
+          isValid: result.isValid,
+          timestamp: result.timestamp.toString(),
+          updater: result.updater,
+        };
+      } else {
+        throw new Error("Risultato della verifica non valido");
+      }
+    } catch (err) {
+      console.error("Errore durante la verifica solo:", err);
+      error = `Si è verificato un errore durante la verifica solo del messaggio: ${err.message}`;
+      verifyOnlyResult = null;
     } finally {
       isLoading = false;
     }
@@ -121,8 +184,20 @@
     {isLoading ? "Salvataggio in corso..." : "Salva Messaggio"}
   </button>
 
-  <button on:click={verifyMessage} disabled={isLoading || !nodeId} class="rounded bg-green-500 p-2 text-white">
+  <button on:click={verifyMessage} disabled={isLoading || !nodeId} class="mr-2 rounded bg-green-500 p-2 text-white">
     {isLoading ? "Verifica in corso..." : "Verifica Messaggio"}
+  </button>
+
+  <button on:click={getLatestRecord} disabled={isLoading || !nodeId} class="mr-2 rounded bg-yellow-500 p-2 text-white">
+    {isLoading ? "Recupero in corso..." : "Ottieni Ultimo Record"}
+  </button>
+
+  <button
+    on:click={async () => await verifyOnly()}
+    disabled={isLoading || !nodeId || !savedMessage}
+    class="rounded bg-purple-500 p-2 text-white"
+  >
+    {isLoading ? "Verifica solo in corso..." : "Verifica Solo"}
   </button>
 
   {#if error}
@@ -153,6 +228,34 @@
         <p class="text-sm text-gray-600">
           Timestamp: {new Date(parseInt(verificationResult.timestamp) * 1000).toLocaleString()}
         </p>
+      {/if}
+    </div>
+  {/if}
+
+  {#if latestRecord}
+    <div class="mt-4">
+      <h2 class="text-xl font-semibold">Ultimo Record dalla Blockchain:</h2>
+      <p class="text-sm text-gray-600">Content Hash: {latestRecord.contentHash}</p>
+      <p class="text-sm text-gray-600">
+        Timestamp: {new Date(parseInt(latestRecord.timestamp) * 1000).toLocaleString()}
+      </p>
+      <p class="text-sm text-gray-600">Updater: {latestRecord.updater}</p>
+    </div>
+  {/if}
+
+  {#if verifyOnlyResult}
+    <div class="mt-4">
+      <h2 class="text-xl font-semibold">Risultato Verifica Solo:</h2>
+      <p class={verifyOnlyResult.isValid ? "text-green-500" : "text-red-500"}>
+        {verifyOnlyResult.isValid ? "Il messaggio è verificato." : "Il messaggio non è verificato."}
+      </p>
+      {#if verifyOnlyResult.timestamp}
+        <p class="text-sm text-gray-600">
+          Timestamp: {new Date(parseInt(verifyOnlyResult.timestamp) * 1000).toLocaleString()}
+        </p>
+      {/if}
+      {#if verifyOnlyResult.updater}
+        <p class="text-sm text-gray-600">Updater: {verifyOnlyResult.updater}</p>
       {/if}
     </div>
   {/if}
