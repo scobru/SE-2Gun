@@ -163,7 +163,7 @@
         console.log("Dati criptati", encryptedData);
         await user.get("gungra.ph").get(hash).put(encryptedData);
 
-        const result = user.get("gungra.ph").get(hash);
+        const result = await user.get("gungra.ph").get(hash).then();
         console.log("Result", result);
         gunInstance
           .get("gungra.ph")
