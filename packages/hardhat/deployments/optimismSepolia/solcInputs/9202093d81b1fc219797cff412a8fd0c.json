@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/SHINE.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.0;\r\n\r\ncontract SHINE {\r\n    mapping(bytes32 => bool) public dataHashes;\r\n    \r\n    event DataHashStored(bytes32 indexed dataHash, address indexed storer);\r\n\r\n    function storeDataHash(bytes32 dataHash) public {\r\n        require(!dataHashes[dataHash], \"Hash already stored\");\r\n        dataHashes[dataHash] = true;\r\n        emit DataHashStored(dataHash, msg.sender);\r\n    }\r\n\r\n    function verifyDataHash(bytes32 dataHash) public view returns (bool) {\r\n        return dataHashes[dataHash];\r\n    }\r\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

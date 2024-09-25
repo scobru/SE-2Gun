@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/SHINE.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.0;\r\n\r\ncontract SHINE {\r\n\tstruct DataInfo {\r\n\t\tbool exists;\r\n\t\taddress storer;\r\n\t\tbytes nodeId;\r\n\t}\r\n\r\n\tmapping(bytes32 => DataInfo) public dataHashes;\r\n\r\n\tevent DataHashStored(\r\n\t\tbytes32 indexed dataHash,\r\n\t\taddress indexed storer,\r\n\t\tbytes nodeId\r\n\t);\r\n\r\n\tfunction storeDataHash(\r\n\t\tbytes32 dataHash,\r\n\t\tbytes memory nodeId\r\n\t) public returns (bytes memory, bytes32) {\r\n\t\trequire(!dataHashes[dataHash].exists, \"Hash already stored\");\r\n\t\tdataHashes[dataHash] = DataInfo(true, msg.sender, nodeId);\r\n\t\temit DataHashStored(dataHash, msg.sender, nodeId);\r\n\t\treturn (nodeId, dataHash);\r\n\t}\r\n\r\n\tfunction verifyDataHash(\r\n\t\tbytes32 dataHash\r\n\t) public view returns (bool exists, address storer, bytes memory nodeId) {\r\n\t\tDataInfo memory info = dataHashes[dataHash];\r\n\t\treturn (info.exists, info.storer, info.nodeId);\r\n\t}\r\n\r\n\tfunction batchStoreDataHashes(\r\n\t\tbytes32[] memory hashes,\r\n\t\tbytes[] memory nodeIds\r\n\t) public {\r\n\t\trequire(hashes.length == nodeIds.length, \"Arrays length mismatch\");\r\n\t\tfor (uint i = 0; i < hashes.length; i++) {\r\n\t\t\tif (!dataHashes[hashes[i]].exists) {\r\n\t\t\t\tdataHashes[hashes[i]] = DataInfo(true, msg.sender, nodeIds[i]);\r\n\t\t\t\temit DataHashStored(hashes[i], msg.sender, nodeIds[i]);\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

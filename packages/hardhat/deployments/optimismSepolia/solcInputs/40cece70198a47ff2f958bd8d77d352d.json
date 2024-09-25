@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/SHINE.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.0;\r\n\r\ncontract SHINE {\r\n\tstruct DataRecord {\r\n\t\tbytes32 contentHash;\r\n\t\tuint256 timestamp;\r\n\t\taddress updater;\r\n\t}\r\n\r\n\tmapping(bytes => DataRecord) public nodeData;\r\n\r\n\tevent DataUpdated(\r\n\t\tbytes indexed nodeId,\r\n\t\tbytes32 contentHash,\r\n\t\taddress updater\r\n\t);\r\n\r\n\tfunction updateData(bytes memory nodeId, bytes32 contentHash) public {\r\n\t\tnodeData[nodeId] = DataRecord(contentHash, block.timestamp, msg.sender);\r\n\t\temit DataUpdated(nodeId, contentHash, msg.sender);\r\n\t}\r\n\r\n\tfunction verifyData(\r\n\t\tbytes memory nodeId,\r\n\t\tbytes32 contentHash\r\n\t) public view returns (bool, uint256, address) {\r\n\t\tDataRecord memory record = nodeData[nodeId];\r\n\t\tbool isValid = record.contentHash == contentHash;\r\n\t\treturn (isValid, record.timestamp, record.updater);\r\n\t}\r\n\r\n\tfunction getLatestRecord(\r\n\t\tbytes memory nodeId\r\n\t) public view returns (bytes32, uint256, address) {\r\n\t\tDataRecord memory record = nodeData[nodeId];\r\n\t\treturn (record.contentHash, record.timestamp, record.updater);\r\n\t}\r\n\r\n\tfunction batchUpdateData(\r\n\t\tbytes[] memory nodeIds,\r\n\t\tbytes32[] memory contentHashes\r\n\t) public {\r\n\t\trequire(\r\n\t\t\tnodeIds.length == contentHashes.length,\r\n\t\t\t\"Arrays length mismatch\"\r\n\t\t);\r\n\t\tfor (uint i = 0; i < nodeIds.length; i++) {\r\n\t\t\tupdateData(nodeIds[i], contentHashes[i]);\r\n\t\t}\r\n\t}\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
