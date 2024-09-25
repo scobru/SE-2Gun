@@ -2309,7 +2309,7 @@ __metadata:
     express: ^4.21.0
     express-rate-limit: ^7.4.0
     gun: ^0.2020.1240
-    gun-eth: ^1.1.0
+    gun-eth: ^1.1.2
     ip: ^2.0.1
     js-sha256: ^0.11.0
     js-sha3: ^0.9.3
@@ -9068,13 +9068,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gun-eth@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "gun-eth@npm:1.1.0"
+"gun-eth@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "gun-eth@npm:1.1.2"
   dependencies:
     ethers: ^6.0.0
     gun: ^0.2020.1239
-  checksum: 683aa957c37e9a1965dde2f4c82f60a55a64cdebf6f4569a305d49ba4dc7f7894fcccc03ec47964383b22f5ea7739a320787d3fc3f471d6bbd9a373463e09a50
+  checksum: 1c5fef8b820b08f18ed4de3307ae915e784b80803dabc2df1e0eedf51ec9e97f1bfb0bbeecdd3c4e6671451323c937ebe069b4397780eda790c9a4923fe2cfe9
   languageName: node
   linkType: hard
 

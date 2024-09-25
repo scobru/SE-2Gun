@@ -22,6 +22,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  console.log("Deploying SHINE contract with the account:", deployer);
+
   await deploy("SHINE", {
     from: deployer,
     // Contract constructor arguments

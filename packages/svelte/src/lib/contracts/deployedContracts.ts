@@ -7,47 +7,47 @@ import type { GenericContractsDeclaration } from "$lib/utils/scaffold-eth/contra
 const deployedContracts = {
   11155420: {
     SHINE: {
-      address: "0xb78E3E846FAf57Db15FfF17d8200a7736A7EDfBF",
+      address: "0x43D838b683F772F08f321E5FA265ad3e333BE9C2",
       abi: [
         {
           anonymous: false,
           inputs: [
             {
               indexed: true,
-              internalType: "bytes32",
-              name: "dataHash",
-              type: "bytes32",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "storer",
-              type: "address",
-            },
-            {
-              indexed: false,
               internalType: "bytes",
               name: "nodeId",
               type: "bytes",
             },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "contentHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "updater",
+              type: "address",
+            },
           ],
-          name: "DataHashStored",
+          name: "DataUpdated",
           type: "event",
         },
         {
           inputs: [
             {
-              internalType: "bytes32[]",
-              name: "hashes",
-              type: "bytes32[]",
-            },
-            {
               internalType: "bytes[]",
               name: "nodeIds",
               type: "bytes[]",
             },
+            {
+              internalType: "bytes32[]",
+              name: "contentHashes",
+              type: "bytes32[]",
+            },
           ],
-          name: "batchStoreDataHashes",
+          name: "batchUpdateData",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -55,27 +55,27 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "nodeId",
+              type: "bytes",
+            },
+          ],
+          name: "getLatestRecord",
+          outputs: [
+            {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
             },
-          ],
-          name: "dataHashes",
-          outputs: [
             {
-              internalType: "bool",
-              name: "exists",
-              type: "bool",
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
             {
               internalType: "address",
-              name: "storer",
+              name: "",
               type: "address",
-            },
-            {
-              internalType: "bytes",
-              name: "nodeId",
-              type: "bytes",
             },
           ],
           stateMutability: "view",
@@ -84,56 +84,79 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          name: "nodeData",
+          outputs: [
+            {
               internalType: "bytes32",
-              name: "dataHash",
+              name: "contentHash",
               type: "bytes32",
             },
+            {
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "updater",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
             {
               internalType: "bytes",
               name: "nodeId",
               type: "bytes",
             },
-          ],
-          name: "storeDataHash",
-          outputs: [
-            {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
             {
               internalType: "bytes32",
-              name: "",
+              name: "contentHash",
               type: "bytes32",
             },
           ],
+          name: "updateData",
+          outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
         {
           inputs: [
             {
-              internalType: "bytes32",
-              name: "dataHash",
-              type: "bytes32",
-            },
-          ],
-          name: "verifyDataHash",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "exists",
-              type: "bool",
-            },
-            {
-              internalType: "address",
-              name: "storer",
-              type: "address",
-            },
-            {
               internalType: "bytes",
               name: "nodeId",
               type: "bytes",
+            },
+            {
+              internalType: "bytes32",
+              name: "contentHash",
+              type: "bytes32",
+            },
+          ],
+          name: "verifyData",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
