@@ -20,7 +20,6 @@
   let error = "";
   let verificationResult: any = null;
   let latestRecord: any = null;
-  let verifyOnlyResult: any = null;
 
   let gunInstance: any;
 
@@ -77,6 +76,10 @@
         gunInstance.get(nodeId).once(data => resolve(data));
       });
 
+      console.log("gunData", gunData, nodeId);
+      const r = await gunInstance.verifyOnly(nodeId, gunData);
+      console.log("Risultato verifica:", r);
+
       if (!gunData) {
         throw new Error("Nessun dato trovato per questo Node ID");
       }
@@ -120,46 +123,6 @@
       isLoading = false;
     }
   }
-
-  async function verifyOnly() {
-    console.log("Verifica solo chiamata");
-
-    /* if (!nodeId || !savedMessage) {
-      error = "Per favore, salva un messaggio prima di verificarlo.";
-      return;
-    } */
-
-    console.log("Node ID:", nodeId);
-
-    isLoading = true;
-    error = "";
-    console.log("Node ID:", nodeId);
-    // get the message from gun
-    const savedMessage = gunInstance.get(nodeId);
-    console.log("Saved Message:", savedMessage);
-    try {
-      const data = { message: savedMessage };
-      console.log("Data:", data);
-      const result = await gunInstance.verifyOnly(nodeId, data);
-      console.log("Risultato verifica solo:", result);
-
-      if (result) {
-        verifyOnlyResult = {
-          isValid: result.isValid,
-          timestamp: result.timestamp.toString(),
-          updater: result.updater,
-        };
-      } else {
-        throw new Error("Risultato della verifica non valido");
-      }
-    } catch (err) {
-      console.error("Errore durante la verifica solo:", err);
-      error = `Si è verificato un errore durante la verifica solo del messaggio: ${err.message}`;
-      verifyOnlyResult = null;
-    } finally {
-      isLoading = false;
-    }
-  }
 </script>
 
 <div class="container mx-auto p-4">
@@ -190,14 +153,6 @@
 
   <button on:click={getLatestRecord} disabled={isLoading || !nodeId} class="mr-2 rounded bg-yellow-500 p-2 text-white">
     {isLoading ? "Recupero in corso..." : "Ottieni Ultimo Record"}
-  </button>
-
-  <button
-    on:click={async () => await verifyOnly()}
-    disabled={isLoading || !nodeId || !savedMessage}
-    class="rounded bg-purple-500 p-2 text-white"
-  >
-    {isLoading ? "Verifica solo in corso..." : "Verifica Solo"}
   </button>
 
   {#if error}
@@ -240,23 +195,6 @@
         Timestamp: {new Date(parseInt(latestRecord.timestamp) * 1000).toLocaleString()}
       </p>
       <p class="text-sm text-gray-600">Updater: {latestRecord.updater}</p>
-    </div>
-  {/if}
-
-  {#if verifyOnlyResult}
-    <div class="mt-4">
-      <h2 class="text-xl font-semibold">Risultato Verifica Solo:</h2>
-      <p class={verifyOnlyResult.isValid ? "text-green-500" : "text-red-500"}>
-        {verifyOnlyResult.isValid ? "Il messaggio è verificato." : "Il messaggio non è verificato."}
-      </p>
-      {#if verifyOnlyResult.timestamp}
-        <p class="text-sm text-gray-600">
-          Timestamp: {new Date(parseInt(verifyOnlyResult.timestamp) * 1000).toLocaleString()}
-        </p>
-      {/if}
-      {#if verifyOnlyResult.updater}
-        <p class="text-sm text-gray-600">Updater: {verifyOnlyResult.updater}</p>
-      {/if}
     </div>
   {/if}
 </div>
