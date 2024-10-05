@@ -4,7 +4,8 @@
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import "gun-eth";
+  import "../../../../gun-eth/gun-eth";
+
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";

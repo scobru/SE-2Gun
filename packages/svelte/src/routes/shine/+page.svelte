@@ -3,8 +3,7 @@
   import Gun from "gun/gun";
   import { gun } from "$lib/stores";
   import { get } from "svelte/store";
-  import { ethers } from "ethers";
-  import "./gun-eth";
+  import "../../../../gun-eth/gun-eth";
 
   let message = "";
   let nodeId = "";
@@ -88,7 +87,7 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <h1 class="mb-4 text-2xl font-bold">Demo SHINE (Secure Hash Integrity Network Ethereum)</h1>
+  <h1 class="mb-4 text-2xl font-bold">SHINE (Secure Hash Integrity Network Ethereum)</h1>
 
   <div class="mb-4">
     <input
@@ -113,12 +112,12 @@
   {/if}
 
   {#if savedMessage}
-    <div class="mt-4">
+    <div class="card mt-4">
       <h2 class="text-xl font-semibold">Messaggio Salvato:</h2>
       <p>{savedMessage}</p>
-      <p class="text-sm text-gray-600">Node ID: {nodeId}</p>
+      <p class="text-secondary text-sm">Node ID: {nodeId}</p>
       {#if txHash}
-        <p class="text-sm text-gray-600">Transaction Hash: {txHash}</p>
+        <p class="text-secondary text-sm">Transaction Hash: {txHash}</p>
       {/if}
     </div>
   {/if}
@@ -130,10 +129,10 @@
         {verificationResult.message}
       </p>
       {#if verificationResult.updater}
-        <p class="text-sm text-gray-600">Updater: {verificationResult.updater}</p>
+        <p class="text-base-content text-sm">Updater: {verificationResult.updater}</p>
       {/if}
       {#if verificationResult.timestamp}
-        <p class="text-sm text-gray-600">
+        <p class="text-base-content text-sm">
           Timestamp: {new Date(parseInt(verificationResult.timestamp) * 1000).toLocaleString()}
         </p>
       {/if}

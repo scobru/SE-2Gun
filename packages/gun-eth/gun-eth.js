@@ -1,8 +1,14 @@
-const Gun = require("gun/gun");
+/* const Gun = require("gun/gun");
 const SEA = require("gun/sea");
 const ethers = require("ethers");
+const SHINE = require("./SHINE.json"); */
 
-const SHINE = require("./SHINE.json");
+import Gun from "gun";
+import SEA from "gun/sea";
+import { ethers } from "ethers";
+
+import SHINE from "./SHINE.json";
+
 const SHINE_ABI = SHINE.abi;
 const SHINE_OPTIMISM_SEPOLIA = SHINE.address;
 
@@ -134,6 +140,7 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
       ethers.toUtf8Bytes(nodeId),
       contentHash
     );
+    console.log("Verification result:", { isValid, timestamp, updater });
     return { isValid, timestamp, updater };
   };
 
@@ -150,8 +157,30 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
       ethers.toUtf8Bytes(nodeId),
       contentHash
     );
-    await tx.wait();
+    console.log("Transaction sent:", tx.hash);
+    const receipt = await tx.wait();
+    console.log("Transaction confirmed:", receipt);
     return tx;
+  };
+
+  // Nuova funzione per ottenere l'ultimo record dalla blockchain
+  const getLatestRecord = async (nodeId) => {
+    const signer = await getSigner();
+    const contract = new ethers.Contract(
+      SHINE_CONTRACT_ADDRESS,
+      SHINE_ABI,
+      signer
+    );
+    const [contentHash, timestamp, updater] = await contract.getLatestRecord(
+      ethers.toUtf8Bytes(nodeId)
+    );
+    console.log("Latest record from blockchain:", {
+      nodeId,
+      contentHash,
+      timestamp,
+      updater,
+    });
+    return { contentHash, timestamp, updater };
   };
 
   // Processo SHINE
@@ -165,16 +194,22 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
 
       console.log("existingData", existingData);
 
-      const dataString = JSON.stringify(existingData);
-      console.log("dataString", dataString);
-      const contentHash = dataString;
+      // Usa il contentHash memorizzato invece di ricalcolarlo
+      const contentHash = existingData._contentHash;
       console.log("contentHash", contentHash);
+
+      if (!contentHash) {
+        if (callback) callback({ err: "No content hash found for this node" });
+        return;
+      }
 
       try {
         const { isValid, timestamp, updater } = await verifyOnChain(
           nodeId,
           contentHash
         );
+        const latestRecord = await getLatestRecord(nodeId);
+
         if (isValid) {
           if (callback)
             callback({
@@ -182,12 +217,14 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
               message: "Data verified on blockchain",
               timestamp,
               updater,
+              latestRecord,
             });
         } else {
           if (callback)
             callback({
               ok: false,
               message: "Data not verified on blockchain",
+              latestRecord,
             });
         }
       } catch (error) {
@@ -200,26 +237,28 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
     const dataString = JSON.stringify(data);
     const contentHash = ethers.keccak256(ethers.toUtf8Bytes(dataString));
 
-    gun.get(newNodeId).put(data, async (ack) => {
-      console.log("ack", ack);
-      if (ack.err) {
-        if (callback) callback({ err: "Error saving data to GunDB" });
-        return;
-      }
+    gun
+      .get(newNodeId)
+      .put({ ...data, _contentHash: contentHash }, async (ack) => {
+        console.log("ack", ack);
+        if (ack.err) {
+          if (callback) callback({ err: "Error saving data to GunDB" });
+          return;
+        }
 
-      try {
-        const tx = await writeOnChain(newNodeId, contentHash);
-        if (callback)
-          callback({
-            ok: true,
-            message: "Data written to GunDB and blockchain",
-            nodeId: newNodeId,
-            txHash: tx.hash,
-          });
-      } catch (error) {
-        if (callback) callback({ err: error.message });
-      }
-    });
+        try {
+          const tx = await writeOnChain(newNodeId, contentHash);
+          if (callback)
+            callback({
+              ok: true,
+              message: "Data written to GunDB and blockchain",
+              nodeId: newNodeId,
+              txHash: tx.hash,
+            });
+        } catch (error) {
+          if (callback) callback({ err: error.message });
+        }
+      });
   } else {
     if (callback)
       callback({
