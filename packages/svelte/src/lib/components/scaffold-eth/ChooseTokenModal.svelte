@@ -89,7 +89,7 @@
         <h3 class="mb-3 text-xl font-bold">Select a Token</h3>
         <label for="token-modal" class="btn btn-circle btn-ghost btn-sm absolute right-3 top-3"> ✕ </label>
 
-        <div class="divider" />
+        <div class="divider"></div>
 
         <InputBase placeholder="Search name or paste address" bind:value={searchInput} />
 

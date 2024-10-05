@@ -3,7 +3,7 @@
   import Gun from "gun/gun";
   import { gun } from "$lib/stores";
   import { get } from "svelte/store";
-  import "../../../../gun-eth/gun-eth";
+  import "gun-eth";
 
   let message = "";
   let nodeId = "";

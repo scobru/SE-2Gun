@@ -41,23 +41,23 @@
   <div class="card-body">
     <h2 class="card-title text-primary text-5xl font-extrabold">What is SE-2Gun?</h2>
     <p class="text-base-content mt-4 text-lg font-semibold">
-      GunETH is a cutting-edge decentralized application (dApp) built with Svelte and GunDB, seamlessly integrated with
+      SE-2Gun is a cutting-edge decentralized application (dApp) built with Svelte and GunDB, seamlessly integrated with
       Ethereum for robust authentication and data encryption. This project aims to provide a fully decentralized
-      platform where users can create unique pair and store into GunDB. By leveraging Ethereum signatures, GunETH
+      platform where users can create unique pair and store into GunDB. By leveraging Ethereum signatures, SE-2Gun
       ensures data integrity and privacy through advanced encryption techniques.
     </p>
-    <h3 class="text-primary mt-6 text-4xl font-bold">Why GunETH?</h3>
+    <h3 class="text-primary mt-6 text-4xl font-bold">Why SE-2Gun?</h3>
     <ul class="text-base-content mt-4 list-inside list-disc text-lg font-semibold">
       <li>
-        <span class="font-bold">Fully Decentralized:</span> GunETH is designed to be a completely decentralized application,
+        <span class="font-bold">Fully Decentralized:</span> SE-2Gun is designed to be a completely decentralized application,
         eliminating the need for centralized servers and ensuring that users have full control over their data.
       </li>
       <li>
-        <span class="font-bold">Efficient Data Storage:</span> By using GunDB, GunETH stores only the necessary data on the
-        blockchain, optimizing storage costs and improving performance.
+        <span class="font-bold">Efficient Data Storage:</span> By using GunDB, SE-2Gun stores only the necessary data on
+        the blockchain, optimizing storage costs and improving performance.
       </li>
       <li>
-        <span class="font-bold">Ethereum-Based Encryption:</span> GunETH generates cryptographic pairs using Ethereum addresses,
+        <span class="font-bold">Ethereum-Based Encryption:</span> SE-2Gun generates cryptographic pairs using Ethereum addresses,
         providing a secure and reliable method for data encryption and user authentication.
       </li>
     </ul>

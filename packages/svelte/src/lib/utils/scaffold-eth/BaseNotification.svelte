@@ -23,23 +23,26 @@
 </script>
 
 <div
-  class="relative flex max-w-sm transform-gpu flex-row items-start justify-between space-x-2 rounded-xl bg-base-200 p-4 shadow-center shadow-accent transition-all duration-500 ease-in-out {position!.substring(0, 3) == 'top'
-			? `hover:translate-y-1 ${visible ? 'top-0' : '-top-96'}`
-			: `hover:-translate-y-1 ${visible ? 'bottom-0' : '-bottom-96'}`}"
+  class="bg-base-200 shadow-center shadow-accent relative flex max-w-sm transform-gpu flex-row items-start justify-between space-x-2 rounded-xl p-4 transition-all duration-500 ease-in-out {position!.substring(
+    0,
+    3,
+  ) == 'top'
+    ? `hover:translate-y-1 ${visible ? 'top-0' : '-top-96'}`
+    : `hover:-translate-y-1 ${visible ? 'bottom-0' : '-bottom-96'}`}"
 >
   <div class="self-center leading-[0]">
     {#if icon}
       <Icon src={icon} class="h-6 w-6" />
     {:else if status === "success"}
-      <Icon src={CheckCircle} class="w-7 text-success" />
+      <Icon src={CheckCircle} class="text-success w-7" />
     {:else if status === "loading"}
       <span class="loading loading-spinner w-6"></span>
     {:else if status === "error"}
-      <Icon src={ExclamationCircle} class="w-7 text-error" />
+      <Icon src={ExclamationCircle} class="text-error w-7" />
     {:else if status === "info"}
-      <Icon src={InformationCircle} class="w-7 text-info" />
+      <Icon src={InformationCircle} class="text-info w-7" />
     {:else if status === "warning"}
-      <Icon src={ExclamationTriangle} class="w-7 text-warning" />
+      <Icon src={ExclamationTriangle} class="text-warning w-7" />
     {/if}
   </div>
   <div class="overflow-x-hidden whitespace-pre-line break-words" class:mt-1={icon}>

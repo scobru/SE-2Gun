@@ -123,7 +123,10 @@
           onclick={handleWrite}
         >
           {#if contractWrite?.isPending}
-            <span class="loading loading-spinner loading-xs" />
+            <span class="loading loading-spinner loading-xs">
+              <!-- svelte-ignore element_invalid_self_closing_tag -->
+              <span />
+            </span>
           {/if}
           Send 💸
         </button>

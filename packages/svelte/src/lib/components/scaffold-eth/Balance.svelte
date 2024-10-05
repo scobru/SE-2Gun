@@ -53,7 +53,7 @@
 {:else}
   <button
     class="btn btn-ghost btn-sm flex flex-col items-center font-normal hover:bg-transparent {className}"
-    on:click={toggleBalanceMode}
+    onclick={toggleBalanceMode}
   >
     <div class="flex w-full items-center justify-center">
       {#if displayUsdMode}

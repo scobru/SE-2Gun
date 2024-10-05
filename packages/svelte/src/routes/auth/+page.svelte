@@ -4,28 +4,41 @@
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import "../../../../gun-eth/gun-eth";
-
+  import "gun-eth";
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
+  import type { IGunInstance } from "gun/types";
+  import type { IGunUserInstance } from "gun/types";
 
-  let user;
+  let user: IGunUserInstance = {
+    recall: (options: { sessionStorage: boolean }, callback: (ack: any) => Promise<void>) => {},
+    is: { alias: null },
+    on: (event: string, callback: () => Promise<void>) => {},
+    create: (alias: any, pass: any, callback: (ack: any) => Promise<void>) => {},
+    auth: (alias: any, pass: any, callback: (ack: any) => Promise<void>) => {},
+    leave: () => {},
+  };
+
   let errorMessage = "";
-  let account = null;
-  let userPair = null;
-  let signature = null;
+  let account: any = null;
+  let userPair: ArrayLike<unknown> | { [s: string]: unknown } | null = null;
+  let signature: null = null;
 
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
-    gun.set(new Gun());
-
-    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
-    user = gunInstance.user();
+    let tempGun = new Gun();
+    gun.set(tempGun);
+    const gunInstance = get(gun) as unknown as IGunInstance<any>;
+    if (gunInstance) {
+      user = gunInstance?.user();
+    } else {
+      console.error("Istanza di Gun non inizializzata correttamente");
+    }
     account = getAccount(wagmiConfig);
 
-    user.recall({ sessionStorage: true }, async ack => {
+    user.recall({ sessionStorage: true }, async (ack: { err: any }) => {
       if (ack.err) {
         console.error("Errore nel recupero della sessione:", ack.err);
       } else if (user.is) {
@@ -47,7 +60,7 @@
     const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
 
     if (currentUser) {
-      userPair = await gunInstance.getAndDecryptPair(account.address, signature);
+      userPair = await gunInstance?.getAndDecryptPair(account.address, signature);
       console.log("User Pair:", userPair);
     }
   }
@@ -73,7 +86,7 @@
 
       await gunInstance.createAndStoreEncryptedPair(account.address, signature);
 
-      user.create(account.address, signature, async ack => {
+      user.create(account.address, signature, async (ack: { err: string }) => {
         if (ack.err) {
           errorMessage = "Errore durante la registrazione: " + ack.err;
         } else {
@@ -119,7 +132,7 @@
         return;
       }
 
-      user.auth(pair, async ack => {
+      user.auth(pair, async (ack: { err: string }) => {
         console.log("Risposta di autenticazione:", ack);
         if (ack.err) {
           errorMessage = "Errore di accesso: " + ack.err;

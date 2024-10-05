@@ -128,16 +128,16 @@
 >
   {#snippet prefix()}
     {#if ensName}
-      <div class="flex items-center rounded-l-full bg-base-300">
+      <div class="bg-base-300 flex items-center rounded-l-full">
         {#if ensAvatar?.isLoading}
-          <div class="skeleton h-[35px] w-[35px] shrink-0 rounded-full bg-base-200" />
+          <div class="skeleton bg-base-200 h-[35px] w-[35px] shrink-0 rounded-full"></div>
         {/if}
         {#if ensAvatar?.data}
           <span class="w-[35px]">
             <img class="w-full rounded-full" src={ensAvatar?.data} alt="{ensAddress} avatar" />
           </span>
         {/if}
-        <span class="px-2 text-accent">{enteredEnsName ?? ensName}</span>
+        <span class="text-accent px-2">{enteredEnsName ?? ensName}</span>
       </div>
     {/if}
   {/snippet}

@@ -116,7 +116,7 @@
               <strong>Data:</strong>
             </td>
             <td class="form-control">
-              <textarea readOnly value={transaction.input} class="textarea-primary h-[150px] bg-inherit p-0" />
+              <textarea readOnly value={transaction.input} class="textarea-primary h-[150px] bg-inherit p-0"></textarea>
             </td>
           </tr>
           <tr>

@@ -183,7 +183,13 @@
               <div class="mb-2">
                 <strong class="text-blue-600">{key}:</strong>
                 {#if isNodeReference(value)}
-                  <span class="cursor-pointer text-green-500 hover:underline" on:click={() => handleNodeClick(value)}>
+                  <span 
+                    class="cursor-pointer text-green-500 hover:underline" 
+                    on:click={() => handleNodeClick(value)}
+                    on:keydown={(e) => e.key === 'Enter' && handleNodeClick(value)}
+                    role="button"
+                    tabindex="0"
+                  >
                     {truncateString(value, 30)}
                   </span>
                 {:else if typeof value === "object"}

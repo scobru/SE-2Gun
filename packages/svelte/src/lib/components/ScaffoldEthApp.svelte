@@ -31,7 +31,9 @@
 <div class="flex min-h-screen flex-col">
   <Header />
 
-  <main class="relative flex flex-1 flex-col"><slot /></main>
+  <main class="relative flex flex-1 flex-col">
+    <slot />
+  </main>
 
   <Footer />
 </div>
