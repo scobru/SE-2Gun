@@ -94,9 +94,14 @@
       type="text"
       bind:value={message}
       placeholder="Inserisci un messaggio"
-      class="mb-2 w-full rounded border p-2"
+      class="mb-2 w-full rounded border p-2 text-black"
     />
-    <input type="text" bind:value={nodeId} placeholder="Node ID (per la verifica)" class="w-full rounded border p-2" />
+    <input
+      type="text"
+      bind:value={nodeId}
+      placeholder="Node ID (per la verifica)"
+      class="w-full rounded border p-2 text-black"
+    />
   </div>
 
   <button on:click={saveMessage} disabled={isLoading} class="mr-2 rounded bg-blue-500 p-2 text-white">
@@ -139,17 +144,20 @@
     </div>
   {/if}
 
-  <div class="mt-8 border border-gray-300 p-4 rounded-lg">
-    <h2 class="text-xl font-semibold mb-2">How to Use Verification</h2>
-    <ol class="list-decimal list-inside">
+  <div class="mt-8 rounded-lg border border-gray-300 p-4">
+    <h2 class="mb-2 text-xl font-semibold">How to Use Verification</h2>
+    <ol class="list-inside list-decimal">
       <li>Save a message using the "Enter a message" field and the "Save Message" button.</li>
       <li>Copy the Node ID that appears after saving the message.</li>
       <li>Paste the Node ID into the "Node ID (for verification)" field.</li>
       <li>Click the "Verify Message" button.</li>
-      <li>The verification result will appear below, showing whether the message was successfully verified on the blockchain.</li>
+      <li>
+        The verification result will appear below, showing whether the message was successfully verified on the
+        blockchain.
+      </li>
     </ol>
     <p class="mt-2 text-sm opacity-75">
-      Note: The verification compares the hash of the locally saved message with the one recorded on the blockchain, 
+      Note: The verification compares the hash of the locally saved message with the one recorded on the blockchain,
       confirming the integrity and authenticity of the data.
     </p>
   </div>

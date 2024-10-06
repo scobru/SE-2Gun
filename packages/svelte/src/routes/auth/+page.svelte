@@ -171,8 +171,8 @@
       <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
-    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$currentUser}!</h2>
+    <div class="bg-base-100 mb-4 break-all break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
+      <h2 class="mb-4 text-2xl font-semibold">Welcome, {$currentUser}!</h2>
 
       {#if userPair && Object.keys(userPair).length > 0}
         <div class="my-5 items-center">
@@ -190,6 +190,42 @@
       <button class="btn btn-warning" on:click={accedi}><i class="fas fa-eye"></i> View Pair</button>
     </div>
   {/if}
+
+  <div class="mt-12 bg-base-200 p-6 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold mb-4">How Authentication Works in SE-2Gun</h2>
+    <ol class="list-decimal list-inside space-y-4">
+      <li>
+        <strong>Connect Wallet:</strong> Start by connecting your Ethereum wallet (e.g., MetaMask) to the application.
+      </li>
+      <li>
+        <strong>Registration:</strong>
+        <ul class="list-disc list-inside ml-6 mt-2">
+          <li>Click the "Sign In" button to start registration.</li>
+          <li>You'll be asked to sign a message using your Ethereum wallet.</li>
+          <li>A unique cryptographic pair is generated based on your Ethereum address and signature.</li>
+          <li>This pair is encrypted and securely stored in GunDB.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Login:</strong>
+        <ul class="list-disc list-inside ml-6 mt-2">
+          <li>Click the "Login" button to start the login process.</li>
+          <li>You'll be asked to sign a message again using your Ethereum wallet.</li>
+          <li>The signature is used to retrieve and decrypt your cryptographic pair from GunDB.</li>
+          <li>If successful, you're authenticated and granted access to the application.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Data Encryption:</strong> Once authenticated, your data is encrypted using your cryptographic pair before being stored in GunDB, ensuring only you can access it.
+      </li>
+      <li>
+        <strong>Logout:</strong> Click the "Esci" (Logout) button to clear your local session. Your encrypted data remains secure in GunDB, accessible only upon your next successful authentication.
+      </li>
+    </ol>
+    <p class="mt-4 text-sm italic">
+      This authentication flow combines Ethereum's cryptographic capabilities with GunDB's decentralized nature, providing a secure and user-controlled system.
+    </p>
+  </div>
 </main>
 
 <style>

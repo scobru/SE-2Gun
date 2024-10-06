@@ -19,7 +19,7 @@
   </div>
 
   <div class="my-8 w-full bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 py-8 text-center text-white">
-    <h2 class="mb-2 text-4xl font-bold">Live on Optimism!</h2>
+    <h2 class="mb-2 text-4xl font-bold">Live on Optimism Sepolia!</h2>
   </div>
 
   <div class="bg-base-300 mt-16 w-full flex-grow px-8 py-12">

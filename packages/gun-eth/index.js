@@ -1,1 +1,1 @@
-import "./gun-eth.js";
+import "./gun-eth";

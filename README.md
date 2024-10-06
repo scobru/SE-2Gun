@@ -12,6 +12,7 @@ SE2-Gun is a powerful boilerplate that integrates ScaffoldETH2 with Gun.js and E
 - [Authentication](#authentication)
 - [Inspector](#inspector)
 - [Block Explorer](#block-explorer)
+- [Dev Stack](#dev-stack)
 
 ## Important Notice ⚠️
 
@@ -76,3 +77,38 @@ The Inspector is an essential tool for developers working with Gun.js, providing
 ## Block Explorer
 
 The Block Explorer is a tool for exploring the data on the blockchain.
+
+## Dev Stack
+
+SE2-Gun utilizes a powerful technology stack to provide a comprehensive and decentralized dApp development experience:
+
+- **GunDB**: A decentralized database for secure data storage and retrieval.
+- **Scaffold-ETH**: A development framework that combines Svelte and Hardhat for building and deploying Ethereum smart contracts.
+- **Svelte**: A modern JavaScript framework for building fast and reactive user interfaces.
+- **Hardhat**: A development environment for Ethereum software, allowing for testing, deployment, and debugging of smart contracts.
+- **Ethereum**: Used for signature-based authentication and data encryption.
+- **Optimism Sepolia**: The testnet where the SHINE contract is currently deployed.
+
+This stack offers several advantages:
+
+1. **Full Decentralization**: The application is designed to be completely decentralized, eliminating the need for centralized servers.
+2. **Efficient Data Storage**: GunDB allows storing only necessary data on the blockchain, optimizing storage costs and improving performance.
+3. **Ethereum-Based Encryption**: SE2-Gun generates cryptographic pairs using Ethereum addresses, providing a secure and reliable method for data encryption and user authentication.
+4. **Rapid Development**: Svelte and Scaffold-ETH facilitate quick and efficient dApp development.
+5. **Robust Testing and Debugging**: Hardhat provides powerful tools for testing and debugging smart contracts.
+
+## Contributing
+
+We welcome contributions to SE2-Gun! If you'd like to contribute, please follow these steps:
+
+1. Fork the repository
+2. Create a new branch for your feature or bug fix
+3. Make your changes and commit them with clear, descriptive messages
+4. Push your changes to your fork
+5. Submit a pull request to the main repository
+
+Please ensure that your code adheres to the existing style and that all tests pass before submitting a pull request.
+
+## License
+
+SE2-Gun is released under the MIT License. See the [LICENSE](./LICENSE.md) file for more details.
