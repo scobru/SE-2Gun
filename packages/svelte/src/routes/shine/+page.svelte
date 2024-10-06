@@ -16,7 +16,7 @@
   let gunInstance: any;
 
   onMount(async () => {
-    gunInstance = get(gun) === null ? Gun() : get(gun);
+    gunInstance = get(gun) === null ? new Gun() : get(gun);
   });
 
   async function saveMessage() {

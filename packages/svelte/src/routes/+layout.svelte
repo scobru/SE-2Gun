@@ -4,17 +4,21 @@
   import ScaffoldEthApp from "$lib/components/ScaffoldEthApp.svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { Toaster } from "@leodog896/svelte-french-toast";
+  import Gun from "gun";
+  import { gun } from "$lib/stores";
 
   const { data }: { data: { vercelUrl?: string } } = $props();
 
   const baseUrl = $derived(data.vercelUrl ? `https://${data.vercelUrl}` : `http://localhost:5173`);
 
   const metadata = $derived({
-    title: "Scaffold-ETH 2 App",
-    description: "Built with 🏗 Scaffold-ETH 2",
+    title: "SE-2Gun App",
+    description: "Built with 🏗 SE-2Gun",
     thumbnail: `${baseUrl}/thumbnail.jpg`,
     favicon: "/favicon.png",
   });
+
+  gun.set(new Gun());
 </script>
 
 <svelte:head>

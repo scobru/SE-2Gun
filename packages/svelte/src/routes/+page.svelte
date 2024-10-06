@@ -51,14 +51,14 @@
 <div class="card bg-base-100 mx-auto my-8 max-w-4xl p-6">
   <div class="card-body">
     <h2 class="card-title text-primary text-5xl font-extrabold">What is SE-2Gun?</h2>
-    <p class="text-base-content mt-4 text-lg font-semibold">
+    <p class="text-base-content mt-4 text-lg font-medium">
       SE-2Gun is a cutting-edge decentralized application (dApp) built with Svelte and GunDB, seamlessly integrated with
       Ethereum for robust authentication and data encryption. This project aims to provide a fully decentralized
       platform where users can create unique pair and store into GunDB. By leveraging Ethereum signatures, SE-2Gun
       ensures data integrity and privacy through advanced encryption techniques.
     </p>
     <h3 class="text-primary mt-6 text-4xl font-bold">Why SE-2Gun?</h3>
-    <ul class="text-base-content mt-4 list-inside list-disc text-lg font-semibold">
+    <ul class="text-base-content mt-4 list-inside list-disc text-lg font-medium">
       <li>
         <span class="font-bold">Fully Decentralized:</span> SE-2Gun is designed to be a completely decentralized application,
         eliminating the need for centralized servers and ensuring that users have full control over their data.
@@ -73,7 +73,7 @@
       </li>
     </ul>
     <h3 class="text-primary mt-6 text-4xl font-bold">Technology Stack</h3>
-    <ul class="text-base-content mt-4 list-inside list-disc text-lg font-semibold">
+    <ul class="text-base-content mt-4 list-inside list-disc text-lg font-medium">
       <li><span class="font-bold">GunDB:</span> A decentralized database for secure data storage and retrieval.</li>
       <li>
         <span class="font-bold">Scaffold-ETH:</span> A development framework that combines Svelte and Hardhat for building

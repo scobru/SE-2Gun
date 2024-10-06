@@ -28,8 +28,6 @@
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
-    let tempGun = new Gun();
-    gun.set(tempGun);
     const gunInstance = get(gun) as unknown as IGunInstance<any>;
     if (gunInstance) {
       user = gunInstance?.user();
@@ -38,18 +36,18 @@
     }
     account = getAccount(wagmiConfig);
 
-    user.recall({ sessionStorage: true }, async (ack: { err: any }) => {
-      if (ack.err) {
+    user.recall({ sessionStorage: true }, async ack => {
+      if ("err" in ack) {
         console.error("Errore nel recupero della sessione:", ack.err);
-      } else if (user.is) {
-        currentUser.set(user.is.alias);
+      } else if (user.is && user.is.alias) {
+        currentUser.set(user.is.alias as string);
         await loadUserData();
       }
     });
 
     user.on("auth", async () => {
-      console.log("Utente autenticato:", user.is.alias);
-      currentUser.set(user.is.alias);
+      console.log("Utente autenticato:", user.is.alias as string);
+      currentUser.set(user.is.alias as string);
       await loadUserData();
     });
   });
@@ -78,16 +76,17 @@
         return;
       }
 
-      signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
+      signature = await (gunInstance as any).createSignature(MESSAGE_TO_SIGN);
+
       if (!signature) {
         errorMessage = "Errore durante la firma del messaggio";
         return;
       }
 
-      await gunInstance.createAndStoreEncryptedPair(account.address, signature);
+      await (gunInstance as any).createAndStoreEncryptedPair(account.address, signature);
 
-      user.create(account.address, signature, async (ack: { err: string }) => {
-        if (ack.err) {
+      user.create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
+        if ("err" in ack) {
           errorMessage = "Errore durante la registrazione: " + ack.err;
         } else {
           alert("Registrazione completata! Ora puoi accedere.");
@@ -156,9 +155,6 @@
 </script>
 
 <main class="container mx-auto w-full p-4">
-  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">Auth</h1>
-  <h1 class="text-base-content mb-8 text-center text-6xl font-bold">🔐</h1>
-
   {#if errorMessage}
     <div class="relative mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
       <span class="block sm:inline">{errorMessage}</span>
@@ -191,15 +187,15 @@
     </div>
   {/if}
 
-  <div class="mt-12 bg-base-200 p-6 rounded-lg shadow-lg">
-    <h2 class="text-3xl font-bold mb-4">How Authentication Works in SE-2Gun</h2>
-    <ol class="list-decimal list-inside space-y-4">
+  <div class="bg-base-200 mt-12 rounded-lg p-6 shadow-lg">
+    <h2 class="mb-4 text-3xl font-bold">How Authentication Works in SE-2Gun</h2>
+    <ol class="list-inside list-decimal space-y-4">
       <li>
         <strong>Connect Wallet:</strong> Start by connecting your Ethereum wallet (e.g., MetaMask) to the application.
       </li>
       <li>
         <strong>Registration:</strong>
-        <ul class="list-disc list-inside ml-6 mt-2">
+        <ul class="ml-6 mt-2 list-inside list-disc">
           <li>Click the "Sign In" button to start registration.</li>
           <li>You'll be asked to sign a message using your Ethereum wallet.</li>
           <li>A unique cryptographic pair is generated based on your Ethereum address and signature.</li>
@@ -208,7 +204,7 @@
       </li>
       <li>
         <strong>Login:</strong>
-        <ul class="list-disc list-inside ml-6 mt-2">
+        <ul class="ml-6 mt-2 list-inside list-disc">
           <li>Click the "Login" button to start the login process.</li>
           <li>You'll be asked to sign a message again using your Ethereum wallet.</li>
           <li>The signature is used to retrieve and decrypt your cryptographic pair from GunDB.</li>
@@ -216,14 +212,17 @@
         </ul>
       </li>
       <li>
-        <strong>Data Encryption:</strong> Once authenticated, your data is encrypted using your cryptographic pair before being stored in GunDB, ensuring only you can access it.
+        <strong>Data Encryption:</strong> Once authenticated, your data is encrypted using your cryptographic pair before
+        being stored in GunDB, ensuring only you can access it.
       </li>
       <li>
-        <strong>Logout:</strong> Click the "Esci" (Logout) button to clear your local session. Your encrypted data remains secure in GunDB, accessible only upon your next successful authentication.
+        <strong>Logout:</strong> Click the "Esci" (Logout) button to clear your local session. Your encrypted data remains
+        secure in GunDB, accessible only upon your next successful authentication.
       </li>
     </ol>
     <p class="mt-4 text-sm italic">
-      This authentication flow combines Ethereum's cryptographic capabilities with GunDB's decentralized nature, providing a secure and user-controlled system.
+      This authentication flow combines Ethereum's cryptographic capabilities with GunDB's decentralized nature,
+      providing a secure and user-controlled system.
     </p>
   </div>
 </main>

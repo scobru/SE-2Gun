@@ -5,17 +5,18 @@
   import { get, writable } from "svelte/store";
   import { currentUser, gun } from "$lib/stores";
   import { Network } from "vis-network/standalone";
+  import type { IGunInstance } from "gun";
 
-  let gunInstance = null;
+  let gunInstance: IGunInstance<any> | null = null;
   let nodeData = writable({});
   let nodePath = writable("");
   let errorMessage = "";
-  let network;
-  let container;
+  let network: Network;
+  let container: HTMLElement;
 
   onMount(() => {
     if (get(gun) === null) {
-      gunInstance = gun.set(Gun("http://localhost:8765/gun")); // Sostituisci con l'URL del tuo peer
+        gunInstance = gun.set(Gun("http://localhost:8765/gun")); // Sostituisci con l'URL del tuo peer
     } else {
       gunInstance = get(gun);
     }
@@ -76,28 +77,28 @@
           errorMessage = "Nessun dato trovato per il percorso specificato";
         }
       });
-    } catch (error) {
-      errorMessage = "Errore durante il caricamento dei dati del nodo: " + error.message;
+    } catch (error: unknown) {
+      errorMessage = "Errore durante il caricamento dei dati del nodo: " + (error instanceof Error ? error.message : String(error));
     }
   }
 
-  function updateGraph(data, rootPath) {
-    const nodes = [];
-    const edges = [];
+  function updateGraph(data: any, rootPath: string) {
+    const nodes: { id: any; label: any }[] = [];
+    const edges: { from: any; to: any }[] = [];
 
-    function addNode(id, label) {
+    function addNode(id: string, label: string) {
       if (!nodes.some(node => node.id === id) && id !== "#" && id !== "_") {
         nodes.push({ id, label });
       }
     }
 
-    function addEdge(from, to) {
+    function addEdge(from: any, to: string) {
       if (!edges.some(edge => edge.from === from && edge.to === to)) {
         edges.push({ from, to });
       }
     }
 
-    function traverseObject(obj, parentId, depth = 0) {
+    function traverseObject(obj: { [x: string]: any }, parentId: string, depth = 0) {
       if (depth > 5) return; // Evita loop infiniti
       Object.keys(obj).forEach(key => {
         if (key !== "_" && key !== "#") {
@@ -127,23 +128,23 @@
     network.setData({ nodes, edges });
   }
 
-  function isNodeReference(value) {
+  function isNodeReference(value: unknown) {
     return typeof value === "string" && value.startsWith("~");
   }
 
-  function handleNodeClick(path) {
+  function handleNodeClick(path: unknown) {
     nodePath.set(path);
     loadNodeData(path);
   }
 
-  function copyToClipboard(text) {
+  function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
       // Opzionale: mostra un feedback all'utente
       alert("Copiato negli appunti!");
     });
   }
 
-  function truncateString(str, num) {
+  function truncateString(str: unknown, num: number) {
     if (str.length <= num) {
       return str;
     }
@@ -183,10 +184,10 @@
               <div class="mb-2">
                 <strong class="text-blue-600">{key}:</strong>
                 {#if isNodeReference(value)}
-                  <span 
-                    class="cursor-pointer text-green-500 hover:underline" 
+                  <span
+                    class="cursor-pointer text-green-500 hover:underline"
                     on:click={() => handleNodeClick(value)}
-                    on:keydown={(e) => e.key === 'Enter' && handleNodeClick(value)}
+                    on:keydown={e => e.key === "Enter" && handleNodeClick(value)}
                     role="button"
                     tabindex="0"
                   >
