@@ -1,4 +1,4 @@
-# ScafoldETH2-Gun - SE2-Gun
+# 🏗️ ScafoldETH2-Gun 🔫 - SE2-Gun
 
 ## Table of Contents
 
