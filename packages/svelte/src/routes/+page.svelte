@@ -38,14 +38,9 @@
 </div>
 
 <div class="card-actions mt-6 justify-center">
-  <a
-    href="https://github.com/scobru/se-2Gun"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="btn btn-primary btn-lg"
-  >
+  <a href="https://github.com/scobru/SE-2Gun" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
     <Icon src={DocumentCheck} class="mr-2 h-6 w-6" />
-    Fai un Fork del Repository
+    Fork the Repo
   </a>
 </div>
 
