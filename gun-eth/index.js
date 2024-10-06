@@ -25,18 +25,13 @@ Gun.chain.setToken = function (token) {
   return this;
 };
 
-Gun.on("opt", function (ctx) {
-  if (ctx.once) {
-    return;
-  }
-  ctx.on("out", function (msg) {
-    var to = this.to;
-    // Usa il token personalizzato
-    msg.headers = {
-      token: customToken,
-    };
-    to.next(msg); // passa al prossimo middleware
-  });
+ctx.on("put", function (msg) {
+  const to = this.to;
+  // Usa il token personalizzato
+  msg.headers = {
+    token: customToken,
+  };
+  to.next(msg); // passa al prossimo middleware
 });
 
 // Aggiungi il metodo alla catena di Gun
