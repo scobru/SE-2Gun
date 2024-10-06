@@ -28,15 +28,17 @@ It is recommended to use this configuration for development and testing purposes
 
 The SE2-Gun-Extension is a plugin for SE2 that provides a ready to go installation of Gun and the Gun-Eth plugin.
 
-[SE2-Gun-Extension](https://github.com/scobru/se2-gun-extension)
+**[SE2-Gun-Extension](https://github.com/scobru/SE-2Gun-extension)**
 
 ### How to install
 
 ```bash
-npx create-eth@latest -e {scobru/se2-gun-extension}
+npx create-eth@latest -e {scobru/SE-2Gun-extension}
 ```
 
 ## GUN-ETH Plugin
+
+**[gun-eth package](https://github.com/scobru/SE-2Gun/tree/main/packages/gun-eth)**
 
 The Gun-eth plugin extends Gun.js functionality to integrate seamlessly with Ethereum blockchain capabilities. It provides a suite of tools for working with Ethereum signatures, managing encrypted key pairs, and implementing the SHINE for blockchain data verification.
 
