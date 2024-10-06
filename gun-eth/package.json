@@ -1,6 +1,6 @@
 {
   "name": "gun-eth",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A GunDB plugin for Ethereum, and Web3",
   "main": "index.js",
   "scripts": {

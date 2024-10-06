@@ -13,6 +13,32 @@ const SHINE_OPTIMISM_SEPOLIA = SHINE.address;
 
 let SHINE_CONTRACT_ADDRESS;
 
+let customToken = "";
+
+Gun.chain.setToken = function (token) {
+  if (typeof token === "string" && token.length > 0) {
+    customToken = token;
+    console.log("Token impostato con successo:", token);
+  } else {
+    console.error("Token non valido. Deve essere una stringa non vuota.");
+  }
+  return this;
+};
+
+Gun.on("opt", function (ctx) {
+  if (ctx.once) {
+    return;
+  }
+  ctx.on("out", function (msg) {
+    var to = this.to;
+    // Usa il token personalizzato
+    msg.headers = {
+      token: customToken,
+    };
+    to.next(msg); // passa al prossimo middleware
+  });
+});
+
 // Aggiungi il metodo alla catena di Gun
 Gun.chain.verifySignature = async function (message, signature) {
   try {
