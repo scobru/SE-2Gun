@@ -1,7 +1,8 @@
-# GUN-ETH Plugin Documentation
+# SE2-Gun
 
 ## Table of Contents
 
+- [SE2-Gun-Extension](#se2-gun-extension)
 - [GUN-ETH Plugin](#gun-eth-plugin)
   - [Key Features](#key-features)
   - [Core Functions](#core-functions)
@@ -12,7 +13,18 @@
 - [SHINE](#shine-secure-hash-integrity-network-ethereum)
 - [Inspector](#inspector)
 - [Gungra.ph](#gungraph)
-- [SE2-Gun-Extension](#se2-gun-extension)
+
+## SE2-Gun-Extension
+
+The SE2-Gun-Extension is a plugin for SE2 that provides a ready to go installation of Gun and the Gun-Eth plugin.
+
+[SE2-Gun-Extension](https://github.com/scobru/se2-gun-extension)
+
+### How to install
+
+```bash
+npx create-eth@latest -e {scobru/se2-gun-extension}
+```
 
 ## GUN-ETH Plugin
 
@@ -176,15 +188,3 @@ GunGraph demonstrates the power of decentralized social networking using Gun.js:
 - **Decentralized Architecture**: The system operates without a central server, leveraging peer-to-peer connections.
 
 GunGraph showcases how Gun.js can be used to build decentralized applications with real-time data synchronization, providing a foundation for creating resilient and user-centric social platforms.
-
-## SE2-Gun-Extension
-
-The SE2-Gun-Extension is a plugin for SE2 that provides a ready to go installation of Gun and the Gun-Eth plugin.
-
-[SE2-Gun-Extension](https://github.com/scobru/se2-gun-extension)
-
-### How to install
-
-```bash
-npx create-eth@latest -e {scobru/se2-gun-extension}
-```
