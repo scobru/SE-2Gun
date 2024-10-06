@@ -18,6 +18,10 @@
     </div>
   </div>
 
+  <div class="my-8 w-full bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 py-8 text-center text-white">
+    <h2 class="mb-2 text-4xl font-bold">Live on Optimism!</h2>
+  </div>
+
   <div class="bg-base-300 mt-16 w-full flex-grow px-8 py-12">
     <div class="flex flex-col items-center justify-center gap-12 sm:flex-row">
       <div class="flex max-w-xs flex-col items-center rounded-3xl px-10 py-10 text-center">

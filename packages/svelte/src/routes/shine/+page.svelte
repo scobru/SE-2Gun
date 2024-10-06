@@ -138,4 +138,19 @@
       {/if}
     </div>
   {/if}
+
+  <div class="mt-8 border border-gray-300 p-4 rounded-lg">
+    <h2 class="text-xl font-semibold mb-2">How to Use Verification</h2>
+    <ol class="list-decimal list-inside">
+      <li>Save a message using the "Enter a message" field and the "Save Message" button.</li>
+      <li>Copy the Node ID that appears after saving the message.</li>
+      <li>Paste the Node ID into the "Node ID (for verification)" field.</li>
+      <li>Click the "Verify Message" button.</li>
+      <li>The verification result will appear below, showing whether the message was successfully verified on the blockchain.</li>
+    </ol>
+    <p class="mt-2 text-sm opacity-75">
+      Note: The verification compares the hash of the locally saved message with the one recorded on the blockchain, 
+      confirming the integrity and authenticity of the data.
+    </p>
+  </div>
 </div>

@@ -74,7 +74,7 @@
 
     try {
       if (!account.address) {
-        errorMessage = "Nessun account Ethereum connesso";
+        errorMessage = "Please connect your Ethereum wallet";
         return;
       }
 
@@ -167,10 +167,8 @@
 
   {#if $currentUser === null}
     <div class="flex justify-center space-x-4">
-      <button class="btn btn-primary" on:click={registra}><i class="fas fa-user-plus"></i> Registra con Ethereum</button
-      >
-      <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Accedi con Ethereum</button
-      >
+      <button class="btn btn-primary" on:click={registra}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
     <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
