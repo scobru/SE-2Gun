@@ -1,13 +1,12 @@
-/* const Gun = require("gun/gun");
+const Gun = require("gun/gun");
 const SEA = require("gun/sea");
 const ethers = require("ethers");
-const SHINE = require("./SHINE.json"); */
+const SHINE = require("./SHINE.json");
 
-import Gun from "gun";
+/* import Gun from "gun";
 import SEA from "gun/sea";
 import { ethers } from "ethers";
-
-import SHINE from "./SHINE.json";
+import SHINE from "./SHINE.json"; */
 
 const SHINE_ABI = SHINE.abi;
 const SHINE_OPTIMISM_SEPOLIA = SHINE.address;
