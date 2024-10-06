@@ -3,11 +3,6 @@ const SEA = require("gun/sea");
 const ethers = require("ethers");
 const SHINE = require("./SHINE.json");
 
-/* import Gun from "gun";
-import SEA from "gun/sea";
-import { ethers } from "ethers";
-import SHINE from "./SHINE.json"; */
-
 const SHINE_ABI = SHINE.abi;
 const SHINE_OPTIMISM_SEPOLIA = SHINE.address;
 
@@ -25,7 +20,11 @@ Gun.chain.setToken = function (token) {
   return this;
 };
 
-ctx.on("put", function (msg) {
+Gun.chain.getToken = function () {
+  return customToken;
+};
+
+Gun.on("put", function (msg) {
   const to = this.to;
   // Usa il token personalizzato
   msg.headers = {
