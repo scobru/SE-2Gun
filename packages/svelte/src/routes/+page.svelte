@@ -37,6 +37,18 @@
   </div>
 </div>
 
+<div class="card-actions mt-6 justify-center">
+  <a
+    href="https://github.com/scobru/se-2Gun"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="btn btn-primary btn-lg"
+  >
+    <Icon src={DocumentCheck} class="mr-2 h-6 w-6" />
+    Fai un Fork del Repository
+  </a>
+</div>
+
 <div class="card bg-base-100 mx-auto my-8 max-w-4xl p-6">
   <div class="card-body">
     <h2 class="card-title text-primary text-5xl font-extrabold">What is SE-2Gun?</h2>
