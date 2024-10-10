@@ -1,8 +1,7 @@
 <script lang="ts">
   import { Address } from "$lib/components/scaffold-eth";
   import { createAccount } from "@byteatatime/wagmi-svelte";
-  import { BugAnt, Icon, MagnifyingGlass, DocumentCheck } from "svelte-hero-icons";
-
+  import { Icon, DocumentCheck } from "svelte-hero-icons";
   const { address } = $derived.by(createAccount());
 </script>
 
@@ -42,13 +41,13 @@
 </div>
 
 <div class="card-actions mt-6 justify-center">
-  <a href="https://github.com/scobru/SE-2Gun" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+  <a href="https://github.com/scobru/SE-2Gun" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg my-10">
     <Icon src={DocumentCheck} class="mr-2 h-6 w-6" />
     Fork the Repo
   </a>
 </div>
 
-<div class="card bg-base-100 mx-auto my-8 max-w-4xl p-6">
+<div class="card  mx-auto my-8 max-w-4xl p-6">
   <div class="card-body">
     <h2 class="card-title text-primary text-5xl font-extrabold">What is SE-2Gun?</h2>
     <p class="text-base-content mt-4 text-lg font-medium">
@@ -87,6 +86,34 @@
         and debugging of smart contracts.
       </li>
     </ul>
+  </div>
+</div>
+<div class="card mx-auto my-8 max-w-4xl p-6">
+  <div class="card-body">
+    <h2 class="card-title text-primary text-5xl font-extrabold">Contribute as a Relay</h2>
+    <p class="text-base-content mt-4 text-lg font-medium">
+      SE-2Gun relies on a network of relays to ensure data availability and resilience. By becoming a relay, you can play a crucial role in maintaining the decentralized nature of the network. Here's how you can contribute:
+    </p>
+    <ul class="text-base-content mt-4 list-inside list-disc text-lg font-medium">
+      <li>
+        <span class="font-bold">Set Up a Node:</span> Install and configure a GunDB node on your server or personal computer.
+      </li>
+      <li>
+        <span class="font-bold">Connect to the Network:</span> Use the provided configuration to connect your node to the SE-2Gun network.
+      </li>
+      <li>
+        <span class="font-bold">Maintain Uptime:</span> Ensure your node remains online to contribute to the network's reliability.
+      </li>
+      <li>
+        <span class="font-bold">Monitor Performance:</span> Keep an eye on your node's performance and resource usage.
+      </li>
+    </ul>
+    <p class="text-base-content mt-4 text-lg font-medium">
+      By running a relay, you help distribute data across the network, improving access speeds and ensuring data persistence. Your contribution strengthens the decentralized infrastructure that powers SE-2Gun.
+    </p>
+    <div class="card-actions mt-6 justify-center">
+      <a href="#" class="btn btn-primary">Learn More About Becoming a Relay</a>
+    </div>
   </div>
 </div>
 

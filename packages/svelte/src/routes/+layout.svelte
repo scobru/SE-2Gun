@@ -4,8 +4,6 @@
   import ScaffoldEthApp from "$lib/components/ScaffoldEthApp.svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { Toaster } from "@leodog896/svelte-french-toast";
-  import Gun from "gun";
-  import { gun } from "$lib/stores";
 
   const { data }: { data: { vercelUrl?: string } } = $props();
 
@@ -18,7 +16,6 @@
     favicon: "/favicon.png",
   });
 
-  gun.set(new Gun());
 </script>
 
 <svelte:head>

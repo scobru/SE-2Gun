@@ -8,7 +8,6 @@ SE2-Gun is a powerful boilerplate that integrates ScaffoldETH2 with Gun.js and E
 
 - [SE2-Gun-Extension](#se2-gun-extension)
 - [GUN-ETH Plugin](#gun-eth-plugin)
-  - [SHINE](#shine)
 - [Authentication](#authentication)
 - [Inspector](#inspector)
 - [Block Explorer](#block-explorer)
@@ -42,15 +41,7 @@ npx create-eth@latest -e {scobru/SE-2Gun-extension}
 
 The Gun-eth plugin extends Gun.js functionality to integrate seamlessly with Ethereum blockchain capabilities. It provides a suite of tools for working with Ethereum signatures, managing encrypted key pairs, and implementing the SHINE for blockchain data verification.
 
-### SHINE (Secure Hash Integrity Network Ethereum)
-
-SHINE provides a mechanism for verifying data integrity using Ethereum and Gun.js.
-
-1. **Data Storage**: When saving data, a content hash is generated and stored in both Gun.js and on the Ethereum blockchain.
-2. **Data Verification**: To verify data, the stored hash is compared with a hash generated from the data retrieved from Gun.js.
-3. **Blockchain Interaction**: The plugin interacts with an Ethereum smart contract to store and verify data hashes.
-
-**[SHINE examples](https://github.com/scobru/SE-2Gun/tree/main/packages/gun-eth)**
+**[Gun-Eth Plugin](https://github.com/scobru/gun-eth)**
 
 ## Authentication
 
@@ -96,6 +87,9 @@ This stack offers several advantages:
 3. **Ethereum-Based Encryption**: SE2-Gun generates cryptographic pairs using Ethereum addresses, providing a secure and reliable method for data encryption and user authentication.
 4. **Rapid Development**: Svelte and Scaffold-ETH facilitate quick and efficient dApp development.
 5. **Robust Testing and Debugging**: Hardhat provides powerful tools for testing and debugging smart contracts.
+
+This project is a fork of Scaffold-ETH2, with the addition of GunDB and the Gun-Eth plugin.
+tnx to [scaffold-eth-svelte](https://github.com/ByteAtATime/scaffold-eth-svelte) for the SE2-Gun-Extension and the Gun-Eth plugin.
 
 ## Contributing
 

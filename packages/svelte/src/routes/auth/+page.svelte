@@ -1,15 +1,23 @@
 <script lang="ts">
-  import Gun from "gun";
-  import "gun/sea";
+  import Gun from 'gun'
+  import "gun/sea"
+  import "gun-eth";
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import "gun-eth";
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
+  const { address, chainId, status, isConnected } = $derived.by(createAccount()); // createAccount is the Svelte version of useAccount
+
+
+
   import type { IGunInstance } from "gun/types";
   import type { IGunUserInstance } from "gun/types";
+  import { createAccount } from "@byteatatime/wagmi-svelte";
+
+  let SEA = Gun.SEA
+
 
   let user: IGunUserInstance = {
     recall: (options: { sessionStorage: boolean }, callback: (ack: any) => Promise<void>) => {},
@@ -28,7 +36,7 @@
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
-    const gunInstance = get(gun) as unknown as IGunInstance<any>;
+    const gunInstance = get(gun)
     if (gunInstance) {
       user = gunInstance?.user();
     } else {
@@ -108,7 +116,7 @@
     }
     console.log("Accesso in corso...");
     errorMessage = "";
-    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
+    const gunInstance = get(gun); // Aggiunta di un fallback per evitare null
     user = gunInstance.user();
 
     try {

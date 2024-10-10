@@ -16,7 +16,7 @@
 
   onMount(() => {
     if (get(gun) === null) {
-        gunInstance = gun.set(Gun("http://localhost:8765/gun")); // Sostituisci con l'URL del tuo peer
+      gunInstance = gun.set(Gun("https://gun-relay.scobrudot.dev/")); // Sostituisci con l'URL del tuo peer
     } else {
       gunInstance = get(gun);
     }
@@ -78,7 +78,8 @@
         }
       });
     } catch (error: unknown) {
-      errorMessage = "Errore durante il caricamento dei dati del nodo: " + (error instanceof Error ? error.message : String(error));
+      errorMessage =
+        "Errore durante il caricamento dei dati del nodo: " + (error instanceof Error ? error.message : String(error));
     }
   }
 

@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@walletconnect/ethereum-provider": "^2.12.2",
+    "gun-eth": "^1.2.13",
     "viem": "^2.9.3"
   }
 }
