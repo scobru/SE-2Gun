@@ -41,8 +41,6 @@ npx create-eth@latest -e {scobru/SE-2Gun-extension}
 
 The Gun-eth plugin extends Gun.js functionality to integrate seamlessly with Ethereum blockchain capabilities. It provides a suite of tools for working with Ethereum signatures, managing encrypted key pairs, and implementing the SHINE for blockchain data verification.
 
-**[Gun-Eth Plugin](https://github.com/scobru/gun-eth)**
-
 ## Authentication
 
 The authentication process in SHINE combines Ethereum signatures with Gun.js for secure and decentralized user management:

@@ -11,25 +11,13 @@
 p {
   margin: 1rem 0;
 }
-.input {
-  @apply rounded-none;
-}
-
-.btn {
-  @apply shadow-md;
-  @apply rounded-none;
-}
-
-.btn.btn-ghost {
-  @apply shadow-none;
-}
 
 :root {
   --primary-color: #4a90e2;
   --secondary-color: #50e3c2;
   --background-color: #f5f7fa;
   --text-color: #333;
-  --font-family: "Roboto", sans-serif;
+  --font-family: "Montserrat", sans-serif;
 }
 
 body {
@@ -45,41 +33,6 @@ h4,
 h5,
 h6 {
   font-family: "Montserrat", sans-serif;
-}
-
-button {
-  background-color: var(--primary-color);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: var(--secondary-color);
-}
-
-button {
-  background-color: var(--primary-color);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
-}
-
-button:hover {
-  background-color: var(--secondary-color);
-  transform: scale(1.05);
-}
-
-button:active {
-  transform: scale(0.95);
 }
 
 @keyframes fadeIn {

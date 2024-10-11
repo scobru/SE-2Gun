@@ -13,10 +13,15 @@
   let errorMessage = "";
   let network: Network;
   let container: HTMLElement;
+  let customRelay = writable("https://gun-relay.scobrudot.dev/");
 
   onMount(() => {
+    initGun();
+  });
+
+  function initGun() {
     if (get(gun) === null) {
-      gunInstance = gun.set(Gun("https://gun-relay.scobrudot.dev/")); // Sostituisci con l'URL del tuo peer
+      gunInstance = gun.set(Gun(get(customRelay)));
     } else {
       gunInstance = get(gun);
     }
@@ -24,7 +29,7 @@
       console.log("Connected to peer:", peer);
     });
     initNetwork();
-  });
+  }
 
   function initNetwork() {
     const data = {
@@ -151,6 +156,11 @@
     }
     return str.slice(0, num) + "...";
   }
+
+  function setCustomRelay() {
+    initGun();
+    loadNodeData();
+  }
 </script>
 
 <main class="container mx-auto w-full p-4">
@@ -161,6 +171,16 @@
       <span class="block sm:inline">{errorMessage}</span>
     </div>
   {/if}
+
+  <div class="mb-4 flex justify-center">
+    <input
+      type="text"
+      class="input input-bordered w-full max-w-xs"
+      placeholder="Enter custom relay URL"
+      bind:value={$customRelay}
+    />
+    <button class="btn btn-secondary ml-2" on:click={setCustomRelay}>Set Relay</button>
+  </div>
 
   <div class="mb-4 flex justify-center">
     <input

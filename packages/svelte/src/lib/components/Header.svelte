@@ -28,6 +28,10 @@
       href: "/",
     },
     {
+      label: "Docs",
+      href: "/docs",
+    },
+    {
       label: "Auth",
       href: "/auth",
     },
@@ -39,10 +43,6 @@
     {
       label: "Inspect",
       href: "/inspect",
-    },
-    {
-      label: "Block Explorer",
-      href: "/blockexplorer",
     },
     /* {
       label: "Debug Contracts",
@@ -105,7 +105,7 @@
         <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
       </div>
     </a>
-    <ul class="menu menu-horizontal hidden gap-2 px-1 font-light lg:flex lg:flex-nowrap">
+    <ul class="menu menu-horizontal hidden gap-2 px-1 font-semibold lg:flex lg:flex-nowrap">
       {@render menuLinksSnippet()}
     </ul>
   </div>

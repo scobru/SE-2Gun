@@ -11,7 +11,6 @@ import "gun/lib/radisk";
 import "gun/lib/store";
 import "gun/lib/rindexed";
 import "gun/lib/webrtc";
-
 import "gun-eth";
 
 import { peers } from "../../gun.config";
@@ -30,7 +29,7 @@ let gun;
  * import { useGun } from '@gun-vue/composables'
  * const gun = useGun()
  */
-export function useGun(options = { localStorage: false }) {
+export function createGun(options = { localStorage: false }) {
     if (!gun) {
         const opts = { peers: peers };
         if (typeof options === "object") {
@@ -46,8 +45,8 @@ export function useGun(options = { localStorage: false }) {
  * @param {...string} args
  * @returns {import('gun').IGunInstance}
  */
-export function useGunPath(...args) {
-    const gun = useGun();
+export function createGunPath(...args) {
+    const gun = createGun();
     let g;
     for (let arg of args) {
         g = gun.get(arg);
@@ -56,18 +55,11 @@ export function useGunPath(...args) {
 }
 
 /**
- * @param {...string} args
- */
-export function useGunMap(...args) {
-    // Implementation not provided in the original code
-}
-
-/**
  * get a secondary Gun instance for certificate management
  * @param {object} [options={ localStorage: false }]
  * @returns {import('gun').IGunInstance}
  */
-export function useGunSecondary(options = { localStorage: false }) {
+export function createGunSecondary(options = { localStorage: false }) {
     const gun2 = Gun({ peers: peers, ...options });
     return gun2;
 }

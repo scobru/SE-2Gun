@@ -5,7 +5,7 @@
   import { get } from "svelte/store";
   import "gun-eth";
   import { createAccount } from "@byteatatime/wagmi-svelte";
-  import { tick } from 'svelte';
+  import { tick } from "svelte";
 
   let message = $state("");
   let nodeId = $state("");
@@ -93,22 +93,17 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <h1 class="mb-4 text-2xl font-bold">SHINE (Secure Hash Integrity Network Ethereum)</h1>
+  <h1 class="my-10 text-2xl font-bold">SHINE (Secure Hash Integrity Network Ethereum)</h1>
 
   {#if isConnected}
-    <div class="mb-4">
+    <div class="mb-4 mt-4">
       <input
         type="text"
         bind:value={message}
-        placeholder="Inserisci un messaggio"
+        placeholder="Enter a message"
         class="mb-2 w-full rounded border p-2 text-black"
       />
-      <input
-        type="text"
-        bind:value={nodeId}
-        placeholder="Node ID (per la verifica)"
-        class="w-full rounded border p-2 text-black"
-      />
+      <input type="text" bind:value={nodeId} placeholder="Node ID" class="w-full rounded border p-2 text-black" />
     </div>
 
     <button onclick={saveMessage} disabled={isLoading} class="mr-2 rounded bg-blue-500 p-2 text-white">
@@ -151,7 +146,7 @@
       </div>
     {/if}
 
-    <div class="mt-8 rounded-lg border border-gray-300 p-4">
+    <div class="mt-8 rounded-lg p-8">
       <h2 class="mb-2 text-xl font-semibold">How to Use Verification</h2>
       <ol class="list-inside list-decimal">
         <li>Save a message using the "Enter a message" field and the "Save Message" button.</li>

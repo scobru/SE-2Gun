@@ -1,6 +1,5 @@
 <script lang="ts">
-  import Gun from 'gun'
-  import "gun/sea"
+  import Gun from "gun";
   import "gun-eth";
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
@@ -10,14 +9,8 @@
   import { notification } from "$lib/utils/scaffold-eth/notification";
   const { address, chainId, status, isConnected } = $derived.by(createAccount()); // createAccount is the Svelte version of useAccount
 
-
-
-  import type { IGunInstance } from "gun/types";
   import type { IGunUserInstance } from "gun/types";
   import { createAccount } from "@byteatatime/wagmi-svelte";
-
-  let SEA = Gun.SEA
-
 
   let user: IGunUserInstance = {
     recall: (options: { sessionStorage: boolean }, callback: (ack: any) => Promise<void>) => {},
@@ -36,7 +29,7 @@
   const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
   onMount(() => {
-    const gunInstance = get(gun)
+    const gunInstance = get(gun);
     if (gunInstance) {
       user = gunInstance?.user();
     } else {
@@ -79,7 +72,7 @@
     user = gunInstance.user();
 
     try {
-      if (!account.address) {
+      if (!isConnected) {
         errorMessage = "Please connect your Ethereum wallet";
         return;
       }
@@ -110,7 +103,7 @@
   async function accedi() {
     account = getAccount(wagmiConfig);
 
-    if (!account.address) {
+    if (!isConnected) {
       notification.error("Nessun account Ethereum connesso");
       return;
     }
@@ -170,7 +163,7 @@
   {/if}
 
   {#if $currentUser === null}
-    <div class="flex justify-center space-x-4">
+    <div class="bg-base-300 mx-auto my-10 mb-4 flex w-fit justify-center space-x-4 rounded-lg p-10">
       <button class="btn btn-primary" on:click={registra}><i class="fas fa-user-plus"></i> Sign In</button>
       <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
@@ -189,13 +182,14 @@
           </ul>
         </div>
       {/if}
-
-      <button class="btn btn-warning" on:click={esci}><i class="fas fa-sign-out-alt"></i> Esci</button>
-      <button class="btn btn-warning" on:click={accedi}><i class="fas fa-eye"></i> View Pair</button>
+      <div class="flex justify-center space-x-4">
+        <button class="btn btn-warning" on:click={esci}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-warning" on:click={accedi}><i class="fas fa-eye"></i> View Pair</button>
+      </div>
     </div>
   {/if}
 
-  <div class="bg-base-200 mt-12 rounded-lg p-6 shadow-lg">
+  <div class="bg-base-200 mt-12 rounded-lg p-6">
     <h2 class="mb-4 text-3xl font-bold">How Authentication Works in SE-2Gun</h2>
     <ol class="list-inside list-decimal space-y-4">
       <li>
@@ -224,7 +218,7 @@
         being stored in GunDB, ensuring only you can access it.
       </li>
       <li>
-        <strong>Logout:</strong> Click the "Esci" (Logout) button to clear your local session. Your encrypted data remains
+        <strong>Logout:</strong> Click the "Logout" (Logout) button to clear your local session. Your encrypted data remains
         secure in GunDB, accessible only upon your next successful authentication.
       </li>
     </ol>

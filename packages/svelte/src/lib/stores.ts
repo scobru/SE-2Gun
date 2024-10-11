@@ -3,8 +3,8 @@ import { writable, type Writable } from "svelte/store";
 import { useGun } from "./gun";
 
 export const currentUser = writable(null);
-export const gun = writable(null) as unknown as Writable<IGunInstance<any>>;
 
+export const gun = writable(null) as unknown as Writable<IGunInstance<any>>;
 gun.set(useGun());
 
 
