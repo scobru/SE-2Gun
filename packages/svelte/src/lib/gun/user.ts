@@ -103,9 +103,11 @@ function pair() {
 export function useUser() {
   if (!get(user).initiated) {
     const gun = useGun();
-    user.update(u => ({ ...u, db: gun.user(), is: "" }));
     gun.user().recall({ sessionStorage: true }, () => {
       console.log("user was recalled");
+      if (gun.user().is) {
+        init();
+      }
     });
 
     gun.on("auth", () => {
@@ -133,69 +135,38 @@ export function useUser() {
 
 export async function auth(pair, cb = pair => {}) {
   const gun = useGun();
+
   if (!isPair(pair)) {
     console.log("incorrect pair", pair);
     return;
   }
+
   gun.user().auth(pair, async ack => {
     if (ack.err) {
       console.error("Errore di autenticazione:", ack.err);
       cb(ack);
     } else {
       init();
-      console.log("user is authenticated");
       const { user } = useUser();
       user.update(u => ({ ...u, auth: true }));
-      console.log("User:", user);
+      console.log("Successo autenticazione");
       cb(ack);
     }
   });
 }
 
-async function init() {
+function init() {
   const gun = useGun();
-  return new Promise(resolve => {
-    gun.on("auth", () => {
-      user.update(u => ({ ...u, is: gun.user().is }));
-      if (user.pulser) {
-        clearInterval(user.pulser);
-      }
-      user.update(u => ({
-        ...u,
-        pulser: setInterval(() => {
-          gun.user().get("pulse").put(Date.now());
-        }, 1000),
-      }));
+  const pub = gun.user().is?.pub;
+  user.update(u => ({ ...u, db: gun.user(), is: gun.user().is, pub: pub }));
+  console.log("User initialized:", get(user));
+}
 
-      gun.user().get("epub").put(user.is.epub);
-
-      gun
-        .user()
-        .get("pulse")
-        .on(d => {
-          user.update(u => ({ ...u, blink: !u.blink, pulse: d }));
-        });
-
-      gun
-        .user()
-        .get("safe")
-        .map()
-        .on((d, k) => {
-          user.update(u => ({ ...u, safe: { ...u.safe, [k]: d } }));
-        });
-
-      gun
-        .user()
-        .get("profile")
-        .get("name")
-        .on(d => {
-          user.update(u => ({ ...u, name: d }));
-        });
-
-      user.update(u => ({ ...u, initiated: true }));
-      resolve();
-    });
-  });
+function startPulseTimer() {
+  const gun = useGun();
+  setInterval(() => {
+    gun.user().get('pulse').put(Date.now());
+  }, 1000); // Invia un pulse ogni secondo
 }
 
 /**

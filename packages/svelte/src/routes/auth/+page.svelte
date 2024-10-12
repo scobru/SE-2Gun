@@ -8,6 +8,9 @@
   import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
   import { useUser } from "$lib/gun/user";
 
+  import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
+  import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
+
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
   
@@ -90,7 +93,13 @@
     </div>
   {:else}
     <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$currentUser}!</h2>
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.pub}!</h2>
+
+      <div class="">
+        <AccountAvatar pub={$user?.pub as string} />
+        <AccountProfile pub={$user?.pub as string} />
+
+      </div>
 
       {#if userPair && Object.keys(userPair).length > 0}
         <div class="my-5 items-center">

@@ -1,15 +1,20 @@
-import Gun from "gun";
 import "gun-eth";
 import { getAccount } from "@wagmi/core";
 import { currentUser, gun } from "$lib/stores";
-import { get } from "svelte/store";
+import { derived, get, writable } from "svelte/store";
 import { notification } from "$lib/utils/scaffold-eth/notification";
 import { wagmiConfig } from "$lib/wagmi";
 import type { IGunUserInstance } from "gun/types";
-import { auth, leave, useUser } from "./user";
+import { auth, leave, useUser, isPair } from "./user";
 import { useGun } from "./gun";
-
+import SEA from "gun/sea";
+import { useAccount } from "./account";
 const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
+
+const { user: userStore } = useUser();
+const { account } = useAccount(userStore.pub);
+git 
+$: console.log("account", account);
 
 export function initializeAuth() {
   const gun = useGun();
@@ -66,7 +71,7 @@ export async function signIn(): Promise<string | null> {
     await gunInstance.createAndStoreEncryptedPair(account.address, signature);
 
     return new Promise(resolve => {
-      user.db.create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
+      gunInstance.user().create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
         if ("err" in ack) {
           resolve("Errore durante la registrazione: " + ack.err);
         } else {
@@ -126,4 +131,185 @@ export async function login(): Promise<string | null> {
 
 export function logout(): void {
   leave();
+}
+
+/**
+ * @typedef {Object} Safe
+ * @property {boolean} saved - Whether data is saved
+ * @property {string} password - Stored password
+ * @property {string} enc - Encrypted data
+ * @property {string} pass - Stored pass
+ * @property {Object} rooms - Room information
+ */
+
+/**
+ * @typedef {Object} Auth
+ * @property {string} input - User input for password
+ * @property {boolean} show - Whether to show password
+ * @property {boolean} safePair - Indicates if the pair is safe
+ * @property {number} minLength - Minimum length for password
+ * @property {Safe} safe - Safe storage object
+ * @property {Object} dec - Decrypted data object
+ * @property {string} [dec.pass] - Decrypted password
+ * @property {Object} [dec.pair] - Decrypted key pair
+ * @property {Object} links - Link generation object
+ * @property {string} links.pass - Generated pass link
+ * @property {string} links.pair - Generated pair link
+ * @property {function(): void} set - Function to set password
+ */
+
+interface Auth {
+  input: string;
+  show: boolean;
+  safePair: boolean;
+  minLength: number;
+  safe: {
+    saved: boolean;
+    password: string;
+    enc: string;
+    pass: string;
+    rooms: Record<string, any>;
+  };
+  dec: Record<string, any>;
+  links: {
+    pass: string;
+    pair: string;
+  };
+  set: () => void;
+}
+
+export const pass = writable<Auth>({
+  input: "",
+  show: false,
+  safePair: false,
+  minLength: 5,
+  safe: {
+    saved: false,
+    password: "",
+    enc: "",
+    pass: "",
+    rooms: {},
+  },
+  dec: {},
+  links: {
+    pass: "",
+    pair: "",
+  },
+  set: () => {},
+});
+
+const { user } = useUser();
+
+// Derived stores for links
+const passLink = derived([pass], ([$pass]) => genLink($pass.safe?.enc));
+const pairLink = derived([user], ([$user]) => genLink(JSON.stringify($user.pair())));
+
+// Update links in the pass store
+pass.update(p => ({
+  ...p,
+  links: {
+    pass: get(passLink),
+    pair: get(pairLink),
+  },
+}));
+
+function genLink(text = "", auth_url = "#/auth/") {
+  let base = encodeURIComponent(text);
+  return window.location.origin + window.location.pathname + auth_url + base;
+}
+
+export function parseLink(link: string, auth_url = "#/auth/") {
+  let index = link.indexOf(auth_url);
+  let base = link.substring(index + auth_url.length);
+  return decodeURIComponent(base);
+}
+
+let initiated = false;
+
+export function useAuth() {
+  if (!initiated) {
+    const gun = useGun();
+    gun
+      .user()
+      .get("safe")
+      .map()
+      .on((d, k) => {
+        pass.update(p => ({
+          ...p,
+          safe: { ...p.safe, [k]: d },
+        }));
+      });
+
+    // Svelte equivalent of watchEffect
+    pass.subscribe(async $pass => {
+      if (!$pass.show) {
+        pass.update(p => ({ ...p, dec: {} }));
+        return;
+      }
+      if ($pass?.safe?.pass) {
+        const decPass = await get(user).decrypt($pass.safe.pass);
+        pass.update(p => ({
+          ...p,
+          dec: { ...p.dec, pass: decPass },
+          input: decPass || "",
+        }));
+      }
+      if ($pass?.safe?.enc) {
+        const decPair = await SEA.decrypt($pass.safe.enc, $pass.dec.pass);
+        pass.update(p => ({
+          ...p,
+          dec: { ...p.dec, pair: decPair },
+        }));
+      }
+    });
+  }
+  initiated = true;
+  return { pass, setPass, authWithPass };
+}
+
+export async function hasPass(pub: string) {
+  const gun = useGun();
+  return await gun.get(`~${pub}`).get("safe").get("enc").then();
+}
+
+async function authWithPass(pub: string, passphrase: string) {
+  const gun = useGun();
+  let encPair = await gun.get(`~${pub}`).get("safe").get("enc").then();
+  let pair = await SEA.decrypt(encPair, passphrase);
+  auth(pair);
+}
+
+async function setPass(text: string) {
+  const gun = useGun();
+  let encPair = await SEA.encrypt(get(user).pair(), text);
+  let encPass = await get(user).encrypt(text);
+  gun.user().get("safe").get("enc").put(encPair);
+  gun.user().get("safe").get("pass").put(encPass);
+}
+
+export function useAuthLink(data: string, passPhrase: string) {
+  if (!data) return;
+  const decoded = decodeURIComponent(data);
+  console.log("dec", decoded);
+  if (decoded.substring(0, 3) == "SEA") {
+    if (passPhrase) {
+      authEncPass(decoded, passPhrase);
+    }
+    return "encrypted";
+  } else {
+    try {
+      let d = JSON.parse(decoded);
+      if (isPair(d)) {
+        auth(d);
+      }
+      return "success";
+    } catch (e) {
+      return "incorrect link";
+    }
+  }
+}
+
+async function authEncPass(encPair: string, passphrase: string) {
+  let pair = await SEA.decrypt(encPair, passphrase);
+  auth(pair);
 }
