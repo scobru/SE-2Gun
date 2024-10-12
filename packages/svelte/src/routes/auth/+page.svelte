@@ -1,26 +1,20 @@
 <script lang="ts">
-  import Gun from "gun";
-  import "gun-eth";
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
-  import { initializeAuth, registra, accedi, esci } from "$lib/auth";
-  import type { IGunUserInstance } from "gun/types";
+  import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
+  import { useUser } from "$lib/gun/user";
 
-  let user: IGunUserInstance;
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
+  
+  let { user } = useUser()
 
   onMount(() => {
-    const gunInstance = get(gun);
-    if (gunInstance) {
-      user = initializeAuth(gunInstance);
-    } else {
-      setErrorMessage("Istanza di Gun non inizializzata correttamente");
-    }
+    initializeAuth();
   });
 
   function setErrorMessage(message: string | null) {
@@ -32,17 +26,17 @@
     }
   }
 
-  async function handleRegistra() {
-    const result = await registra(user);
+  async function handlesignIn() {
+    const result = await signIn();
     if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("Registrazione completata con successo!");
+      notification.success("signInzione completata con successo!");
     }
   }
 
-  async function handleAccedi() {
-    const result = await accedi(user);
+  async function handlelogin() {
+    const result = await login();
     if (result) {
       setErrorMessage(result);
     } else {
@@ -50,8 +44,8 @@
     }
   }
 
-  function handleEsci() {
-    esci(user);
+  function handlelogout() {
+    logout();
     userPair = null;
     notification.info("Logout effettuato");
   }
@@ -89,13 +83,13 @@
     </div>
   {/if}
 
-  {#if $currentUser === null}
+  {#if $user?.auth === false}
     <div class="bg-base-300 mx-auto my-10 mb-4 flex w-fit justify-center space-x-4 rounded-lg p-10">
-      <button class="btn btn-primary" on:click={handleRegistra}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary" on:click={handleAccedi}><i class="fas fa-sign-in-alt"></i> Login</button>
+      <button class="btn btn-primary" on:click={handlesignIn}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" on:click={handlelogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
-    <div class="bg-base-100 mb-4 break-all break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
+    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
       <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$currentUser}!</h2>
 
       {#if userPair && Object.keys(userPair).length > 0}
@@ -110,7 +104,7 @@
         </div>
       {/if}
       <div class="flex justify-center space-x-4">
-        <button class="btn btn-warning" on:click={handleEsci}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-warning" on:click={handlelogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
         <button class="btn btn-warning" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
     </div>
@@ -123,9 +117,9 @@
         <strong>Connect Wallet:</strong> Start by connecting your Ethereum wallet (e.g., MetaMask) to the application.
       </li>
       <li>
-        <strong>Registration:</strong>
+        <strong>signIntion:</strong>
         <ul class="ml-6 mt-2 list-inside list-disc">
-          <li>Click the "Sign In" button to start registration.</li>
+          <li>Click the "Sign In" button to start signIntion.</li>
           <li>You'll be asked to sign a message using your Ethereum wallet.</li>
           <li>A unique cryptographic pair is generated based on your Ethereum address and signature.</li>
           <li>This pair is encrypted and securely stored in GunDB.</li>

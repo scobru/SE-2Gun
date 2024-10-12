@@ -6,13 +6,16 @@ import { get } from "svelte/store";
 import { notification } from "$lib/utils/scaffold-eth/notification";
 import { wagmiConfig } from "$lib/wagmi";
 import type { IGunUserInstance } from "gun/types";
+import { auth, leave, useUser } from "./user";
+import { useGun } from "./gun";
 
 const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
-export function initializeAuth(gunInstance: Gun): IGunUserInstance {
-  const user: IGunUserInstance = gunInstance.user();
+export function initializeAuth() {
+  const gun = useGun();
 
-  user.recall({ sessionStorage: true }, async ack => {
+  gun.user().recall({ sessionStorage: true }, async ack => {
+    const user = gun.user();
     if ("err" in ack) {
       console.error("Errore nel recupero della sessione:", ack.err);
     } else if (user.is && user.is.alias) {
@@ -21,13 +24,13 @@ export function initializeAuth(gunInstance: Gun): IGunUserInstance {
     }
   });
 
-  user.on("auth", async () => {
+  gun.user().on("auth", async () => {
     console.log("Utente autenticato:", user.is.alias as string);
     currentUser.set(user.is.alias as string);
     await loadUserData(user);
   });
 
-  return user;
+  return gun.user();
 }
 
 async function loadUserData(user: IGunUserInstance) {
@@ -43,10 +46,11 @@ async function loadUserData(user: IGunUserInstance) {
   }
 }
 
-export async function registra(user: IGunUserInstance): Promise<string | null> {
+export async function signIn(): Promise<string | null> {
   console.log("Registrazione in corso...");
-  const gunInstance = get(gun);
+  const gunInstance = useGun();
   const account = getAccount(wagmiConfig);
+  const { user } = useUser();
 
   try {
     if (!account.isConnected) {
@@ -62,7 +66,7 @@ export async function registra(user: IGunUserInstance): Promise<string | null> {
     await gunInstance.createAndStoreEncryptedPair(account.address, signature);
 
     return new Promise(resolve => {
-      user.create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
+      user.db.create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
         if ("err" in ack) {
           resolve("Errore durante la registrazione: " + ack.err);
         } else {
@@ -77,7 +81,7 @@ export async function registra(user: IGunUserInstance): Promise<string | null> {
   }
 }
 
-export async function accedi(user: IGunUserInstance): Promise<string | null> {
+export async function login(): Promise<string | null> {
   const account = getAccount(wagmiConfig);
 
   if (!account.isConnected) {
@@ -86,8 +90,7 @@ export async function accedi(user: IGunUserInstance): Promise<string | null> {
   }
 
   console.log("Accesso in corso...");
-  const gunInstance = get(gun);
-
+  const gunInstance = useGun();
   try {
     if (!account.address) {
       return "Nessun account Ethereum connesso";
@@ -100,30 +103,27 @@ export async function accedi(user: IGunUserInstance): Promise<string | null> {
 
     const pair = await gunInstance.getAndDecryptPair(account.address, signature);
     console.log("Pair:", pair);
+
     if (!pair) {
       return "Errore nel recupero del pair dell'utente";
     }
 
-    return new Promise(resolve => {
-      user.auth(pair, async (ack: { err: string }) => {
-        console.log("Risposta di autenticazione:", ack);
-        if (ack.err) {
-          resolve("Errore di accesso: " + ack.err);
-        } else {
-          console.log("Accesso riuscito");
-          currentUser.set(user.is.alias);
-          await loadUserData(user);
-          resolve(null);
-        }
-      });
+    await auth(pair, async (ack: { err: string }) => {
+      console.log("Risposta di autenticazione:", ack);
+      if (ack.err) {
+        console.error("Errore di accesso: " + ack.err);
+      } else {
+        console.log("Accesso riuscito");
+        const { user } = useUser();
+        user.update(u => ({ ...u, auth: true }));
+        console.log("User:", get(user));
+      }
     });
   } catch (error) {
     return "Errore durante l'accesso: " + error.message;
   }
 }
 
-export function esci(user: IGunUserInstance): void {
-  user.leave();
-  currentUser.set(null);
-  // Puoi aggiungere qui altre operazioni di pulizia se necessario
+export function logout(): void {
+  leave();
 }

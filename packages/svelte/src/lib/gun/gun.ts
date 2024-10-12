@@ -13,7 +13,7 @@ import "gun/lib/rindexed";
 import "gun/lib/webrtc";
 import "gun-eth";
 
-import { peers } from "../../gun.config";
+import { peers } from "../../../gun.config";
 
 // https://github.com/amark/gun/wiki/volunteer.dht
 // https://github.com/draeder/gun-relays
