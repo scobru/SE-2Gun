@@ -7,151 +7,78 @@
   import { currentUser, gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
-  const { address, chainId, status, isConnected } = $derived.by(createAccount()); // createAccount is the Svelte version of useAccount
-
+  import { initializeAuth, registra, accedi, esci } from "$lib/auth";
   import type { IGunUserInstance } from "gun/types";
-  import { createAccount } from "@byteatatime/wagmi-svelte";
 
-  let user: IGunUserInstance = {
-    recall: (options: { sessionStorage: boolean }, callback: (ack: any) => Promise<void>) => {},
-    is: { alias: null },
-    on: (event: string, callback: () => Promise<void>) => {},
-    create: (alias: any, pass: any, callback: (ack: any) => Promise<void>) => {},
-    auth: (alias: any, pass: any, callback: (ack: any) => Promise<void>) => {},
-    leave: () => {},
-  };
-
-  let errorMessage = "";
-  let account: any = null;
-  let userPair: ArrayLike<unknown> | { [s: string]: unknown } | null = null;
-  let signature: null = null;
-
-  const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
+  let user: IGunUserInstance;
+  let errorMessage: string | null = null;
+  let userPair: Record<string, any> | null = null;
 
   onMount(() => {
     const gunInstance = get(gun);
     if (gunInstance) {
-      user = gunInstance?.user();
+      user = initializeAuth(gunInstance);
     } else {
-      console.error("Istanza di Gun non inizializzata correttamente");
+      setErrorMessage("Istanza di Gun non inizializzata correttamente");
     }
-    account = getAccount(wagmiConfig);
-
-    user.recall({ sessionStorage: true }, async ack => {
-      if ("err" in ack) {
-        console.error("Errore nel recupero della sessione:", ack.err);
-      } else if (user.is && user.is.alias) {
-        currentUser.set(user.is.alias as string);
-        await loadUserData();
-      }
-    });
-
-    user.on("auth", async () => {
-      console.log("Utente autenticato:", user.is.alias as string);
-      currentUser.set(user.is.alias as string);
-      await loadUserData();
-    });
   });
 
-  async function loadUserData() {
-    console.log("Loading user data...");
-    currentUser.subscribe(value => currentUser.set(value));
-    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
-
-    if (currentUser) {
-      userPair = await gunInstance?.getAndDecryptPair(account.address, signature);
-      console.log("User Pair:", userPair);
+  function setErrorMessage(message: string | null) {
+    errorMessage = message;
+    if (message) {
+      setTimeout(() => {
+        errorMessage = null;
+      }, 5000); // Il messaggio di errore scomparirà dopo 5 secondi
     }
   }
 
-  async function registra() {
-    console.log("Registrazione in corso...");
-    errorMessage = "";
-    const gunInstance = get(gun) || {}; // Aggiunta di un fallback per evitare null
-    account = getAccount(wagmiConfig);
-    user = gunInstance.user();
-
-    try {
-      if (!isConnected) {
-        errorMessage = "Please connect your Ethereum wallet";
-        return;
-      }
-
-      signature = await (gunInstance as any).createSignature(MESSAGE_TO_SIGN);
-
-      if (!signature) {
-        errorMessage = "Errore durante la firma del messaggio";
-        return;
-      }
-
-      await (gunInstance as any).createAndStoreEncryptedPair(account.address, signature);
-
-      user.create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
-        if ("err" in ack) {
-          errorMessage = "Errore durante la registrazione: " + ack.err;
-        } else {
-          alert("Registrazione completata! Ora puoi accedere.");
-          await loadUserData();
-          currentUser.set(user.is.alias);
-        }
-      });
-    } catch (error) {
-      errorMessage = "Errore durante la registrazione: " + error.message;
+  async function handleRegistra() {
+    const result = await registra(user);
+    if (result) {
+      setErrorMessage(result);
+    } else {
+      notification.success("Registrazione completata con successo!");
     }
   }
 
-  async function accedi() {
-    account = getAccount(wagmiConfig);
+  async function handleAccedi() {
+    const result = await accedi(user);
+    if (result) {
+      setErrorMessage(result);
+    } else {
+      notification.success("Accesso effettuato con successo!");
+    }
+  }
 
-    if (!isConnected) {
-      notification.error("Nessun account Ethereum connesso");
+  function handleEsci() {
+    esci(user);
+    userPair = null;
+    notification.info("Logout effettuato");
+  }
+
+  async function handleViewPair() {
+    const gunInstance = get(gun);
+    const account = getAccount(wagmiConfig);
+
+    if (!account.isConnected) {
+      setErrorMessage("Per favore connetti il tuo portafoglio Ethereum");
       return;
     }
-    console.log("Accesso in corso...");
-    errorMessage = "";
-    const gunInstance = get(gun); // Aggiunta di un fallback per evitare null
-    user = gunInstance.user();
 
     try {
-      account = getAccount(wagmiConfig);
-      if (!account.address) {
-        errorMessage = "Nessun account Ethereum connesso";
-        return;
-      }
-
-      signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
+      const signature = await gunInstance.createSignature("Accesso a GunDB con Ethereum");
       if (!signature) {
-        errorMessage = "Errore durante la firma del messaggio";
+        setErrorMessage("Errore durante la firma del messaggio");
         return;
       }
 
-      const pair = await gunInstance.getAndDecryptPair(account.address, signature);
-      console.log("Pair:", pair);
-      if (!pair) {
-        errorMessage = "Errore nel recupero del pair dell'utente";
-        return;
+      userPair = await gunInstance.getAndDecryptPair(account.address, signature);
+      if (!userPair) {
+        setErrorMessage("Impossibile recuperare i dati dell'utente");
       }
-
-      user.auth(pair, async (ack: { err: string }) => {
-        console.log("Risposta di autenticazione:", ack);
-        if (ack.err) {
-          errorMessage = "Errore di accesso: " + ack.err;
-        } else {
-          console.log("Accesso riuscito");
-          currentUser.set(user.is.alias);
-          await loadUserData();
-        }
-      });
     } catch (error) {
-      errorMessage = "Errore durante l'accesso: " + error.message;
+      setErrorMessage("Errore durante il recupero del pair: " + error.message);
     }
-  }
-
-  function esci() {
-    user.leave();
-    currentUser.set(null);
-    userPair = null;
-    errorMessage = "";
   }
 </script>
 
@@ -164,12 +91,12 @@
 
   {#if $currentUser === null}
     <div class="bg-base-300 mx-auto my-10 mb-4 flex w-fit justify-center space-x-4 rounded-lg p-10">
-      <button class="btn btn-primary" on:click={registra}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary" on:click={accedi}><i class="fas fa-sign-in-alt"></i> Login</button>
+      <button class="btn btn-primary" on:click={handleRegistra}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" on:click={handleAccedi}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
     <div class="bg-base-100 mb-4 break-all break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
-      <h2 class="mb-4 text-2xl font-semibold">Welcome, {$currentUser}!</h2>
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$currentUser}!</h2>
 
       {#if userPair && Object.keys(userPair).length > 0}
         <div class="my-5 items-center">
@@ -183,8 +110,8 @@
         </div>
       {/if}
       <div class="flex justify-center space-x-4">
-        <button class="btn btn-warning" on:click={esci}><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <button class="btn btn-warning" on:click={accedi}><i class="fas fa-eye"></i> View Pair</button>
+        <button class="btn btn-warning" on:click={handleEsci}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-warning" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
     </div>
   {/if}

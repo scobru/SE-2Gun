@@ -29,29 +29,29 @@ let gun;
  * import { useGun } from '@gun-vue/composables'
  * const gun = useGun()
  */
-export function createGun(options = { localStorage: false }) {
-    if (!gun) {
-        const opts = { peers: peers };
-        if (typeof options === "object") {
-            Object.assign(opts, options);
-        }
-        console.log(opts.peers);
-        gun = Gun(opts);
+export function useGun(options = { localStorage: false }) {
+  if (!gun) {
+    const opts = { peers: peers };
+    if (typeof options === "object") {
+      Object.assign(opts, options);
     }
-    return gun;
+    console.log(opts.peers);
+    gun = Gun(opts);
+  }
+  return gun;
 }
 
 /**
  * @param {...string} args
  * @returns {import('gun').IGunInstance}
  */
-export function createGunPath(...args) {
-    const gun = createGun();
-    let g;
-    for (let arg of args) {
-        g = gun.get(arg);
-    }
-    return g || gun;
+export function useGunPath(...args) {
+  const gun = useGun();
+  let g;
+  for (let arg of args) {
+    g = gun.get(arg);
+  }
+  return g || gun;
 }
 
 /**
@@ -60,8 +60,8 @@ export function createGunPath(...args) {
  * @returns {import('gun').IGunInstance}
  */
 export function createGunSecondary(options = { localStorage: false }) {
-    const gun2 = Gun({ peers: peers, ...options });
-    return gun2;
+  const gun2 = Gun({ peers: peers, ...options });
+  return gun2;
 }
 
 /**
@@ -86,20 +86,19 @@ export const soul = Gun?.node?.soul;
  */
 export const genUUID = Gun?.text?.random;
 
-
 /**
- * Authorized Puts 
+ * Authorized Puts
  */
-Gun.on('opt', function (ctx) {
-    if (ctx.once) {
-        return
-    }
-    ctx.on('out', function (msg) {
-        var to = this.to
-        // Adds headers for put
-        msg.headers = {
-            token: 'test'
-        }
-        to.next(msg) // pass to next middleware
-    })
-})
+Gun.on("opt", function (ctx) {
+  if (ctx.once) {
+    return;
+  }
+  ctx.on("out", function (msg) {
+    var to = this.to;
+    // Adds headers for put
+    msg.headers = {
+      token: "test",
+    };
+    to.next(msg); // pass to next middleware
+  });
+});
