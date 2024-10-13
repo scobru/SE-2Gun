@@ -2,8 +2,8 @@
     import { useAccount } from "$lib/gun/account";
     import { onMount } from "svelte";
     import { get } from "svelte/store";
-    import ProfileDisplay from '../profile/ProfileDisplay.svelte';
     import { useUser } from "$lib/gun/user";
+  import AccountAvatar from "./AccountAvatar.svelte";
     export let pub: string | undefined = "";
 
     let { user } = useUser();
@@ -22,33 +22,47 @@
         let { account } = useAccount(pub || user?.pub);
         $globalAccount = account;
     });
+
+    const fields = [
+        { key: 'pub', label: 'Public Key' },
+        { key: 'color', label: 'Color' },
+        { key: 'pulse', label: 'Pulse' },
+        { key: 'blink', label: 'Blink' },
+        { key: 'lastSeen', label: 'Last Seen' }
+    ];
 </script>
 
-{#if $globalAccount}
-    <div class="flex flex-col items-center w-full max-w-md mx-auto">
-        <h2 class="text-2xl font-bold mb-4">Account Information</h2>
-        <div class="w-full">
-            {#each ['pub', 'Color', 'pulse', 'Blink', 'lastSeen'] as field}
-                <div class="p-2 flex items-center justify-between">
-                    <div class="font-bold w-1/3">{field}</div>
-                    <div class="flex items-center w-2/3">
-                        {#if field === 'Color'}
-                            <div class="w-5 h-5 rounded-full mr-2" style="background-color: {$globalAccount.color};"></div>
-                            <span>{$globalAccount.color}</span>
-                        {:else if field === 'Blink'}
-                            <div>{$globalAccount.blink ? 'Yes' : 'No'}</div>
-                        {:else if field === 'lastSeen'}
-                            <div>{get($globalAccount.lastSeen)}</div>
-                        {:else if field === 'pulse'}
-                            <div>{($globalAccount.pulse)}</div>
-                        {:else}
-                            <div class="break-all">{$globalAccount[field.toLowerCase().replace(' ', '')]}</div>
-                        {/if}
-                    </div>
+<div class="card w-96 bg-base-100 shadow-xl">
+    <AccountAvatar pub={$user?.pub as string} />
+
+    <div class="card-body">
+        <h2 class="card-title">Account Information</h2>
+        {#if $globalAccount}
+            {#each fields as { key, label }}
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{label}</span>
+                    </label>
+                    {#if key === 'color'}
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full mr-2" style="background-color: {$globalAccount[key]};"></div>
+                            <span class="badge">{$globalAccount[key]}</span>
+                        </div>
+                    {:else if key === 'blink'}
+                        <span class="badge badge-outline">{$globalAccount[key] ? 'Yes' : 'No'}</span>
+                    {:else if key === 'lastSeen'}
+                        <span class="badge badge-{typeof $globalAccount[key] === 'number' ? 'success' : 'error'}">
+                            {typeof $globalAccount[key] === 'number' ? `${$globalAccount[key]}s ago` : get($globalAccount[key])}
+                        </span>
+                    {:else if key === 'pulse'}
+                        <span class="badge badge-neutral">{$globalAccount[key]}</span>
+                    {:else}
+                        <input type="text" readonly value={$globalAccount[key]} class="input input-bordered w-full max-w-xs text-xs" />
+                    {/if}
                 </div>
             {/each}
-        </div>
+        {:else}
+            <p class="text-center">Caricamento account...</p>
+        {/if}
     </div>
-{:else}
-    <p>Caricamento account...</p>
-{/if}
+</div>

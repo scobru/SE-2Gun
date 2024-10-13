@@ -95,11 +95,9 @@
     <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
       <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.pub}!</h2>
 
-      <div class="">
-        <AccountAvatar pub={$user?.pub as string} />
+      <div class="flex flex-grow items-center justify-center mx-auto w-fit gap-4 my-10">
         <AccountProfile pub={$user?.pub as string} />
         <ProfileDisplay />
-
       </div>
 
       {#if userPair && Object.keys(userPair).length > 0}
