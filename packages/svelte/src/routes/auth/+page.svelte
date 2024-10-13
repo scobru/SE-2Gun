@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import { currentUser, gun } from "$lib/stores";
+  import {  gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
   import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
@@ -10,7 +10,7 @@
 
   import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
   import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
-
+  import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
   
@@ -98,6 +98,7 @@
       <div class="">
         <AccountAvatar pub={$user?.pub as string} />
         <AccountProfile pub={$user?.pub as string} />
+        <ProfileDisplay />
 
       </div>
 

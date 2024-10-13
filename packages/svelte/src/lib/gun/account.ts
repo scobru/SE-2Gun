@@ -32,6 +32,7 @@ export function useAccount(pubKey: string) {
   const { user } = useUser();
   console.log("user store:", user);
   const pub = writable(pubKey);
+  const pulseStore = writable(0);
 
   const accountStore = writable<Account>({
     pub: pubKey,
@@ -40,27 +41,17 @@ export function useAccount(pubKey: string) {
     pulse: 0,
     blink: false,
     db: gun.user(pubKey),
-    lastSeen: "offline",
+    lastSeen: derived(pulseStore, $pulse => calculateLastSeen($pulse) as string | number),
   });
 
-  const pulseStore = writable(0);
-
-  const calculateLastSeen = (pulse: number) => {
+  const calculateLastSeen = (pulse: number): string => {
     if (!pulse) return "offline";
     const timeDiff = Date.now() - pulse;
     if (timeDiff <= TIMEOUT) return "online";
     return ms(timeDiff);
   };
 
-
-  
-  // Aggiorna lastSeen ogni secondo
-  const lastSeenInterval = setInterval(() => {
-    accountStore.update(acc => ({
-      ...acc,
-      lastSeen: calculateLastSeen(get(pulseStore)),
-    }));
-  }, 1000);
+  gun.user(pubKey).get("pulse").put(Date.now().toFixed());
 
   const account = derived([pub, user, accountStore, pulseStore], ([$pub, $user, $account, $pulse]) => {
     if (!$pub || !$user) return $account;
@@ -69,8 +60,30 @@ export function useAccount(pubKey: string) {
       .user($pub)
       .get("pulse")
       .on(d => {
-        pulseStore.set(d);
-        accountStore.update(acc => ({ ...acc, blink: !acc.blink, pulse: d }));
+        pulseStore.update(p => d);
+      });
+
+    gun
+      .user($pub)
+      .get("pulse")
+      .on((d: number) => {
+        accountStore.update(acc => ({
+          ...acc,
+          blink: !acc.blink,
+          pulse: d,
+        }));
+      })
+      .back()
+      .get("profile")
+      .map()
+      .on((data: any, key: string) => {
+        accountStore.update(acc => ({
+          ...acc,
+          profile: {
+            ...acc.profile,
+            [key]: data,
+          },
+        }));
       });
 
     if ($user.is) {

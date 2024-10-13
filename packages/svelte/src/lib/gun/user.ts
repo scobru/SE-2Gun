@@ -63,6 +63,7 @@ export const user = writable({
     rooms: {},
   },
   db: undefined,
+  profile: {},
   pair() {
     console.warn("User pair read externally");
     return pair();
@@ -104,7 +105,7 @@ export function useUser() {
   if (!get(user).initiated) {
     const gun = useGun();
     gun.user().recall({ sessionStorage: true }, () => {
-      console.log("user was recalled");
+      console.log("User recalled");
       if (gun.user().is) {
         init();
       }
@@ -112,12 +113,12 @@ export function useUser() {
 
     gun.on("auth", () => {
       init();
-      console.log("user authenticated");
+      console.log("User authenticated");
     });
     user.update(u => ({ ...u, initiated: true }));
   }
 
-  return { user, auth, leave };
+  return { user };
 }
 
 /**
@@ -159,14 +160,8 @@ function init() {
   const gun = useGun();
   const pub = gun.user().is?.pub;
   user.update(u => ({ ...u, db: gun.user(), is: gun.user().is, pub: pub }));
+  loadUserProfile(); // Carica il profilo dopo l'inizializzazione
   console.log("User initialized:", get(user));
-}
-
-function startPulseTimer() {
-  const gun = useGun();
-  setInterval(() => {
-    gun.user().get('pulse').put(Date.now());
-  }, 1000); // Invia un pulse ogni secondo
 }
 
 /**
@@ -230,6 +225,11 @@ export function updateProfile(field, data) {
   }
 }
 
+export function removeProfileField(field) {
+  const gun = useGun();
+  gun.user().get("profile").get(field).put(null);
+}
+
 /**
  * Check if the object is a proper SEA pair
  * @param {Object} pair
@@ -237,4 +237,88 @@ export function updateProfile(field, data) {
  */
 export function isPair(pair) {
   return Boolean(pair && typeof pair == "object" && pair.pub && pair.epub && pair.priv && pair.epriv);
+}
+
+/**
+ * Carica il profilo dell'utente da Gun
+ */
+export function loadUserProfile() {
+  const gun = useGun();
+  const userStore = get(user);
+
+  console.log("Loading user profile");
+
+  if (userStore.is && userStore.is.pub) {
+    gun
+      .user()
+      .get("profile")
+      .on(data => {
+        console.log("Profile data received:", data);
+        if (data) {
+          const filteredProfile = {
+            name: data.name || "",
+            email: data.email || "",
+            bio: data.bio || "",
+          };
+          user.update(u => {
+            console.log("Updating user store with profile:", filteredProfile);
+            return { ...u, profile: filteredProfile };
+          });
+        } else {
+          console.log("No profile data received");
+        }
+      });
+  } else {
+    console.log("User not authenticated or pub not available");
+  }
+}
+/**
+ * Aggiorna un campo del profilo utente
+ * @param {string} field - Nome del campo
+ * @param {any} value - Valore del campo
+ */
+export function updateProfileField(field: string, value: any) {
+  const gun = useGun();
+  if (value !== undefined) {
+    gun
+      .user()
+      .get("profile")
+      .get(field)
+      .put(value, ack => {
+        if (ack.err) {
+          console.error(`Errore nell'aggiornamento del campo ${field}:`, ack.err);
+        } else {
+          console.log(`Campo ${field} aggiornato con successo`);
+          user.update(u => ({
+            ...u,
+            profile: { ...u.profile, [field]: value },
+          }));
+        }
+      });
+  } else {
+    console.warn(`Tentativo di aggiornare ${field} con un valore undefined`);
+  }
+}
+
+/**
+ * Salva l'intero profilo utente
+ * @param {Object} profile - Oggetto profilo completo
+ */
+export function saveUserProfile(profile) {
+  const gun = useGun();
+  Object.entries(profile).forEach(([key, value]) => {
+    gun
+      .user()
+      .get("profile")
+      .get(key)
+      .put(value, ack => {
+        if (ack.err) {
+          console.error(`Errore nel salvataggio del campo ${key}:`, ack.err);
+        } else {
+          console.log(`Campo ${key} salvato con successo`);
+        }
+      });
+  });
+  // Aggiorna lo store locale
+  user.update(u => ({ ...u, profile }));
 }
