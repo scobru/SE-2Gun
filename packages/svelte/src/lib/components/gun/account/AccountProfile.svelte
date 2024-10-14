@@ -17,10 +17,12 @@
         console.log("Pulse updated:", $globalAccount.pulse);
     }
     
-    onMount(() => {
+    $effect(() => {
+        if(user?.pub){
         console.log("AccountProfile mounted", $globalAccount);
         let { account } = useAccount(pub || user?.pub);
         $globalAccount = account;
+        }
     });
 
     const fields = [

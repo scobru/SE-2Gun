@@ -8,8 +8,11 @@
     let newFieldName = '';
     let newFieldValue = '';
   
-    onMount(() => {
-      loadUserProfile();
+    onMount(async () => {
+      // Carica immediatamente il profilo
+      profile = await loadUserProfile();
+      
+      // Sottoscrivi agli aggiornamenti
       return user.subscribe(u => {
         if (u.profile) {
           profile = { ...u.profile };
