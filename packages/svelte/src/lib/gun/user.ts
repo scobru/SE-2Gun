@@ -68,19 +68,19 @@ export const user = writable({
     console.warn("User pair read externally");
     return pair();
   },
-  async encrypt(data) {
+  async encrypt(data: string) {
     return await SEA.encrypt(data, pair());
   },
-  async decrypt(data) {
+  async decrypt(data: string) {
     return await SEA.decrypt(data, pair());
   },
-  async secret(data) {
+  async secret(data: string | { epub: string }) {
     return await SEA.secret(data, pair());
   },
 });
 
 // Creiamo un derived store per 'pub'
-export const userPub = derived(user, $user => $user.is?.pub || "");
+export const userPub = derived(user, $user => $user.pub || "");
 
 let pairReads = 0;
 
@@ -134,7 +134,7 @@ export function useUser() {
  * }
  */
 
-export async function auth(pair, cb = pair => {}) {
+export async function auth(pair: any, cb = (pair: any) => {}) {
   const gun = useGun();
 
   if (!isPair(pair)) {
@@ -142,7 +142,7 @@ export async function auth(pair, cb = pair => {}) {
     return;
   }
 
-  gun.user().auth(pair, async ack => {
+  gun.user().auth(pair, async (ack: { err: any }) => {
     if (ack.err) {
       console.error("Errore di autenticazione:", ack.err);
       cb(ack);
@@ -174,9 +174,12 @@ function init() {
 export function leave() {
   console.log("User logout");
   const gun = useGun();
-  let is = !!user.is?.pub;
+  const userValue = get(user);
+  const is = !!userValue?.is;
   user.update(u => ({ ...u, initiated: false, auth: false }));
-  clearInterval(user.pulser);
+  if (userValue.pulser) {
+    clearInterval(userValue.pulser);
+  }
   gun.user().leave();
   setTimeout(() => {
     if (is && !pair()) {
@@ -191,7 +194,7 @@ export function leave() {
  * @param {string} soul
  * @returns {boolean}
  */
-export function isMine(soul) {
+export function isMine(soul: string | any[]) {
   if (!soul) return;
   return soul.slice(1, 88) == user.pub;
 }
@@ -204,7 +207,7 @@ export function isMine(soul) {
  *
  * addProfileField('city')
  */
-export function addProfileField(title) {
+export function addProfileField(title: any) {
   const gun = useGun();
   gun.user().get("profile").get(title).put("");
 }
@@ -218,14 +221,14 @@ export function addProfileField(title) {
  *
  * updateProfile('city', 'Bangkok')
  */
-export function updateProfile(field, data) {
+export function updateProfile(field: any, data: undefined) {
   if (field && data !== undefined) {
     const gun = useGun();
     gun.user().get("profile").get(field).put(data);
   }
 }
 
-export function removeProfileField(field) {
+export function removeProfileField(field: any) {
   const gun = useGun();
   gun.user().get("profile").get(field).put(null);
 }
@@ -235,7 +238,7 @@ export function removeProfileField(field) {
  * @param {Object} pair
  * @returns {boolean}
  */
-export function isPair(pair) {
+export function isPair(pair: { pub: any; epub: any; priv: any; epriv: any }) {
   return Boolean(pair && typeof pair == "object" && pair.pub && pair.epub && pair.priv && pair.epriv);
 }
 
@@ -248,11 +251,11 @@ export function loadUserProfile() {
 
   console.log("Loading user profile");
 
-  if (userStore.is && userStore.is.pub) {
+  if (userStore?.is && userStore?.is?.pub) {
     gun
       .user()
       .get("profile")
-      .on(data => {
+      .on((data: { name: any; email: any; bio: any }) => {
         console.log("Profile data received:", data);
         if (data) {
           const filteredProfile = {
@@ -284,7 +287,7 @@ export function updateProfileField(field: string, value: any) {
       .user()
       .get("profile")
       .get(field)
-      .put(value, ack => {
+      .put(value, (ack: { err: any }) => {
         if (ack.err) {
           console.error(`Errore nell'aggiornamento del campo ${field}:`, ack.err);
         } else {
@@ -304,14 +307,14 @@ export function updateProfileField(field: string, value: any) {
  * Salva l'intero profilo utente
  * @param {Object} profile - Oggetto profilo completo
  */
-export function saveUserProfile(profile) {
+export function saveUserProfile(profile: { [s: string]: unknown } | ArrayLike<unknown>) {
   const gun = useGun();
   Object.entries(profile).forEach(([key, value]) => {
     gun
       .user()
       .get("profile")
       .get(key)
-      .put(value, ack => {
+      .put(value, (ack: { err: any }) => {
         if (ack.err) {
           console.error(`Errore nel salvataggio del campo ${key}:`, ack.err);
         } else {
