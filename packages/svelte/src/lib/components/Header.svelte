@@ -66,10 +66,10 @@
         onclick={() => {
           isDrawerOpen = false;
         }}
-        class="hover:bg-secondary focus:!bg-secondary active:!text-neutral grid grid-flow-col gap-2 rounded-full px-3 py-1.5 text-sm hover:shadow-md {$isCurrentPage(
+        class="hover:!bg-ableton-light-blue text-sm focus:!bg-ableton-orange active:!text-secondary-content  grid grid-flow-col gap-2  px-3 py-1.5  hover:text-secondary-content {$isCurrentPage(
           href,
         )
-          ? 'bg-secondary shadow-md'
+          ? 'bg-ableton-beige  text-black'
           : ''}"
       >
         {#if icon}
@@ -81,12 +81,12 @@
   {/each}
 {/snippet}
 
-<div class="navbar shadow-secondary sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between px-0 sm:px-2 lg:static">
+<div class="navbar sticky top-0 z-20 min-h-0 flex-shrink-0 justify-between px-0 sm:px-2 lg:static text-base-content  font-semibold       ">
   <div class="navbar-start w-auto lg:w-1/2">
     <div class="dropdown lg:hidden" bind:this={burgerMenu}>
       <button
         tabIndex={0}
-        class="btn btn-ghost ml-1 {isDrawerOpen ? 'hover:bg-secondary' : 'hover:bg-transparent'}"
+        class="btn btn-ghost ml-1 text-base-content {isDrawerOpen ? 'hover:bg-ableton-light-blue' : 'hover:bg-transparent'}"
         onclick={() => {
           isDrawerOpen = !isDrawerOpen;
         }}
@@ -100,9 +100,10 @@
       {/if}
     </div>
     <a href="/" class="ml-4 mr-6 hidden shrink-0 items-center gap-2 lg:flex">
-      <div class="flex flex-col">
-        <span class="text-3xl font-bold leading-tight">SE-2Gun </span>
-        <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
+      <div class="flex flex-row">
+        <img src={logo} class="h-10 w-10" />
+<!--         <span class="text-xl font-bold leading-tight">SE-2Gun </span>
+ -->        <!--  <span class="text-xs">Decentralized Dev Stack</span> -->
       </div>
     </a>
     <ul class="menu menu-horizontal hidden gap-2 px-1 font-semibold lg:flex lg:flex-nowrap">

@@ -7,7 +7,7 @@
   const { isDarkMode, toggle } = $derived.by(createDarkMode());
 
   $effect(() => {
-    document.body.setAttribute("data-theme", isDarkMode ? "dark" : "light");
+    document.body.setAttribute("data-theme", isDarkMode ? "abletonDark" : "abletonLight");
   });
 </script>
 

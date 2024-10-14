@@ -1,3 +1,4 @@
+const typography = require("@tailwindcss/typography");
 const daisyui = require("daisyui");
 
 /** @type {import('tailwindcss').Config}*/
@@ -6,8 +7,27 @@ const config = {
 
   theme: {
     extend: {
-      boxShadow: {
-        center: "0 0 12px -2px rgb(0 0 0 / 0.05)",
+      fontFamily: {
+        sans: [
+          "Mono",
+          "AvenirLTStd-Book",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          '"Helvetica Neue"',
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+      },
+      colors: {
+        "ableton-blue": "#0000ff",
+        "ableton-light-blue": "#cdbefd",
+        "ableton-yellow": "#fbffa7",
+        "ableton-green": "#b6ffc0",
+        "ableton-orange": "#ff764d",
+        "ableton-beige": "#ebf0dc",
       },
     },
   },
@@ -15,31 +35,31 @@ const config = {
   daisyui: {
     themes: [
       {
-        light: {
-          primary: "#4A90E2",
+        abletonLight: {
+          primary: "#0000ff",
           "primary-content": "#FFFFFF",
-          secondary: "#34C759",
+          secondary: "#000000",
           "secondary-content": "#FFFFFF",
-          accent: "#FF9500",
-          "accent-content": "#FFFFFF",
-          neutral: "#3A3A3C",
+          accent: "#fbffa7",
+          "accent-content": "#000000",
+          neutral: "#000000",
           "neutral-content": "#FFFFFF",
-          "base-100": "#F2F2F7",
-          "base-200": "#E5E5EA",
-          "base-300": "#D1D1D6",
-          "base-content": "#1C1C1E",
-          info: "#5AC8FA",
-          success: "#32D74B",
-          warning: "#FFD60A",
-          error: "#FF3B30",
+          "base-100": "#FFFFFF",
+          "base-200": "#F5F5F5",
+          "base-300": "#E0E0E0",
+          "base-content": "#000000",
+          info: "#0000ff",
+          success: "#b6ffc0",
+          warning: "#fbffa7",
+          error: "#ff764d",
 
-          "--rounded-btn": "0.5rem",
+          "--rounded-btn": "0",
           "--animation-btn": "0.25s",
           "--animation-input": "0.2s",
 
           ".tooltip": {
-            "--tooltip-tail": "6px",
-            "--tooltip-color": "oklch(var(--n))",
+            "--tooltip-tail": "0",
+            "--tooltip-color": "#000000",
           },
           ".link": {
             textUnderlineOffset: "2px",
@@ -50,35 +70,34 @@ const config = {
           ".btn": {
             textTransform: "uppercase",
             fontWeight: "600",
+            borderRadius: "0",
           },
         },
-      },
-      {
-        dark: {
-          primary: "#0A84FF",
+        abletonDark: {
+          primary: "#FF00FF", // Cambiato il colore primario a magenta
           "primary-content": "#FFFFFF",
-          secondary: "#30D158",
-          "secondary-content": "#FFFFFF",
-          accent: "#FF9F0A",
-          "accent-content": "#FFFFFF",
-          neutral: "#8E8E93",
-          "neutral-content": "#1C1C1E",
-          "base-100": "#1C1C1E",
-          "base-200": "#2C2C2E",
-          "base-300": "#3A3A3C",
-          "base-content": "#F2F2F7",
-          info: "#64D2FF",
-          success: "#30D158",
-          warning: "#FFD60A",
-          error: "#FF453A",
+          secondary: "#FFFFFF",
+          "secondary-content": "#000000",
+          accent: "#fbffa7",
+          "accent-content": "#000000",
+          neutral: "#FFFFFF",
+          "neutral-content": "#000000",
+          "base-100": "#000000",
+          "base-200": "#1A1A1A",
+          "base-300": "#2A2A2A",
+          "base-content": "#FFFFFF",
+          info: "#FF00FF", // Aggiornato per corrispondere al nuovo colore primario
+          success: "#b6ffc0",
+          warning: "#fbffa7",
+          error: "#ff764d",
 
-          "--rounded-btn": "0.5rem",
+          "--rounded-btn": "0",
           "--animation-btn": "0.25s",
           "--animation-input": "0.2s",
 
           ".tooltip": {
-            "--tooltip-tail": "6px",
-            "--tooltip-color": "oklch(var(--n))",
+            "--tooltip-tail": "0",
+            "--tooltip-color": "#FFFFFF",
           },
           ".link": {
             textUnderlineOffset: "2px",
@@ -89,13 +108,14 @@ const config = {
           ".btn": {
             textTransform: "uppercase",
             fontWeight: "600",
+            borderRadius: "0",
           },
         },
       },
     ],
   },
 
-  plugins: [daisyui],
+  plugins: [typography, daisyui],
 };
 
 module.exports = config;

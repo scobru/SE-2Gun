@@ -11,10 +11,16 @@
   import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
   import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
   import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
+  import { useAccount } from "$lib/gun/account";
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
-  
+  let pub: string | undefined = "";
+
+
   let { user } = useUser()
+  let { account } = useAccount(pub || $user?.pub);
+
+  let userInstance = $user;
 
   onMount(() => {
     initializeAuth();
@@ -35,6 +41,7 @@
       setErrorMessage(result);
     } else {
       notification.success("signInzione completata con successo!");
+      userInstance = $user;
     }
   }
 
@@ -44,6 +51,7 @@
       setErrorMessage(result);
     } else {
       notification.success("Accesso effettuato con successo!");
+      userInstance = $user;
     }
   }
 
@@ -79,30 +87,35 @@
   }
 </script>
 
-<main class="container mx-auto w-full p-4">
+<main class="container text-left justify-center">
   {#if errorMessage}
-    <div class="relative mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
+    <div class="relative mb-4 rounded border border-red-400 bg-red-100 p-20 text-red-700" role="alert">
       <span class="block sm:inline">{errorMessage}</span>
     </div>
   {/if}
 
   {#if $user?.auth === false}
-    <div class="bg-base-300 mx-auto my-10 mb-4 flex w-fit justify-center space-x-4 rounded-lg p-10">
-      <button class="btn btn-primary" on:click={handlesignIn}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary" on:click={handlelogin}><i class="fas fa-sign-in-alt"></i> Login</button>
+    <div class="w-screen my-28 align-baseline  text-center items-center">
+      <button class="btn btn-primary " on:click={handlesignIn}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary " on:click={handlelogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
-    <div class="bg-base-100 mb-4 break-all rounded px-8 pb-8 pt-6 text-center shadow-md">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.pub}!</h2>
-
-      <div class="flex flex-grow items-center justify-center mx-auto w-fit gap-4 my-10">
-        <AccountProfile pub={$user?.pub as string} />
-        <ProfileDisplay />
+    <div class="break-all text-center w-screen">
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {userInstance?.profile?.name ? userInstance?.profile?.name : userInstance?.pub}!</h2>
+      <div class="container mx-auto my-10 ">
+        <div class="flex flex-col lg:flex-row justify-center items-center gap-10">
+          <div class="w-full lg:w-1/3">
+            <AccountProfile pub={userInstance.pub} />
+          </div>
+          <div class="w-full lg:w-1/3">
+            <ProfileDisplay  />
+          </div>
+        </div>
       </div>
 
       {#if userPair && Object.keys(userPair).length > 0}
-        <div class="my-5 items-center">
-          <ul class="mx-auto w-2/4 text-left">
+        <div class="items-center w-full my-10 bg-ableton-green border-ableton-blue border-2 p-5 text-left">
+          <ul class="mx-auto">
             {#each Object.entries(userPair) as [key, value]}
               <li class="mb-2">
                 <strong>{key}:</strong> <span class="text-base-content">{JSON.stringify(value, null, 2)}</span>
@@ -111,15 +124,16 @@
           </ul>
         </div>
       {/if}
-      <div class="flex justify-center space-x-4">
-        <button class="btn btn-warning" on:click={handlelogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <button class="btn btn-warning" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
+      <div class="flex justify-center space-x-4 mx-auto mb-20 text-center">
+        <button class="btn btn-primary" on:click={handlelogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-secondary" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
-    </div>
+    </div>  
   {/if}
 
-  <div class="bg-base-200 mt-12 rounded-lg p-6">
-    <h2 class="mb-4 text-3xl font-bold">How Authentication Works in SE-2Gun</h2>
+  <div class="bg-ableton-light-blue rounded-none text-black w-screen">
+    <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue p-8">
+    <h2 class="mb-10 text-5xl font-semibold ">How Authentication Works in SE-2Gun</h2>
     <ol class="list-inside list-decimal space-y-4">
       <li>
         <strong>Connect Wallet:</strong> Start by connecting your Ethereum wallet (e.g., MetaMask) to the application.
@@ -155,6 +169,7 @@
       This authentication flow combines Ethereum's cryptographic capabilities with GunDB's decentralized nature,
       providing a secure and user-controlled system.
     </p>
+    </article>
   </div>
 </main>
 

@@ -200,19 +200,6 @@ export function isMine(soul: string | any[]) {
 }
 
 /**
- * Add a field to the User profile
- * @param {string} title - Field title
- * @example
- * import { addProfileField } from '@gun-vue/composables'
- *
- * addProfileField('city')
- */
-export function addProfileField(title: any) {
-  const gun = useGun();
-  gun.user().get("profile").get(title).put("");
-}
-
-/**
  * Update a profile field
  * @param {string} field - Field name
  * @param {string} data - Field value
@@ -226,11 +213,6 @@ export function updateProfile(field: any, data: undefined) {
     const gun = useGun();
     gun.user().get("profile").get(field).put(data);
   }
-}
-
-export function removeProfileField(field: any) {
-  const gun = useGun();
-  gun.user().get("profile").get(field).put(null);
 }
 
 /**
@@ -255,14 +237,16 @@ export function loadUserProfile() {
     gun
       .user()
       .get("profile")
-      .on((data: { name: any; email: any; bio: any }) => {
+      .on((data: any) => {
         console.log("Profile data received:", data);
         if (data) {
-          const filteredProfile = {
-            name: data.name || "",
-            email: data.email || "",
-            bio: data.bio || "",
-          };
+          // Rimuovi i campi con valore null o undefined
+          const filteredProfile = Object.entries(data).reduce((acc, [key, value]) => {
+            if (value !== null && value !== undefined) {
+              acc[key] = value;
+            }
+            return acc;
+          }, {});
           user.update(u => {
             console.log("Updating user store with profile:", filteredProfile);
             return { ...u, profile: filteredProfile };
@@ -275,32 +259,60 @@ export function loadUserProfile() {
     console.log("User not authenticated or pub not available");
   }
 }
-/**
- * Aggiorna un campo del profilo utente
- * @param {string} field - Nome del campo
- * @param {any} value - Valore del campo
- */
-export function updateProfileField(field: string, value: any) {
+
+export function updateProfileField(field: string, value: string) {
   const gun = useGun();
-  if (value !== undefined) {
-    gun
-      .user()
-      .get("profile")
-      .get(field)
-      .put(value, (ack: { err: any }) => {
-        if (ack.err) {
-          console.error(`Errore nell'aggiornamento del campo ${field}:`, ack.err);
-        } else {
-          console.log(`Campo ${field} aggiornato con successo`);
-          user.update(u => ({
-            ...u,
-            profile: { ...u.profile, [field]: value },
-          }));
-        }
-      });
-  } else {
-    console.warn(`Tentativo di aggiornare ${field} con un valore undefined`);
-  }
+  gun
+    .user()
+    .get("profile")
+    .get(field)
+    .put(value, ack => {
+      if (ack.err) {
+        console.error("Error updating profile field:", ack.err);
+      } else {
+        user.update(u => ({
+          ...u,
+          profile: { ...u.profile, [field]: value },
+        }));
+      }
+    });
+}
+
+export function addProfileField(field: string, value: string = "") {
+  const gun = useGun();
+  gun
+    .user()
+    .get("profile")
+    .get(field)
+    .put(value, ack => {
+      if (ack.err) {
+        console.error("Error adding profile field:", ack.err);
+      } else {
+        user.update(u => ({
+          ...u,
+          profile: { ...u.profile, [field]: value },
+        }));
+      }
+    });
+}
+
+export function removeProfileField(field: string) {
+  const gun = useGun();
+  gun
+    .user()
+    .get("profile")
+    .get(field)
+    .put(null, ack => {
+      if (ack.err) {
+        console.error("Error removing profile field:", ack.err);
+      } else {
+        user.update(u => {
+          const updatedProfile = { ...u.profile };
+          delete updatedProfile[field];
+          return { ...u, profile: updatedProfile };
+        });
+      }
+    });
 }
 
 /**
@@ -319,6 +331,10 @@ export function saveUserProfile(profile: { [s: string]: unknown } | ArrayLike<un
           console.error(`Errore nel salvataggio del campo ${key}:`, ack.err);
         } else {
           console.log(`Campo ${key} salvato con successo`);
+          user.update(u => ({
+            ...u,
+            profile: { ...u.profile, [key]: value },
+          }));
         }
       });
   });

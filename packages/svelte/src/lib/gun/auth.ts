@@ -8,6 +8,7 @@ import type { IGunUserInstance } from "gun/types";
 import { auth, leave, useUser, isPair } from "./user";
 import { useGun } from "./gun";
 import SEA from "gun/sea";
+import { useAccount } from "./account";
 const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
 export function initializeAuth() {

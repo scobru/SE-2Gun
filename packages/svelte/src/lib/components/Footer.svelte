@@ -10,7 +10,7 @@
   const isLocalNetwork = $derived(targetNetwork.id === hardhat.id);
 </script>
 
-<div class="mb-11 min-h-0 px-1 py-5 lg:mb-0">
+<div class="mb-11 min-h-0 px-1 py-5 lg:mb-0 ">
   <div>
     <div class="pointer-events-none fixed bottom-0 left-0 z-10 flex w-full items-center justify-between p-4">
       <div class="pointer-events-auto flex flex-col gap-2 md:flex-row">

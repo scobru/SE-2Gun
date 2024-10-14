@@ -1,147 +1,195 @@
 <script lang="ts">
-  // Puoi aggiungere qui eventuali importazioni o logica necessaria
+  // Importazioni necessarie
+  import { useGun } from '$lib/gun/gun';
+  import { useUser } from '$lib/gun/user';
+  import { createAccount } from "@byteatatime/wagmi-svelte";
 </script>
 
-<main class="container mx-auto w-full p-4">
-  <h1 class="mb-4 text-4xl font-bold">Docs</h1>
-  <p class="text-base-content mb-8 text-lg">
-    A Svelte-friendly wrapper for GunDB, integrating Ethereum and Web3 functionality for decentralized database
-    operations in Svelte applications.
-  </p>
-
-  <section class="mb-12">
-    <h2 class="mb-4 text-3xl font-semibold">Design Considerations</h2>
-    <p class="mb-4">
-      This library has been designed to provide a seamless integration of GunDB with Svelte applications, including
-      Ethereum and Web3 functionality. Here are some key points:
+<main class="container ">
+  <div class="  p-10 w-screen">
+    <h1 class="mb-4 text-4xl font-bold">SE-2Gun Documentation</h1>
+    <p class="text-base-content mb-8 text-lg">
+      A Svelte-friendly wrapper for GunDB, integrating Ethereum and Web3 functionality for decentralized database
+      operations in Svelte applications.
     </p>
-    <ul class="list-disc space-y-2 pl-5">
-      <li>
-        Functions are prefixed with <code class="bg-base-200 rounded px-1">create-</code> to indicate they are hooks
-        (e.g.,
-        <code class="bg-base-200 rounded px-1">createGun</code>,
-        <code class="bg-base-200 rounded px-1">createGunPath</code>, etc.)
-      </li>
-      <li>
-        The library maintains a single Gun instance for the main database operations and provides a method to create
-        secondary instances when needed.
-      </li>
-      <li>
-        It includes additional Gun plugins and libraries to enhance functionality, including Ethereum integration.
-      </li>
-      <li>Implements SHINE (Secure Hash Integrity Network Ethereum) for data verification on the blockchain.</li>
-    </ul>
-  </section>
+  </div>
 
-  <section class="mb-12 mt-12">
-    <h2 class="mb-4 text-3xl font-semibold">Getting Started</h2>
-    <p class="mb-4">First, install the library:</p>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code>$ pnpm add @your-org/se-2gun</code></pre>
-    <p class="my-4">Then, you can start using the Gun hooks in your Svelte components:</p>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-        >&lt;script&gt;
-      import &#123; useGun &#125; from '@your-org/se-2gun';
-  
-      const gun = useGun();
-    &lt;/script&gt;</code
-      ></pre>
-  </section>
+  <div class="bg-ableton-light-blue text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">Key Features</h2>
+      <ul class="list-disc space-y-2 pl-5">
+        <li>Seamless integration of GunDB with Svelte applications</li>
+        <li>Ethereum-based authentication and encryption</li>
+        <li>User profile management</li>
+        <li>SHINE (Secure Hash Integrity Network Ethereum) for data verification on the blockchain</li>
+        <li>Wagmi-Svelte integration for easy Web3 development</li>
+      </ul>
+    </section>
+  </div>
 
-  <section class="mb-12 mt-12">
-    <h2 class="mb-4 text-3xl font-semibold">Wagmi-Svelte Integration</h2>
+  <div class="bg-ableton-yellow text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">Getting Started</h2>
+      <p class="mb-4">First, install the library:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>$ pnpm add @your-org/se-2gun</code></pre>
+      <p class="my-4">Then, you can start using SE-2Gun in your Svelte components:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+&lt;script&gt;
+  import &#123; useGun, useUser &#125; from '@your-org/se-2gun';
+  import &#123; createAccount &#125; from "@byteatatime/wagmi-svelte";
 
-    <p class="mb-4">
-      SE-2Gun includes Wagmi-Svelte, a port of WAGMI to SvelteJS 5, to make Web3 development even easier. Derived from <a
-        href="https://github.com/ByteAtATime/wagmi-svelte"
-        target="_blank"
-        class="link">wagmi-svelte</a
-      >. Documentation <a href="wagmi-svelte.vercel.app" class="link" target="_blank">here</a>.
+  const gun = useGun();
+  const &#123; user &#125; = useUser();
+  const &#123; address, chainId, status, isConnected &#125; = $derived.by(createAccount());
+&lt;/script&gt;
+      </code></pre>
+    </section>
+  </div>
+
+  <div class="bg-ableton-green text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">Authentication</h2>
+      <p class="mb-4">SE-2Gun provides Ethereum-based authentication:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+import &#123; signIn, login, logout &#125; from "$lib/gun/auth";
+
+// Registration
+async function handleSignIn() &#123;
+  const result = await signIn();
+  if (result) &#123;
+    console.error(result);
+  &#125; else &#123;
+    console.log("Registration successful");
+  &#125;
+&#125;
+
+// Login
+async function handleLogin() &#123;
+  const result = await login();
+  if (result) &#123;
+    console.error(result);
+  &#125; else &#123;
+    console.log("Login successful");
+  &#125;
+&#125;
+
+// Logout
+function handleLogout() &#123;
+  logout();
+  console.log("Logged out");
+&#125;
+      </code></pre>
+    </section>
+  </div>
+
+  <div class="bg-ableton-orange text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">User Profile Management</h2>
+      <p class="mb-4">Manage user profiles with these functions:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+import &#123; loadUserProfile, saveUserProfile, addProfileField &#125; from '$lib/gun/user';
+
+// Load user profile
+const profile = await loadUserProfile();
+
+// Save user profile
+await saveUserProfile(updatedProfile);
+
+// Add a new field to the profile
+addProfileField('city');
+      </code></pre>
+    </section>
+  </div>
+
+  <div class="bg-ableton-beige text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">SHINE (Secure Hash Integrity Network Ethereum)</h2>
+      <p class="mb-4">Use SHINE for data verification on the blockchain:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+async function saveMessage() &#123;
+  const gunInstance = useGun();
+  const result = await gunInstance.shine("optimismSepolia", message);
+  if (result.ok) &#123;
+    console.log("Message saved and verified on blockchain");
+    console.log("Node ID:", result.nodeId);
+    console.log("Transaction Hash:", result.txHash);
+  &#125; else &#123;
+    console.error("Error saving message:", result.error);
+  &#125;
+&#125;
+
+async function verifyMessage(nodeId) &#123;
+  const gunInstance = useGun();
+  const result = await gunInstance.shine("optimismSepolia", nodeId);
+  if (result.ok) &#123;
+    console.log("Message verified on blockchain");
+    console.log("Timestamp:", result.timestamp);
+    console.log("Updater:", result.updater);
+    console.log("Latest Record:", result.latestRecord);
+  &#125; else &#123;
+    console.log("Message not verified or not found");
+  &#125;
+&#125;
+      </code></pre>
+    </section>
+  </div>
+
+  <div class="bg-ableton-light-blue text-black p-10 w-screen">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">Components</h2>
+      
+      <h3 class="mb-2 text-2xl font-medium">AccountProfile.svelte</h3>
+      <p class="mb-4">Displays account information including public key, color, pulse, blink status, and last seen time.</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
+
+&lt;AccountProfile pub=&#123;userPublicKey&#125; /&gt;
+      </code></pre>
+
+      <h3 class="mb-2 mt-6 text-2xl font-medium">AccountAvatar.svelte</h3>
+      <p class="mb-4">Displays the user's avatar with options to upload a new one if it's the current user's profile.</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
+
+&lt;AccountAvatar pub=&#123;userPublicKey&#125; size=&#123;96&#125; border=&#123;2&#125; /&gt;
+      </code></pre>
+
+      <h3 class="mb-2 mt-6 text-2xl font-medium">ProfileDisplay.svelte</h3>
+      <p class="mb-4">Allows viewing and editing of user profile information with dynamic field addition and removal.</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
+
+&lt;ProfileDisplay /&gt;
+      </code></pre>
+
+      <h3 class="mb-2 mt-6 text-2xl font-medium">Usage Example</h3>
+      <p class="mb-4">Here's how you might use these components together in a user profile page:</p>
+      <pre class="bg-white overflow-x-auto rounded-lg p-4"><code>
+&lt;script&gt;
+import &#123; useUser &#125; from '$lib/gun/user';
+import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
+import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
+import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
+
+const &#123; user &#125; = useUser();
+&lt;/script&gt;
+
+&lt;div class="flex flex-col md:flex-row gap-4"&gt;
+  &lt;div class="w-full md:w-1/3"&gt;
+    &lt;AccountAvatar pub=&#123;$user.pub&#125; size=&#123;128&#125; /&gt;
+    &lt;AccountProfile pub=&#123;$user.pub&#125; /&gt;
+  &lt;/div&gt;
+  &lt;div class="w-full md:w-2/3"&gt;
+    &lt;ProfileDisplay /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+      </code></pre>
+    </section>
+  </div>
+
+  <div class=" p-10 w-screen  ">
+    <p class="bg-ableton-blue bg-opacity-20 rounded-lg p-4 text-lg font-medium">
+      These components work together to provide a comprehensive user profile management system. The AccountProfile shows account-specific information, AccountAvatar handles the user's profile picture, and ProfileDisplay allows for dynamic profile field management.
     </p>
-
-    <h3 class="text-accent mb-2 text-2xl font-medium">Installation</h3>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code>$ pnpm add @byteatatime/wagmi-svelte</code></pre>
-
-    <h3 class="text-accent mb-2 mt-4 text-2xl font-medium">Usage</h3>
-    <p class="mb-2">Wrap your app with the WagmiProvider component:</p>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-        >&lt;script&gt;
-      import &#123; WagmiProvider, createWagmiConfig, http &#125; from "wagmi-svelte";
-      import &#123; mainnet, sepolia &#125; from "wagmi-svelte/chains";
-  
-      const config = createWagmiConfig(&#123;
-        chains: [mainnet, sepolia],
-        transports: &#123;
-          [mainnet.id]: http(),
-          [sepolia.id]: http(),
-        &#125;,
-      &#125;);
-    &lt;/script&gt;
-  
-    &lt;WagmiProvider &#123;config&#125;&gt;
-      &lt;slot /&gt;
-    &lt;/WagmiProvider&gt;</code
-      ></pre>
-
-    <h3 class="text-accent mb-2 mt-4 text-2xl font-medium">Reactivity</h3>
-    <p class="mb-2">Use Wagmi hooks with $derived.by for reactivity:</p>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-        >const &#123; address, chainId, status &#125; = $derived.by(createAccount());</code
-      ></pre>
-  </section>
-
-  <section class="mb-12 mt-12">
-    <h2 class="mb-4 text-3xl font-semibold">API Reference</h2>
-
-    <div class="space-y-8">
-      <div>
-        <h3 class="text-accent mb-2 text-2xl font-medium">createGun</h3>
-        <p class="mb-2">Creates or returns the main Gun instance for database operations.</p>
-        <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-            >function createGun(options?: &#123; localStorage: boolean &#125;): IGunInstance &#123;&#125;</code
-          ></pre>
-        <p class="mt-2">Example:</p>
-        <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-            >const gun = createGun(&#123; localStorage: false &#125;);</code
-          ></pre>
-      </div>
-
-      <div>
-        <h3 class="text-accent mb-2 text-2xl font-medium">verifySignature</h3>
-        <p class="mb-2">Verifies an Ethereum signature for a given message.</p>
-        <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-            >const recoveredAddress = await gun.verifySignature(message, signature);</code
-          ></pre>
-      </div>
-
-      <!-- Add other API functions as needed -->
-    </div>
-  </section>
-
-  <section class="mb-12 mt-12">
-    <h2 class="mb-4 text-3xl font-semibold">Advanced Usage</h2>
-    <h3 class="text-accent mb-2 text-2xl font-medium">SHINE Example</h3>
-    <p class="mb-4">Using SHINE for data verification:</p>
-    <pre class="bg-base-200 overflow-x-auto rounded-lg p-4"><code
-        >const nodeId = "your-node-id-here";
-  
-  gun.shine("optimismSepolia", nodeId, null, (ack) => &#123;
-    if (ack.ok) &#123;
-      console.log("Data verified on blockchain", ack);
-      console.log("Timestamp:", ack.timestamp);
-      console.log("Updater:", ack.updater);
-      console.log("Latest Record:", ack.latestRecord);
-    &#125; else &#123;
-      console.log("Data not verified or not found", ack);
-    &#125;
-  &#125;);</code
-      ></pre>
-  </section>
-
-  <p class="bg-info rounded-lg bg-opacity-20 p-4 text-lg font-medium">
-    By following this documentation, you should be able to effectively use the SE-2Gun library in your Svelte projects,
-    leveraging the power of GunDB, Ethereum, and Wagmi for decentralized data management and blockchain interactions.
-  </p>
+  </div>
 </main>
-
-<style>
-</style>

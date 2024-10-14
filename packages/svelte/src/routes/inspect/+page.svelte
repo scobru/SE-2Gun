@@ -172,33 +172,33 @@
     </div>
   {/if}
 
-  <div class="mb-4 flex justify-center">
+  <div class="flex flex-col bg-ableton-light-blue mb-4 flex justify-center">
     <input
       type="text"
-      class="input input-bordered w-full max-w-xs"
+      class="input input-bordered w-full "
       placeholder="Enter custom relay URL"
       bind:value={$customRelay}
     />
-    <button class="btn btn-secondary ml-2" on:click={setCustomRelay}>Set Relay</button>
+    <button class=" btn btn-secondary " on:click={setCustomRelay}>Set Relay</button>
+    <span class="block p-2 text-sm text-black font-mono">Current Relay: {$customRelay}</span>
+    <input
+    type="text"
+    class="input input-bordered w-full"
+    placeholder="Enter node path example: users"
+    bind:value={$nodePath}
+  />
+  <button class="btn btn-primary " on:click={() => loadNodeData()}>Load Node Data</button>
   </div>
 
-  <div class="mb-4 flex justify-center">
-    <input
-      type="text"
-      class="input input-bordered w-full max-w-xs"
-      placeholder="Enter node path example: users"
-      bind:value={$nodePath}
-    />
-    <button class="btn btn-primary ml-2" on:click={() => loadNodeData()}>Load Node Data</button>
-  </div>
+
 
   <div class="flex flex-col md:flex-row">
     <div class="mb-4 w-full pr-2 md:mb-0 md:w-1/2">
-      <div bind:this={container} class="rounded-lg border border-gray-300" style="height: 400px;"></div>
+      <div bind:this={container} class=" bg-ableton-yellow" style="height: 400px;"></div>
     </div>
     <div class="w-full pl-2 md:w-1/2">
       {#if $nodeData}
-        <div class="overflow-auto rounded-lg bg-white p-4 shadow-md" style="max-height: 400px;">
+        <div class="overflow-auto bg-ableton-light-blue p-4 shadow-md" style="max-height: 400px;">
           <h2 class="mb-4 text-xl font-semibold">Node Data:</h2>
           <div class="node-data-content">
             {#each Object.entries($nodeData) as [key, value]}
