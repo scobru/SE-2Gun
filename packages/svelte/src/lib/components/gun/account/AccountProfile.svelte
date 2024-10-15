@@ -44,8 +44,8 @@
 <div class="card w-90 bg-ableton-light-blue text-black rounded-none p-4 font-sans">
     <div class="card-body">
         <h2 class="card-title text-black font-medium text-2xl">Account Information</h2>
-        <AccountAvatar pub={pub} />
-        {#if globalAccount}
+        <AccountAvatar pub={pub || $user?.pub} />
+        {#if $globalAccount}
             {#each accountFields as { key, label }}
                 <div class="form-control gap-2">
                     <label class="label ">
@@ -73,18 +73,6 @@
             <p class="text-center">Caricamento account...</p>
         {/if}
 
-        <h2 class="card-title text-black font-medium text-2xl mt-6">Profile Information</h2>
-        {#if profileFields.length > 0}
-            {#each profileFields as { key, label, value }}
-                <div class="form-control gap-2">
-                    <label class="label">
-                        <span class="label-text text-black font-medium">{label}</span>
-                    </label>
-                    <span readonly class="w-full text-left text-xs">{value}</span>
-                </div>
-            {/each}
-        {:else}
-            <p class="text-center">Nessuna informazione di profilo disponibile</p>
-        {/if}
+        
     </div>
 </div>

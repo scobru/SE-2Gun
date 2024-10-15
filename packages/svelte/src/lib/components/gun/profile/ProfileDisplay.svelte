@@ -6,7 +6,7 @@
     let newFieldName = "";
     let newFieldValue = "";
     let editMode: { [key: string]: boolean } = {};
-    let editFields: { [key: string]: { label: string, value: string } } = {};
+    let editFields: { [key: string]: string } = {};
 
     $: profileFields = $user.profile ? 
       Object.entries($user.profile)
@@ -19,41 +19,33 @@
           value !== null && 
           value !== undefined
         )
-        .map(([key, value]) => ({ key, label: key.charAt(0).toUpperCase() + key.slice(1), value }))
+        .reduce((acc, [key, value]) => {
+          if (!acc.some(item => item.key.toLowerCase() === key.toLowerCase())) {
+            acc.push({ key, label: key.charAt(0).toUpperCase() + key.slice(1), value });
+          }
+          return acc;
+        }, [])
       : [];
 
-    function handleUpdate(oldKey: string) {
-      const newKey = editFields[oldKey].label.toLowerCase();
-      const newValue = editFields[oldKey].value;
-
-      if (oldKey !== newKey) {
-        removeProfileField(oldKey);
-        addProfileField(newKey);
-      }
-      updateProfileField(newKey, newValue);
-      editMode[oldKey] = false;
-      delete editFields[oldKey];
-
-      // Forza l'aggiornamento dello store user
-      user.update(u => ({ ...u }));
+    function handleUpdate(key: string) {
+      const newValue = editFields[key];
+      updateProfileField(key, newValue);
+      editMode[key] = false;
+      delete editFields[key];
     }
 
     function handleAddField() {
       if (newFieldName && newFieldValue) {
-        addProfileField(newFieldName.toLowerCase());
-        updateProfileField(newFieldName.toLowerCase(), newFieldValue);
+        addProfileField(newFieldName.toLowerCase(), newFieldValue);
         newFieldName = "";
         newFieldValue = "";
-
-        // Forza l'aggiornamento dello store user
-        user.update(u => ({ ...u }));
       }
     }
 
-    function toggleEditMode(key: string, label: string, value: string) {
+    function toggleEditMode(key: string, value: string) {
       editMode[key] = !editMode[key];
       if (editMode[key]) {
-        editFields[key] = { label, value };
+        editFields[key] = value;
       } else {
         delete editFields[key];
       }
@@ -72,16 +64,11 @@
         <div class="form-control gap-2 mb-4">
           {#if editMode[key]}
             <div class="flex gap-2">
+              <span class="text-black font-medium flex-grow">{label}</span>
               <input
                 type="text"
                 class="input input-bordered flex-grow"
-                bind:value={editFields[key].label}
-                placeholder="Field Name"
-              />
-              <input
-                type="text"
-                class="input input-bordered flex-grow"
-                bind:value={editFields[key].value}
+                bind:value={editFields[key]}
                 placeholder="Field Value"
               />
               <button 
@@ -95,7 +82,7 @@
             <div class="flex justify-between items-center">
               <span class="text-black font-medium">{label}</span>
               <span class="text-sm">{value}</span>
-              <button class="btn btn-sm btn-outline" on:click={() => toggleEditMode(key, label, value)}>
+              <button class="btn btn-sm btn-outline" on:click={() => toggleEditMode(key, value)}>
                 Edit
               </button>
             </div>
@@ -110,10 +97,10 @@
       <label class="label">
         <span class="label-text text-black font-medium">Add New Field</span>
       </label>
-      <div class="flex gap-2">
+      <div class="flex flex-col gap-2">
         <input
           type="text"
-          class="input input-bordered flex-grow"
+          class="input input-bordered flex-grow "
           placeholder="Field Name"
           bind:value={newFieldName}
         />
