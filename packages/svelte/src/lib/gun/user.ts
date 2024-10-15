@@ -10,6 +10,7 @@
 import SEA from "gun/sea";
 import { useGun } from "./gun";
 import { writable, derived, get } from "svelte/store";
+import { debounce } from "lodash-es";
 
 /**
  * @type {{ pub: string }}
@@ -52,6 +53,7 @@ export const user = writable({
   is: null,
   name: "",
   pub: "",
+  color: "",
   pulse: 0,
   pulser: null,
   blink: false,
@@ -106,9 +108,6 @@ export function useUser() {
     const gun = useGun();
     gun.user().recall({ sessionStorage: true }, () => {
       console.log("User recalled");
-      if (gun.user().is) {
-        init();
-      }
     });
 
     gun.on("auth", () => {
@@ -147,7 +146,6 @@ export async function auth(pair: any, cb = (pair: any) => {}) {
       console.error("Errore di autenticazione:", ack.err);
       cb(ack);
     } else {
-      init();
       const { user } = useUser();
       user.update(u => ({ ...u, auth: true }));
       console.log("Successo autenticazione");
@@ -158,10 +156,31 @@ export async function auth(pair: any, cb = (pair: any) => {}) {
 
 function init() {
   const gun = useGun();
-  const pub = gun.user().is?.pub;
-  user.update(u => ({ ...u, db: gun.user(), is: gun.user().is, pub: pub }));
-  loadUserProfile(); // Carica il profilo dopo l'inizializzazione
-  console.log("User initialized:", get(user));
+  user.update(u => ({ ...u, is: gun.user().is, db: gun.user() }));
+
+  if (get(user).pulser) {
+    clearInterval(get(user).pulser);
+  }
+
+  const pulser = setInterval(() => {
+    gun.user().get("pulse").put(Date.now());
+  }, 1000);
+
+  gun.user().get("epub").put(get(user).is.epub);
+
+  gun.user().get("pulse").on((d) => {
+    user.update(u => ({ ...u, blink: !u.blink, pulse: d }));
+  });
+
+  gun.user().get("safe").map().on((d, k) => {
+    user.update(u => ({ ...u, safe: { ...u.safe, [k]: d } }));
+  });
+
+  gun.user().get("profile").get("name").on((d) => {
+    user.update(u => ({ ...u, name: d }));
+  });
+
+  user.update(u => ({ ...u, pulser, initiated: true }));
 }
 
 /**
@@ -208,12 +227,12 @@ export function isMine(soul: string | any[]) {
  *
  * updateProfile('city', 'Bangkok')
  */
-export function updateProfile(field: any, data: undefined) {
+export const updateProfile = debounce((field: string, data: string) => {
   if (field && data !== undefined) {
     const gun = useGun();
     gun.user().get("profile").get(field).put(data);
   }
-}
+}, 300);
 
 /**
  * Check if the object is a proper SEA pair
@@ -231,69 +250,47 @@ export function loadUserProfile() {
   const gun = useGun();
   const userStore = get(user);
 
-  console.log("Loading user profile");
-
   if (userStore?.is && userStore?.is?.pub) {
-    gun
-      .user()
-      .get("profile")
-      .on((data: any) => {
-        console.log("Profile data received:", data);
-        if (data) {
-          // Rimuovi i campi con valore null o undefined
-          const filteredProfile = Object.entries(data).reduce((acc, [key, value]) => {
-            if (value !== null && value !== undefined) {
-              acc[key] = value;
-            }
-            return acc;
-          }, {});
-          user.update(u => {
-            console.log("Updating user store with profile:", filteredProfile);
-            return { ...u, profile: filteredProfile };
-          });
-        } else {
-          console.log("No profile data received");
-        }
-      });
-  } else {
-    console.log("User not authenticated or pub not available");
+    gun.user().get("profile").map().on((data, key) => {
+      if (data !== null && data !== undefined && key !== "_" && key !== "#" && key !== ">") {
+        user.update(u => ({
+          ...u,
+          profile: { ...u.profile, [key]: data }
+        }));
+      }
+    });
   }
 }
 
-export function updateProfileField(field: string, value: string) {
+export function addProfileField(title: string) {
   const gun = useGun();
-  gun
-    .user()
-    .get("profile")
-    .get(field)
-    .put(value, ack => {
-      if (ack.err) {
-        console.error("Error updating profile field:", ack.err);
-      } else {
-        user.update(u => ({
-          ...u,
-          profile: { ...u.profile, [field]: value },
-        }));
-      }
-    });
+  gun.user().get("profile").get(title).put("");
 }
 
-export function addProfileField(field: string, value: string = "") {
-  const gun = useGun();
-  gun
-    .user()
-    .get("profile")
-    .get(field)
-    .put(value, ack => {
-      if (ack.err) {
-        console.error("Error adding profile field:", ack.err);
-      } else {
-        user.update(u => ({
-          ...u,
-          profile: { ...u.profile, [field]: value },
-        }));
-      }
-    });
+export function updateProfileField(field: string, value: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const gun = useGun();
+    console.log(`Tentativo di aggiornamento del campo '${field}' con valore:`, value);
+    gun
+      .user()
+      .get("profile")
+      .get(field)
+      .put(value, async (ack: { err: any }) => {
+        if (ack.err) {
+          console.error("Errore nell'aggiornamento del campo del profilo:", ack.err);
+          reject(new Error(ack.err));
+        } else {
+          console.log(`Campo '${field}' aggiornato con successo in Gun`);
+          user.update(u => {
+            const updatedProfile = { ...u.profile, [field]: value };
+            console.log("Profilo aggiornato localmente:", updatedProfile);
+            return { ...u, profile: updatedProfile };
+          });
+          resolve();
+        }
+      })
+      .once();
+  });
 }
 
 export function removeProfileField(field: string) {
@@ -321,6 +318,7 @@ export function removeProfileField(field: string) {
  */
 export function saveUserProfile(profile: { [s: string]: unknown } | ArrayLike<unknown>) {
   const gun = useGun();
+  console.log(" di salvataggio dell'intero profilo:", profile);
   Object.entries(profile).forEach(([key, value]) => {
     gun
       .user()
@@ -340,4 +338,5 @@ export function saveUserProfile(profile: { [s: string]: unknown } | ArrayLike<un
   });
   // Aggiorna lo store locale
   user.update(u => ({ ...u, profile }));
+  console.log("Store utente aggiornato con l'intero profilo");
 }

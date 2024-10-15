@@ -1,121 +1,98 @@
 <script lang="ts">
-    import { useUser, updateProfileField, addProfileField, removeProfileField } from "$lib/gun/user";
-    import { onMount } from "svelte";
+  import { useUser, updateProfile, addProfileField } from "$lib/gun/user";
+  import { onMount } from "svelte";
+  
+  let { user } = useUser();
+  let newFieldName = "";
+  let newFieldValue = "";
+  let editMode: { [key: string]: boolean } = {};
+  let editFields: { [key: string]: string } = {};
 
-    let { user } = useUser();
-    let newFieldName = "";
-    let newFieldValue = "";
-    let editMode: { [key: string]: boolean } = {};
-    let editFields: { [key: string]: string } = {};
+  $: profileFields = Object.entries($user.profile || {});
 
-    $: profileFields = $user.profile ? 
-      Object.entries($user.profile)
-        .filter(([key, value]) => 
-          key !== '-' &&
-          key !== '#' && 
-          !key.startsWith('~') && 
-          key !== '>' &&
-          typeof value !== 'object' &&
-          value !== null && 
-          value !== undefined
-        )
-        .reduce((acc, [key, value]) => {
-          if (!acc.some(item => item.key.toLowerCase() === key.toLowerCase())) {
-            acc.push({ key, label: key.charAt(0).toUpperCase() + key.slice(1), value });
-          }
-          return acc;
-        }, [])
-      : [];
+  function handleUpdate(key: string) {
+    updateProfile(key, editFields[key]);
+    editMode[key] = false;
+    delete editFields[key];
+  }
 
-    function handleUpdate(key: string) {
-      const newValue = editFields[key];
-      updateProfileField(key, newValue);
-      editMode[key] = false;
+  function handleAddField() {
+    if (newFieldName && newFieldValue) {
+      addProfileField(newFieldName, newFieldValue);
+      newFieldName = "";
+      newFieldValue = "";
+    }
+  }
+
+  function toggleEditMode(key: string, value: string) {
+    editMode[key] = !editMode[key];
+    if (editMode[key]) {
+      editFields[key] = value;
+    } else {
       delete editFields[key];
     }
+  }
 
-    function handleAddField() {
-      if (newFieldName && newFieldValue) {
-        addProfileField(newFieldName.toLowerCase(), newFieldValue);
-        newFieldName = "";
-        newFieldValue = "";
-      }
-    }
-
-    function toggleEditMode(key: string, value: string) {
-      editMode[key] = !editMode[key];
-      if (editMode[key]) {
-        editFields[key] = value;
-      } else {
-        delete editFields[key];
-      }
-    }
-
-    onMount(() => {
-      // Carica il profilo dell'utente se necessario
-    });
+  onMount(() => {
+    loadUserProfile();
+  });
 </script>
 
-<div class="card w-90 bg-ableton-yellow text-black rounded-none p-4 font-sans">
-  <div class="card-body">
-    <h2 class="card-title text-black font-medium text-2xl">Profile</h2>
-    {#if profileFields.length > 0}
-      {#each profileFields as { key, label, value }}
-        <div class="form-control gap-2 mb-4">
-          {#if editMode[key]}
-            <div class="flex gap-2">
-              <span class="text-black font-medium flex-grow">{label}</span>
-              <input
-                type="text"
-                class="input input-bordered flex-grow"
-                bind:value={editFields[key]}
-                placeholder="Field Value"
-              />
-              <button 
-                class="btn btn-primary" 
-                on:click={() => handleUpdate(key)}
-              >
-                Save
-              </button>
-            </div>
-          {:else}
-            <div class="flex justify-between items-center">
-              <span class="text-black font-medium">{label}</span>
-              <span class="text-sm">{value}</span>
-              <button class="btn btn-sm btn-outline" on:click={() => toggleEditMode(key, value)}>
-                Edit
-              </button>
-            </div>
-          {/if}
+<div class="bg-ableton-yellow text-black p-6 rounded-lg text-left w-80 font-sans">
+  <h2 class="text-2xl font-semibold mb-6">Profile</h2>
+  
+  {#each profileFields as [key, value]}
+    <div class="mb-4">
+      <p class="text-sm font-medium mb-1">{key}</p>
+      {#if !editMode[key]}
+        <div class="bg-white rounded px-2 py-1 text-sm flex justify-between items-center">
+          <span>{value}</span>
+          <button 
+            class="text-blue-500 text-xs"
+            on:click={() => toggleEditMode(key, value)}
+          >
+            Edit
+          </button>
         </div>
-      {/each}
-    {:else}
-      <p class="text-center">No profile information available</p>
-    {/if}
-
-    <div class="form-control gap-2 mt-4">
-      <label class="label">
-        <span class="label-text text-black font-medium">Add New Field</span>
-      </label>
-      <div class="flex flex-col gap-2">
-        <input
-          type="text"
-          class="input input-bordered flex-grow "
-          placeholder="Field Name"
-          bind:value={newFieldName}
-        />
-        <input
-          type="text"
-          class="input input-bordered flex-grow"
-          placeholder="Field Value"
-          bind:value={newFieldValue}
-        />
-        <button class="btn btn-primary" on:click={handleAddField}>Add</button>
-      </div>
+      {:else}
+        <div class="flex">
+          <input
+            class="bg-white rounded-l px-2 py-1 text-sm flex-grow"
+            bind:value={editFields[key]}
+          />
+          <button 
+            class="bg-green-500 text-white rounded-r px-2 py-1 text-xs"
+            on:click={() => handleUpdate(key)}
+          >
+            Save
+          </button>
+        </div>
+      {/if}
     </div>
+  {/each}
+  
+  <div class="mt-6">
+    <input
+      class="bg-white rounded px-2 py-1 text-sm w-full mb-2"
+      bind:value={newFieldName}
+      placeholder="New field name"
+    />
+    <input
+      class="bg-white rounded px-2 py-1 text-sm w-full mb-2"
+      bind:value={newFieldValue}
+      placeholder="New field value"
+    />
+    <button 
+      class="bg-blue-500 text-white rounded px-2 py-1 text-sm"
+      on:click={handleAddField}
+    >
+      Add Field
+    </button>
   </div>
 </div>
 
 <style>
-  /* Puoi aggiungere stili personalizzati qui se necessario */
+  :global(.bg-ableton-yellow) {
+    background-color: #FBFFA7;
+  }
 </style>

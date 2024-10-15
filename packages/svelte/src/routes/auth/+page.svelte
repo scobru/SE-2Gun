@@ -2,60 +2,60 @@
   import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import {  gun } from "$lib/stores";
+  import { gun } from "$lib/stores";
   import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
   import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
-  import { useUser } from "$lib/gun/user";
+  import { useUser, loadUserProfile } from "$lib/gun/user";
 
   import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
-  import AccountAvatar from "$lib/components/gun/account/AccountAvatar.svelte";
   import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
-  import { useAccount } from "$lib/gun/account";
+
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
-  let pub: string | undefined = "";
 
+  const { user } = useUser();
 
-  let { user } = useUser()
-  let { account } = useAccount(pub || $user?.pub);
-
-  let userInstance = $user;
+  let errorTimeoutId: number;
 
   onMount(() => {
     initializeAuth();
+    return () => {
+      if (errorTimeoutId) clearTimeout(errorTimeoutId);
+    };
   });
 
   function setErrorMessage(message: string | null) {
+    if (errorTimeoutId) clearTimeout(errorTimeoutId);
     errorMessage = message;
     if (message) {
-      setTimeout(() => {
+      errorTimeoutId = setTimeout(() => {
         errorMessage = null;
-      }, 5000); // Il messaggio di errore scomparirà dopo 5 secondi
+      }, 5000);
     }
   }
 
-  async function handlesignIn() {
+  async function handleSignIn() {
     const result = await signIn();
     if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("signInzione completata con successo!");
-      userInstance = $user;
+      notification.success("Registrazione completata con successo!");
+      loadUserProfile();
     }
   }
 
-  async function handlelogin() {
+  async function handleLogin() {
     const result = await login();
     if (result) {
       setErrorMessage(result);
     } else {
       notification.success("Accesso effettuato con successo!");
-      userInstance = $user;
+      loadUserProfile();
     }
   }
 
-  function handlelogout() {
+  function handleLogout() {
     logout();
     userPair = null;
     notification.info("Logout effettuato");
@@ -95,20 +95,21 @@
   {/if}
 
   {#if $user?.auth === false}
-    <div class="w-screen my-28 align-baseline  text-center items-center">
-      <button class="btn btn-primary " on:click={handlesignIn}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary " on:click={handlelogin}><i class="fas fa-sign-in-alt"></i> Login</button>
+    <div class="w-screen my-28 align-baseline text-center items-center">
+      <button class="btn btn-primary" on:click={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" on:click={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
     <div class="break-all text-center w-screen">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {userInstance?.profile?.name ? userInstance?.profile?.name : userInstance?.pub}!</h2>
-      <div class="container mx-auto my-10 ">
+      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.profile?.name || $user?.pub}!</h2>
+      <div class="container mx-auto my-10">
         <div class="flex flex-col lg:flex-row justify-center items-center gap-10">
           <div class="w-full lg:w-1/3">
-            <AccountProfile pub={userInstance.pub} />
+            <svelte:component this={$user?.auth ? AccountProfile : null} pub={$user.pub} />
+
           </div>
           <div class="w-full lg:w-1/3">
-            <ProfileDisplay  />
+            <svelte:component this={$user?.auth ? ProfileDisplay : null} />
           </div>
         </div>
       </div>
@@ -125,7 +126,7 @@
         </div>
       {/if}
       <div class="flex justify-center space-x-4 mx-auto mb-20 text-center">
-        <button class="btn btn-primary" on:click={handlelogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-primary" on:click={handleLogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
         <button class="btn btn-secondary" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
     </div>  
