@@ -38,30 +38,29 @@
   });
 </script>
 
-<div class="bg-ableton-yellow text-black p-6 rounded-lg text-left w-80 font-sans">
-  <h2 class="text-2xl font-semibold mb-6">Profile</h2>
-  
+<div class="profile-container font-sans text-left">
+  <h2 class="profile-title font-sans  font-semibold antialiased text-2xl">Profile</h2>
   {#each profileFields as [key, value]}
-    <div class="mb-4">
-      <p class="text-sm font-medium mb-1">{key}</p>
+    <div class="profile-field">
+      <p class="field-label">{key}</p>
       {#if !editMode[key]}
-        <div class="bg-white rounded px-2 py-1 text-sm flex justify-between items-center">
+        <div class="field-value">
           <span>{value}</span>
           <button 
-            class="text-blue-500 text-xs"
+            class="edit-button"
             on:click={() => toggleEditMode(key, value)}
           >
             Edit
           </button>
         </div>
       {:else}
-        <div class="flex">
+        <div class="edit-field">
           <input
-            class="bg-white rounded-l px-2 py-1 text-sm flex-grow"
+            class="edit-input"
             bind:value={editFields[key]}
           />
           <button 
-            class="bg-green-500 text-white rounded-r px-2 py-1 text-xs"
+            class="save-button"
             on:click={() => handleUpdate(key)}
           >
             Save
@@ -71,19 +70,19 @@
     </div>
   {/each}
   
-  <div class="mt-6">
+  <div class="add-field">
     <input
-      class="bg-white rounded px-2 py-1 text-sm w-full mb-2"
+      class="add-input"
       bind:value={newFieldName}
       placeholder="New field name"
     />
     <input
-      class="bg-white rounded px-2 py-1 text-sm w-full mb-2"
+      class="add-input"
       bind:value={newFieldValue}
       placeholder="New field value"
     />
     <button 
-      class="bg-blue-500 text-white rounded px-2 py-1 text-sm"
+      class="add-button"
       on:click={handleAddField}
     >
       Add Field
@@ -92,7 +91,75 @@
 </div>
 
 <style>
-  :global(.bg-ableton-yellow) {
+  .profile-container {
     background-color: #FBFFA7;
+    color: #000000;
+    padding: 40px;
+  }
+
+  .profile-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .profile-field {
+    margin-bottom: 16px;
+  }
+
+  .field-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .field-value, .edit-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 1px solid #000000;
+  }
+
+  .field-value {
+    padding: 8px;
+  }
+
+  .edit-input, .add-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000000;
+    margin-bottom: 8px;
+  }
+
+  .edit-button, .save-button, .add-button {
+    background-color: #000000;
+    color: #FFFFFF;
+    border: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .edit-field {
+    display: flex;
+  }
+
+  .edit-field .edit-input {
+    flex-grow: 1;
+    margin-bottom: 0;
+    border-right: none;
+  }
+
+  .edit-field .save-button {
+    border-left: 1px solid #000000;
+  }
+
+  .add-field {
+    margin-top: 24px;
+  }
+
+  .add-button {
+    width: 100%;
+    padding: 8px;
   }
 </style>

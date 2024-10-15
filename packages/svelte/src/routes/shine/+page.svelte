@@ -23,15 +23,73 @@
   const { address, chainId, status, isConnected } = $derived.by(createAccount());
 
   async function saveMessage() {
-    // ... (il resto del codice rimane invariato)
+    if (!message) {
+      error = "Per favore, inserisci un messaggio.";
+      return;
+    }
+
+    isLoading = true;
+    error = "";
+
+    try {
+      const data = { message };
+
+      const result = await new Promise((resolve, reject) => {
+        gunInstance.shine("optimismSepolia", null, data, function (ack) {
+          if (ack && ack.err) reject(new Error(ack.err));
+          else resolve(ack);
+        });
+      });
+
+      console.log("Risultato salvataggio:", result);
+      txHash = result.txHash;
+      savedMessage = message;
+      nodeId = result.nodeId;
+      message = "";
+    } catch (err) {
+      console.error("Errore durante il salvataggio:", err);
+      error = `Si è verificato un errore durante il salvataggio del messaggio: ${err.message}`;
+    } finally {
+      isLoading = false;
+    }
   }
 
   async function verifyMessage() {
-    // ... (il resto del codice rimane invariato)
+    if (!nodeId) {
+      error = "Per favore, inserisci un Node ID da verificare.";
+      return;
+    }
+
+    isLoading = true;
+    error = "";
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        gunInstance.shine("optimismSepolia", nodeId, null, function (ack) {
+          if (ack && ack.err) reject(new Error(ack.err));
+          else resolve(ack);
+        });
+      });
+
+      console.log("Risultato verifica:", result);
+      verificationResult = result;
+
+      // Recupera il messaggio salvato
+      gunInstance.get(nodeId).once(data => {
+        if (data && data.message) {
+          savedMessage = data.message;
+        }
+      });
+    } catch (err) {
+      console.error("Errore durante la verifica:", err);
+      error = `Si è verificato un errore durante la verifica del messaggio: ${err.message}`;
+    } finally {
+      isLoading = false;
+    }
   }
 </script>
 
-<main class="container font-sans">
+<div class="flex flex-grow flex-col  font-sans">
   <article class="p-10 prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue">
   <h1 class="text-4xl font-bold mb-8">SHINE</h1>
   <p class="text-xl mb-8 leading-relaxed">
@@ -49,6 +107,7 @@
           placeholder="Inserisci un messaggio"
           class="w-full p-2 mb-4 border border-gray-300 focus:outline-none focus:border-blue-500"
         />
+        <!-- svelte-ignore event_directive_deprecated -->
         <button 
           on:click={saveMessage} 
           disabled={isLoading} 
@@ -81,8 +140,8 @@
     {/if}
 
     {#if savedMessage}
-      <div class="bg-white p-6 rounded-none shadow-md mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Messaggio Salvato</h2>
+      <div class=" p-6 rounded-none bg-ableton-light-blue text-black ">
+        <h2 class="text-2xl font-semibold mb-4">Saved Message</h2>
         <p class="mb-2">{savedMessage}</p>
         <p class="text-sm text-gray-600">Node ID: {nodeId}</p>
         {#if txHash}
@@ -92,23 +151,23 @@
     {/if}
 
     {#if verificationResult}
-      <div class="bg-white p-6 rounded-none shadow-md mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Risultato Verifica</h2>
+      <div class=" p-6 rounded-none bg-ableton-blue text-white   mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Verification Result</h2>
         <p class={verificationResult.ok ? "text-green-500" : "text-red-500"}>
           {verificationResult.message}
         </p>
         {#if verificationResult.updater}
-          <p class="text-sm text-gray-600">Updater: {verificationResult.updater}</p>
+          <p class="text-sm ">Updater: {verificationResult.updater}</p>
         {/if}
         {#if verificationResult.timestamp}
-          <p class="text-sm text-gray-600">
+          <p class="text-sm ">
             Timestamp: {new Date(parseInt(verificationResult.timestamp) * 1000).toLocaleString()}
           </p>
         {/if}
       </div>
     {/if}
       <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue">
-    <div class="bg-ableton-yellow w-screen p-10 rounded-none text-black">
+    <div class="bg-ableton-yellow w-full p-10 rounded-none text-black">
       <h2 class="text-5xl font-semibold mb-10">How to Use Verification</h2>
       <ol class="list-decimal list-inside space-y-2">
         <li>Save a message using the "Enter a message" field and the "Save Message" button.</li>
@@ -125,4 +184,4 @@
   {:else}
     <p class="text-xl font-semibold bg-yellow-100 p-4 rounded-none">Per favore, connetti il tuo wallet per utilizzare questa funzionalità.</p>
   {/if}
-</main>
+</div>

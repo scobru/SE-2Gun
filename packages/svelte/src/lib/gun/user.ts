@@ -168,17 +168,28 @@ function init() {
 
   gun.user().get("epub").put(get(user).is.epub);
 
-  gun.user().get("pulse").on((d) => {
-    user.update(u => ({ ...u, blink: !u.blink, pulse: d }));
-  });
+  gun
+    .user()
+    .get("pulse")
+    .on(d => {
+      user.update(u => ({ ...u, blink: !u.blink, pulse: d }));
+    });
 
-  gun.user().get("safe").map().on((d, k) => {
-    user.update(u => ({ ...u, safe: { ...u.safe, [k]: d } }));
-  });
+  gun
+    .user()
+    .get("safe")
+    .map()
+    .on((d, k) => {
+      user.update(u => ({ ...u, safe: { ...u.safe, [k]: d } }));
+    });
 
-  gun.user().get("profile").get("name").on((d) => {
-    user.update(u => ({ ...u, name: d }));
-  });
+  gun
+    .user()
+    .get("profile")
+    .get("name")
+    .on(d => {
+      user.update(u => ({ ...u, name: d }));
+    });
 
   user.update(u => ({ ...u, pulser, initiated: true }));
 }
@@ -251,20 +262,48 @@ export function loadUserProfile() {
   const userStore = get(user);
 
   if (userStore?.is && userStore?.is?.pub) {
-    gun.user().get("profile").map().on((data, key) => {
-      if (data !== null && data !== undefined && key !== "_" && key !== "#" && key !== ">") {
-        user.update(u => ({
-          ...u,
-          profile: { ...u.profile, [key]: data }
-        }));
-      }
-    });
+    gun
+      .user()
+      .get("profile")
+      .map()
+      .on((data, key) => {
+        if (data !== null && data !== undefined && key !== "_" && key !== "#" && key !== ">") {
+          user.update(u => ({
+            ...u,
+            profile: { ...u.profile, [key]: data },
+          }));
+        }
+      });
   }
 }
 
-export function addProfileField(title: string) {
+export function addProfileField(title: string, initialValue: string = "") {
   const gun = useGun();
-  gun.user().get("profile").get(title).put("");
+  const userStore = get(user);
+
+  // Verifica se il campo esiste già nel profilo
+  if (userStore.profile && userStore.profile.hasOwnProperty(title)) {
+    console.warn(`Il campo '${title}' esiste già nel profilo. Non verrà aggiunto.`);
+    return;
+  }
+
+  // Se il campo non esiste, lo aggiungiamo
+  gun
+    .user()
+    .get("profile")
+    .get(title)
+    .put(initialValue, ack => {
+      if (ack.err) {
+        console.error(`Errore nell'aggiunta del campo '${title}':`, ack.err);
+      } else {
+        console.log(`Campo '${title}' aggiunto con successo al profilo`);
+        // Aggiorna lo store locale
+        user.update(u => ({
+          ...u,
+          profile: { ...u.profile, [title]: initialValue },
+        }));
+      }
+    });
 }
 
 export function updateProfileField(field: string, value: string): Promise<void> {

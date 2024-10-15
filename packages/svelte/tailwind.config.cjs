@@ -9,7 +9,7 @@ const config = {
     extend: {
       fontFamily: {
         sans: [
-          "Mono",
+          "Futura Cyrillic Book",
           "AvenirLTStd-Book",
           "-apple-system",
           "BlinkMacSystemFont",

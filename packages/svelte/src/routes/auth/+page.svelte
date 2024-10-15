@@ -40,7 +40,7 @@
     if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("Registrazione completata con successo!");
+      notification.success("Registration completed successfully!");
       loadUserProfile();
     }
   }
@@ -50,7 +50,7 @@
     if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("Accesso effettuato con successo!");
+      notification.success("Login successful!");
       loadUserProfile();
     }
   }
@@ -58,7 +58,7 @@
   function handleLogout() {
     logout();
     userPair = null;
-    notification.info("Logout effettuato");
+    notification.info("Logout successful!");
   }
 
   async function handleViewPair() {
@@ -66,28 +66,28 @@
     const account = getAccount(wagmiConfig);
 
     if (!account.isConnected) {
-      setErrorMessage("Per favore connetti il tuo portafoglio Ethereum");
+      setErrorMessage("Please connect your Ethereum wallet");
       return;
     }
 
     try {
       const signature = await gunInstance.createSignature("Accesso a GunDB con Ethereum");
       if (!signature) {
-        setErrorMessage("Errore durante la firma del messaggio");
+        setErrorMessage("Error signing message");
         return;
       }
 
       userPair = await gunInstance.getAndDecryptPair(account.address, signature);
       if (!userPair) {
-        setErrorMessage("Impossibile recuperare i dati dell'utente");
+        setErrorMessage("Unable to retrieve user data");
       }
     } catch (error) {
-      setErrorMessage("Errore durante il recupero del pair: " + error.message);
+      setErrorMessage("Error retrieving pair: " + error.message);
     }
   }
 </script>
 
-<main class="container text-left justify-center">
+<main class="text-left justify-center">
   {#if errorMessage}
     <div class="relative mb-4 rounded border border-red-400 bg-red-100 p-20 text-red-700" role="alert">
       <span class="block sm:inline">{errorMessage}</span>
@@ -95,31 +95,37 @@
   {/if}
 
   {#if $user?.auth === false}
-    <div class="w-screen my-28 align-baseline text-center items-center">
+    <div class="w-full my-28 align-baseline text-center items-center">
       <button class="btn btn-primary" on:click={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
       <button class="btn btn-secondary" on:click={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
-    <div class="break-all text-center w-screen">
+    <div class="break-all text-center w-full">
       <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.profile?.name || $user?.pub}!</h2>
       <div class="container mx-auto my-10">
-        <div class="flex flex-col lg:flex-row justify-center items-center gap-10">
+        <div class="flex flex-col lg:flex-row justify-center  gap-10 align-top items-start">
           <div class="w-full lg:w-1/3">
-            <svelte:component this={$user?.auth ? AccountProfile : null} pub={$user.pub} />
-
+            <svelte:component 
+              this={$user?.auth ? AccountProfile : null} 
+              pub={$user.pub} 
+            />
           </div>
           <div class="w-full lg:w-1/3">
-            <svelte:component this={$user?.auth ? ProfileDisplay : null} />
+            <svelte:component 
+              this={$user?.auth ? ProfileDisplay : null} 
+            />
           </div>
         </div>
       </div>
 
       {#if userPair && Object.keys(userPair).length > 0}
-        <div class="items-center w-full my-10 bg-ableton-green border-ableton-blue border-2 p-5 text-left">
+        <div class="items-center w-full my-10 bg-ableton-beige border-2  text-black p-10 text-left">
+          <h2 class="card-title text-black font-medium mb-10 text-3xl">User Pair</h2>
+
           <ul class="mx-auto">
             {#each Object.entries(userPair) as [key, value]}
               <li class="mb-2">
-                <strong>{key}:</strong> <span class="text-base-content">{JSON.stringify(value, null, 2)}</span>
+                <strong>{key}:</strong> <span class="text-black">{JSON.stringify(value, null, 2)}</span>
               </li>
             {/each}
           </ul>
@@ -132,9 +138,9 @@
     </div>  
   {/if}
 
-  <div class="bg-ableton-light-blue rounded-none text-black w-screen">
-    <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue p-8">
-    <h2 class="mb-10 text-5xl font-semibold ">How Authentication Works in SE-2Gun</h2>
+  <div class="bg-ableton-light-blue rounded-none text-black w-full mx-auto">
+    <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue p-20">
+    <h2 class="mb-10 text-5xl font-semibold break-all ">How Authentication Works in SE-2Gun</h2>
     <ol class="list-inside list-decimal space-y-4">
       <li>
         <strong>Connect Wallet:</strong> Start by connecting your Ethereum wallet (e.g., MetaMask) to the application.

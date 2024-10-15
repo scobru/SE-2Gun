@@ -28,10 +28,10 @@
   });
 </script>
 
-<div class="flex min-h-screen flex-col">
+<div class="flex flex-col min-h-screen">
   <Header />
-  <main class="">
+  <div class="flex-1">
     <slot />
-  </main>
+  </div>
   <Footer />
 </div>
