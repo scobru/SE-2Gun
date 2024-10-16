@@ -7,9 +7,11 @@
   import { notification } from "$lib/utils/scaffold-eth/notification";
   import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
   import { useUser, loadUserProfile } from "$lib/gun/user";
+  import { writable } from 'svelte/store';
 
   import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
   import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
+  import { useGun } from "$lib/gun/gun";
 
   let errorMessage: string | null = null;
   let userPair: Record<string, any> | null = null;
@@ -18,12 +20,9 @@
 
   let errorTimeoutId: number;
 
-  onMount(() => {
-    initializeAuth();
-    return () => {
-      if (errorTimeoutId) clearTimeout(errorTimeoutId);
-    };
-  });
+  const userPairStore = writable(null);
+
+ 
 
   function setErrorMessage(message: string | null) {
     if (errorTimeoutId) clearTimeout(errorTimeoutId);
@@ -37,10 +36,13 @@
 
   async function handleSignIn() {
     const result = await signIn();
-    if (result) {
+    if (result === "login") {
+      // Se signIn restituisce "login", significa che abbiamo trovato un encrypted pair esistente
+      handleLogin();
+    } else if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("Registration completed successfully!");
+      notification.success("Registrazione completata con successo!");
       loadUserProfile();
     }
   }
@@ -50,7 +52,7 @@
     if (result) {
       setErrorMessage(result);
     } else {
-      notification.success("Login successful!");
+      notification.success("Login effettuato con successo!");
       loadUserProfile();
     }
   }
@@ -62,7 +64,7 @@
   }
 
   async function handleViewPair() {
-    const gunInstance = get(gun);
+    const gunInstance = useGun();
     const account = getAccount(wagmiConfig);
 
     if (!account.isConnected) {
@@ -77,14 +79,24 @@
         return;
       }
 
-      userPair = await gunInstance.getAndDecryptPair(account.address, signature);
-      if (!userPair) {
+      const pair = await gunInstance.getAndDecryptPair(account.address, signature);
+      
+      console.log("User Pair:", pair);
+      if (!pair) {
         setErrorMessage("Unable to retrieve user data");
+      } else {
+        userPairStore.set(pair);
       }
     } catch (error) {
       setErrorMessage("Error retrieving pair: " + error.message);
     }
   }
+
+  $effect(() => {
+    if (errorMessage) {
+      notification.error(errorMessage);
+    }
+  });
 </script>
 
 <main class="text-left justify-center">
@@ -96,14 +108,14 @@
 
   {#if $user?.auth === false}
     <div class="w-full my-28 align-baseline text-center items-center">
-      <button class="btn btn-primary" on:click={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary" on:click={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
+      <button class="btn btn-primary" onclick={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" onclick={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
     <div class="break-all text-center w-full">
-      <h2 class="mb-4 text-2xl font-semibold">Benvenuto, {$user?.profile?.name || $user?.pub}!</h2>
+      <h2 class="mb-4 text-2xl font-semibold">👋 Welcome, {$user?.profile?.name || $user?.pub}!</h2>
       <div class="container mx-auto my-10">
-        <div class="flex flex-col lg:flex-row justify-center  gap-10 align-top items-start">
+        <div class="flex flex-col lg:flex-row justify-center gap-10 align-top items-start">
           <div class="w-full lg:w-1/3">
             <svelte:component 
               this={$user?.auth ? AccountProfile : null} 
@@ -118,12 +130,12 @@
         </div>
       </div>
 
-      {#if userPair && Object.keys(userPair).length > 0}
+      {#if $userPairStore}
         <div class="items-center w-full my-10 bg-ableton-beige border-2  text-black p-10 text-left">
           <h2 class="card-title text-black font-medium mb-10 text-3xl">User Pair</h2>
 
           <ul class="mx-auto">
-            {#each Object.entries(userPair) as [key, value]}
+            {#each Object.entries($userPairStore) as [key, value]}
               <li class="mb-2">
                 <strong>{key}:</strong> <span class="text-black">{JSON.stringify(value, null, 2)}</span>
               </li>
@@ -132,8 +144,8 @@
         </div>
       {/if}
       <div class="flex justify-center space-x-4 mx-auto mb-20 text-center">
-        <button class="btn btn-primary" on:click={handleLogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <button class="btn btn-secondary" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
+        <button class="btn btn-primary" onclick={handleLogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-secondary" onclick={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
     </div>  
   {/if}

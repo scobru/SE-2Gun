@@ -2,6 +2,7 @@ import { derived, writable, get } from "svelte/store";
 import { useGun } from "./gun";
 import { useUser } from "./user";
 import SEA from "gun/sea";
+import { gunAvatar } from "gun-avatar"
 
 export function useAvatar(pub: string, size: number) {
   const gun = useGun();
@@ -12,10 +13,15 @@ export function useAvatar(pub: string, size: number) {
 
   const updateAvatar = () => {
     console.log("Updating avatar for pub:", pub);
+    if (!pub) {
+      console.log("No pub provided, setting default avatar");
+      setDefaultAvatar();
+      return;
+    }
     gun
       .user(pub)
       .get("avatar")
-      .once(data => {
+      .once((data: string) => {
         console.log("Avatar data:", data);
         if (data) {
           if (typeof data === "string" && data.startsWith("#")) {
@@ -23,7 +29,7 @@ export function useAvatar(pub: string, size: number) {
             gun
               .get("#")
               .get(data.slice(1))
-              .once(media => {
+              .once((media: string) => {
                 console.log("Retrieved media:", media);
                 if (media) {
                   try {
@@ -31,22 +37,26 @@ export function useAvatar(pub: string, size: number) {
                     avatar.set(`data:${mediaObj.type};base64,${mediaObj.b64}`);
                   } catch (error) {
                     console.error("Error parsing media:", error);
-                    avatar.set(`https://avatars.dicebear.com/api/identicon/${pub}.svg?size=${size}`);
+                    setDefaultAvatar();
                   }
                 } else {
-                  avatar.set(`https://avatars.dicebear.com/api/identicon/${pub}.svg?size=${size}`);
+                  setDefaultAvatar();
                 }
               });
           } else if (typeof data === "string" && data.startsWith("data:")) {
             // L'avatar è già in formato base64
             avatar.set(data);
           } else {
-            avatar.set(`https://avatars.dicebear.com/api/identicon/${pub}.svg?size=${size}`);
+            setDefaultAvatar();
           }
         } else {
-          avatar.set(`https://avatars.dicebear.com/api/identicon/${pub}.svg?size=${size}`);
+          setDefaultAvatar();
         }
       });
+  };
+
+  const setDefaultAvatar = () => {
+    avatar.set(gunAvatar({ pub, size }));
   };
 
   gun
@@ -85,7 +95,7 @@ export function useAvatar(pub: string, size: number) {
           gun
             .get("#")
             .get(mediaID)
-            .put(media, ack => {
+            .put(media, (ack: { err: any; }) => {
               if (ack.err) {
                 console.error("Errore nel salvare il media:", ack.err);
                 reject(ack.err);
@@ -99,9 +109,9 @@ export function useAvatar(pub: string, size: number) {
         // Salva il riferimento all'avatar nello spazio utente
         await new Promise<void>((resolve, reject) => {
           gun
-            .user()
+            .user(pub)
             .get("avatar")
-            .put("#" + mediaID, ack => {
+            .put("#" + mediaID, (ack: { err: any; }) => {
               if (ack.err) {
                 console.error("Errore nel salvare il riferimento avatar:", ack.err);
                 reject(ack.err);
@@ -121,12 +131,22 @@ export function useAvatar(pub: string, size: number) {
       console.error("Errore durante il caricamento dell'avatar:", error);
       uploadStatus.set("Errore durante il caricamento. Riprova.");
     }
+
+    // Dopo aver completato il caricamento, aggiorna immediatamente l'avatar
+    updateAvatar();
   };
 
+  // Chiama updateAvatar all'inizializzazione
+  updateAvatar();
+
   return {
-    avatar: derived(avatar, $a => $a),
+    avatar: derived(avatar, $a => {
+      console.log("Avatar value:", $a);
+      return $a;
+    }),
     blink: derived(blink, $b => $b),
     uploadAvatar,
     uploadStatus: derived(uploadStatus, $s => $s),
+    updateAvatar
   };
 }

@@ -2387,7 +2387,7 @@ __metadata:
     express-rate-limit: ^7.4.0
     gun: ^0.2020.1240
     gun-avatar: ^1.9.4
-    gun-eth: ^1.2.13
+    gun-eth: ^1.2.14
     ip: ^2.0.1
     js-sha256: ^0.11.0
     js-sha3: ^0.9.3
@@ -9379,6 +9379,16 @@ __metadata:
     ethers: ^6.0.0
     gun: ^0.2020.1239
   checksum: a8439f6ab7e95e662ca445e91bc61b9e687009e8ce9c24bec30d74cdf04b5e8575ea154c8a68485ccff53ee2d1e06a1ea3248bf16fadad332e40335dd4bdbeb1
+  languageName: node
+  linkType: hard
+
+"gun-eth@npm:^1.2.14":
+  version: 1.2.14
+  resolution: "gun-eth@npm:1.2.14"
+  dependencies:
+    ethers: ^6.0.0
+    gun: ^0.2020.1239
+  checksum: 8c7eaa7526792f28f99fe7549e8d68a53ba5bc819ec88417a89c369725971c19f65e2d89b80edeb7253c78225be9e61e6b7fdf860eef2e83f9a0342c6bd36a2e
   languageName: node
   linkType: hard
 

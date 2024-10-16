@@ -2,51 +2,55 @@
     import { useAvatar } from '$lib/gun/avatar';
     import { useUser } from '$lib/gun/user';
     import { onMount, createEventDispatcher } from 'svelte';
-
     const dispatch = createEventDispatcher();
     const { user } = useUser();
 
-    export let pub: string | undefined = undefined;
     export let size: number = 96;
     export let border: number = 2;
     
-    let isOwnAvatar = false;
     let fileInput: HTMLInputElement;
     let avatarLoaded = false;
     
-    $: ({ avatar, blink, uploadAvatar, uploadStatus } = useAvatar(pub || $user?.pub, size));
+    let { avatar: avatarStore, blink, uploadAvatar, uploadStatus, updateAvatar } = useAvatar($user.pub, size);
     
+    $: console.log("Avatar nel componente:", $avatarStore);
     onMount(() => {
-        if (!pub && $user?.pub) {
-            pub = $user.pub;
-        }
-        isOwnAvatar = $user.pub === pub;
-        console.log("isOwnAvatar:", isOwnAvatar, "$user.pub:", $user.pub, "pub:", pub);
+        updateAvatar();
     });
     
     async function handleFileChange(event: Event) {
         const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) await uploadAvatar(file);
+        if (file) {
+            await uploadAvatar(file);
+            updateAvatar();
+        }
     }
 
     function onAvatarLoad() {
         avatarLoaded = true;
         dispatch('load');
     }
+
+    function onAvatarError() {
+        avatarLoaded = true;
+        updateAvatar();
+        dispatch('load');
+    }
 </script>
 
 <div class="flex flex-col items-center justify-center relative w-fit">
-    {#if pub || $user?.pub}
+    {#if $user.pub}
         <img
             class="border rounded-full overflow-hidden transition duration-500 ease-out"
             style="border-color: {$blink ? 'accent' : 'transparent'}; border-width: {border}px;"
             width={size}
             height={size}
-            src={$avatar}
+            src={$avatarStore}
             alt="Avatar"
             on:load={onAvatarLoad}
+            on:error={onAvatarError}
         />
-        {#if isOwnAvatar && avatarLoaded}
+        {#if  avatarLoaded}
             <button
                 class="absolute bottom-0 right-0 bg-accent text-white rounded-full p-1 hover:bg-accent/80"
                 on:click={() => fileInput.click()}
@@ -65,9 +69,14 @@
             {/if}
         {/if}
     {:else}
-        <div class="pb-2 px-1" style="font-size: {size}px;">
-            <div class="i-la-user"></div>
-        </div>
+        <img
+            class="border rounded-full overflow-hidden"
+            style="border-width: {border}px;"
+            width={size}
+            height={size}
+            src={`https://avatars.dicebear.com/api/identicon/${$user.pub}.svg?size=${size}`}
+            alt="Default Avatar"
+        />
     {/if}
     <slot></slot>
 </div>

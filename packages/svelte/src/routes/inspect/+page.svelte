@@ -183,8 +183,9 @@
     <span class="block p-2 font-mono text-sm text-black">Current Relay: {$customRelay}</span>
     <input
       type="text"
+
       class="input input-bordered w-full"
-      placeholder="Enter node path example: users"
+      placeholder="Enter node path example: gun-eth/users"
       bind:value={$nodePath}
     />
     <button class="btn btn-primary" on:click={() => loadNodeData()}>Load Node Data</button>

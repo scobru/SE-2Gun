@@ -147,7 +147,7 @@ export async function auth(pair: any, cb = (pair: any) => {}) {
       cb(ack);
     } else {
       const { user } = useUser();
-      user.update(u => ({ ...u, auth: true }));
+      user.update(u => ({ ...u, auth: true, pub: gun.user().is.alias }));
       console.log("Successo autenticazione");
       cb(ack);
     }

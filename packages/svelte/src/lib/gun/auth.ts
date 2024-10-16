@@ -1,6 +1,5 @@
 import "gun-eth";
 import { getAccount } from "@wagmi/core";
-import { currentUser, gun } from "$lib/stores";
 import { derived, get, writable } from "svelte/store";
 import { notification } from "$lib/utils/scaffold-eth/notification";
 import { wagmiConfig } from "$lib/wagmi";
@@ -8,7 +7,6 @@ import type { IGunUserInstance } from "gun/types";
 import { auth, leave, useUser, isPair } from "./user";
 import { useGun } from "./gun";
 import SEA from "gun/sea";
-import { useAccount } from "./account";
 const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
 export function initializeAuth() {
@@ -19,14 +17,12 @@ export function initializeAuth() {
     if ("err" in ack) {
       console.error("Errore nel recupero della sessione:", ack.err);
     } else if (user.is && user.is.alias) {
-      currentUser.set(user.is.alias as string);
       await loadUserData(user);
     }
   });
 
   gun.user().on("auth", async () => {
     console.log("Utente autenticato:", user.is.alias as string);
-    currentUser.set(user.is.alias as string);
     await loadUserData(user);
   });
 
@@ -35,22 +31,25 @@ export function initializeAuth() {
 
 async function loadUserData(user: IGunUserInstance) {
   console.log("Caricamento dati utente...");
-  const gunInstance = get(gun);
+  const gunInstance = useGun();
   const account = getAccount(wagmiConfig);
 
   if (user.is && user.is.alias) {
     const signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
     const userPair = await gunInstance.getAndDecryptPair(account.address, signature);
     console.log("Coppia utente:", userPair);
-    // Qui puoi aggiungere la logica per gestire i dati dell'utente
   }
 }
 
 export async function signIn(): Promise<string | null> {
   console.log("Registrazione in corso...");
+  
   const gunInstance = useGun();
   const account = getAccount(wagmiConfig);
   const { user } = useUser();
+
+  // check if pair exist on gun for this address
+
 
   try {
     if (!account.isConnected) {
@@ -63,15 +62,36 @@ export async function signIn(): Promise<string | null> {
       return "Errore durante la firma del messaggio";
     }
 
-    await gunInstance.createAndStoreEncryptedPair(account.address, signature);
+    // Verifica se esiste già un encrypted pair per questo utente
+    const existingPair = await gunInstance.get(`~${account.address}`).get("safe").get("enc").then();
+    const remoteKeyPair = gunInstance.get("gun-eth").get("users").get(account.address).get("pair");
+    
+    if (existingPair || remoteKeyPair) {
+      console.log("Encrypted pair esistente trovato. Esecuzione del login...");
+      await gunInstance.get(`~${account.address}`).get("safe").get("enc").put(remoteKeyPair);
+      return login(signature);
+    }
+
+    let pair = await gunInstance.createAndStoreEncryptedPair(account.address, signature);
+    console.log("Pair:", pair);
 
     return new Promise(resolve => {
       gunInstance.user().create(account.address, signature, async (ack: { ok: 0; pub: string } | { err: string }) => {
         if ("err" in ack) {
-          resolve("Errore durante la registrazione: " + ack.err);
+          resolve("Error during registration: " + ack.err);
         } else {
           await loadUserData(user);
-          currentUser.set(user.is.alias);
+          await auth(pair, async (ack: { err: string }) => {
+            console.log("Risposta di autenticazione:", ack);
+            if (ack.err) {
+              console.error("Errore di accesso: " + ack.err);
+            } else {
+              console.log("Accesso riuscito");
+              const { user } = useUser();
+              user.update(u => ({ ...u, auth: true, pub: gunInstance.user().is.alias }));
+              console.log("User:", get(user));
+            }
+          });
           resolve(null);
         }
       });
@@ -81,7 +101,7 @@ export async function signIn(): Promise<string | null> {
   }
 }
 
-export async function login(): Promise<string | null> {
+export async function login(sig?: string): Promise<string | null> {
   const account = getAccount(wagmiConfig);
 
   if (!account.isConnected) {
@@ -96,7 +116,7 @@ export async function login(): Promise<string | null> {
       return "Nessun account Ethereum connesso";
     }
 
-    const signature = await gunInstance.createSignature(MESSAGE_TO_SIGN);
+    const signature = sig ? sig : await gunInstance.createSignature(MESSAGE_TO_SIGN);
     if (!signature) {
       return "Errore durante la firma del messaggio";
     }
@@ -115,7 +135,7 @@ export async function login(): Promise<string | null> {
       } else {
         console.log("Accesso riuscito");
         const { user } = useUser();
-        user.update(u => ({ ...u, auth: true }));
+        user.update(u => ({ ...u, auth: true, pub: gunInstance.user().is.alias }));
         console.log("User:", get(user));
       }
     });

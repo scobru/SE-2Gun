@@ -7,11 +7,21 @@
 
     let pub : string | undefined ;
     let { user } = useUser();
-    let { account } = useAccount(pub || $user?.pub);
+    console.log("user pub", $user);
+    let { account } = useAccount($user?.pub);
 
     $: globalAccount = $account;
-
     $: lastPulse = globalAccount?.pulse;
+
+    onMount(() => {
+        if (!pub && $user?.pub) {
+            pub = $user.pub;
+        }
+    });
+
+    $: pub = $user?.pub;
+
+    
 
 
     if (globalAccount && globalAccount.pulse !== lastPulse) {
@@ -42,7 +52,7 @@
 <div class="card w-90 bg-ableton-light-blue text-black rounded-none p-4 font-sans">
     <div class="card-body">
         <h2 class="card-title text-black font-medium text-2xl">Account Information</h2>
-        <AccountAvatar pub={pub || $user?.pub} />
+        <AccountAvatar pub={$user?.pub} />
         {#if globalAccount}
             {#each accountFields as { key, label }}
                 <div class="form-control gap-2">
