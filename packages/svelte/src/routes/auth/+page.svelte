@@ -1,11 +1,8 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
-  import { gun } from "$lib/stores";
-  import { get } from "svelte/store";
   import { notification } from "$lib/utils/scaffold-eth/notification";
-  import { initializeAuth, signIn, login, logout } from "$lib/gun/auth";
+  import {  signIn, login, logout } from "$lib/gun/auth";
   import { useUser, loadUserProfile } from "$lib/gun/user";
   import { writable } from 'svelte/store';
 

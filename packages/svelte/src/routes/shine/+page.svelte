@@ -6,6 +6,9 @@
   import "gun-eth";
   import { createAccount } from "@byteatatime/wagmi-svelte";
   import { tick } from "svelte";
+  import { useGun } from "$lib/gun/gun";
+import { ethers } from "ethers";
+  import { notification } from "$lib/utils/scaffold-eth/notification";
 
   let message = $state("");
   let nodeId = $state("");
@@ -15,9 +18,11 @@
   let error = $state("");
   let verificationResult = $state(null);
   let gunInstance = $state(null);
+  let editMessage = $state("");
+  let editNodeId = $state("");
 
   onMount(async () => {
-    gunInstance = get(gun) === null ? new Gun() : get(gun);
+    gunInstance = useGun() === null ? new Gun() : useGun();
   });
 
   const { address, chainId, status, isConnected } = $derived.by(createAccount());
@@ -32,7 +37,7 @@
     error = "";
 
     try {
-      const data = { message };
+      const data =  message ;
 
       const result = await new Promise((resolve, reject) => {
         gunInstance.shine("optimismSepolia", null, data, function (ack) {
@@ -87,6 +92,50 @@
       isLoading = false;
     }
   }
+
+  async function editLocalMessage() {
+    if (!editNodeId || !editMessage) {
+      error = "Per favore, inserisci sia il Node ID che il nuovo messaggio.";
+      return;
+    }
+
+    isLoading = true;
+    error = "";
+
+    try {
+      // Recupera il dato esistente
+      const existingData = await new Promise((resolve) => {
+        gunInstance.get(editNodeId).once((data) => resolve(data));
+      });
+
+      // Prepara i nuovi dati
+      const newData = {
+        message: editMessage,
+        _contentHash: existingData._contentHash // Manteniamo il contentHash precedente per il calcolo
+      };
+
+      // Calcola il nuovo contentHash
+      const dataString = JSON.stringify(editMessage);
+      const newContentHash = ethers.keccak256(ethers.toUtf8Bytes(dataString));
+
+      // Aggiorna i dati con il nuovo contentHash
+      newData._contentHash = newContentHash;
+
+      // Modifica il messaggio e il _contentHash localmente su Gun
+      gunInstance.get(editNodeId).put(newData, (ack) => {
+        if (ack.err) {
+          throw new Error(ack.err);
+        }
+        notification.success("Messaggio e hash modificati localmente con successo!");
+        savedMessage = editMessage;
+      });
+    } catch (err) {
+      console.error("Errore durante la modifica locale:", err);
+      error = `Si è verificato un errore durante la modifica locale del messaggio: ${err.message}`;
+    } finally {
+      isLoading = false;
+    }
+  }
 </script>
 
 <div class="flex flex-grow flex-col  font-sans">
@@ -131,6 +180,29 @@
           class="w-full bg-transparent text-black p-2 hover:bg-green-600 transition duration-300 ease-in-out"
         >
           {isLoading ? "Verifica in corso..." : "Verifica Messaggio"}
+        </button>
+      </div>
+
+      <div class="bg-ableton-purple p-6 rounded-none text-white">
+        <h2 class="text-2xl font-semibold mb-4">Modifica Messaggio Locale</h2>
+        <input
+          type="text"
+          bind:value={editNodeId}
+          placeholder="Node ID"
+          class="w-full p-2 mb-4 border border-gray-300 focus:outline-none focus:border-blue-500 text-black"
+        />
+        <input
+          type="text"
+          bind:value={editMessage}
+          placeholder="Nuovo messaggio"
+          class="w-full p-2 mb-4 border border-gray-300 focus:outline-none focus:border-blue-500 text-black"
+        />
+        <button 
+          on:click={editLocalMessage} 
+          disabled={isLoading || !editNodeId || !editMessage} 
+          class="w-full bg-transparent text-white p-2 hover:bg-purple-600 transition duration-300 ease-in-out"
+        >
+          {isLoading ? "Modifica in corso..." : "Modifica Messaggio Locale"}
         </button>
       </div>
     </div>
