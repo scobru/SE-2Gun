@@ -28,7 +28,15 @@ const config = {
         "ableton-green": "#b6ffc0",
         "ableton-orange": "#ff764d",
         "ableton-beige": "#ebf0dc",
+        "ableton-purple": "#800080",
       },
+      zIndex: {
+        '100': '100',
+        '200': '200',
+        '300': '300',
+        '400': '400',
+        '500': '500',
+      }
     },
   },
 

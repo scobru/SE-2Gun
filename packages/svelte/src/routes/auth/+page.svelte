@@ -2,24 +2,37 @@
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
   import { notification } from "$lib/utils/scaffold-eth/notification";
-  import {  signIn, login, logout } from "$lib/gun/auth";
+  import { signIn, login, logout } from "$lib/gun/auth";
   import { useUser, loadUserProfile } from "$lib/gun/user";
   import { writable } from 'svelte/store';
+  import { onMount } from 'svelte';
 
-  import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
+  //import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
   import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
   import { useGun } from "$lib/gun/gun";
+  import UserGraph from "$lib/components/gun/user/UserGraph.svelte";
+  import GunRelay from "$lib/components/gun/relay/GunRelay.svelte";
+  import { browser } from "$app/environment";
 
   let errorMessage: string | null = null;
-  let userPair: Record<string, any> | null = null;
-
-  const { user } = useUser();
-
   let errorTimeoutId: number;
-
   const userPairStore = writable(null);
+  const { user } = useUser();
+  let isLoading = true;
 
- 
+  onMount(() => {
+    isLoading = false;
+  });
+
+  let AccountProfile;
+
+  onMount(async () => {
+    if (browser) {
+      const module = await import('$lib/components/gun/account/AccountProfile.svelte');
+      AccountProfile = module.default;
+    }
+    $user.auth = false;
+  });
 
   function setErrorMessage(message: string | null) {
     if (errorTimeoutId) clearTimeout(errorTimeoutId);
@@ -34,7 +47,6 @@
   async function handleSignIn() {
     const result = await signIn();
     if (result === "login") {
-      // Se signIn restituisce "login", significa che abbiamo trovato un encrypted pair esistente
       handleLogin();
     } else if (result) {
       setErrorMessage(result);
@@ -56,7 +68,7 @@
 
   function handleLogout() {
     logout();
-    userPair = null;
+    userPairStore.set(null);
     notification.info("Logout successful!");
   }
 
@@ -78,7 +90,6 @@
 
       const pair = await gunInstance.getAndDecryptPair(account.address, signature);
       
-      console.log("User Pair:", pair);
       if (!pair) {
         setErrorMessage("Unable to retrieve user data");
       } else {
@@ -89,40 +100,37 @@
     }
   }
 
-  $effect(() => {
-    if (errorMessage) {
-      notification.error(errorMessage);
-    }
-  });
+  $: if (errorMessage) {
+    notification.error(errorMessage);
+  }
 </script>
 
 <main class="text-left justify-center">
-  {#if errorMessage}
-    <div class="relative mb-4 rounded border border-red-400 bg-red-100 p-20 text-red-700" role="alert">
-      <span class="block sm:inline">{errorMessage}</span>
-    </div>
-  {/if}
-
-  {#if $user?.auth === false}
+  {#if isLoading}
+    <p>Caricamento...</p>
+  {:else if $user?.auth === false}
     <div class="w-full my-28 align-baseline text-center items-center">
-      <button class="btn btn-primary" onclick={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
-      <button class="btn btn-secondary" onclick={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
+      <button class="btn btn-primary" on:click={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>
+      <button class="btn btn-secondary" on:click={handleLogin}><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
   {:else}
     <div class="break-all text-center w-full">
       <h2 class="mb-4 text-2xl font-semibold">👋 Welcome, {$user?.profile?.name || $user?.pub}!</h2>
-      <div class="container mx-auto my-10">
-        <div class="flex flex-col lg:flex-row justify-center gap-10 align-top items-start">
-          <div class="w-full lg:w-1/3">
-            <svelte:component 
-              this={$user?.auth ? AccountProfile : null} 
-              pub={$user.pub} 
-            />
+      <div class="container mx-auto my-10 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="w-full">
+            {#if AccountProfile}
+              <svelte:component this={AccountProfile} pub={$user.pub} />
+  {/if}
           </div>
-          <div class="w-full lg:w-1/3">
-            <svelte:component 
-              this={$user?.auth ? ProfileDisplay : null} 
-            />
+          <div class="w-full">
+            <ProfileDisplay />
+          </div>
+          <div class="w-full">
+            <UserGraph />
+          </div>
+          <div class="w-full">
+            <GunRelay />
           </div>
         </div>
       </div>
@@ -130,7 +138,6 @@
       {#if $userPairStore}
         <div class="items-center w-full my-10 bg-ableton-beige border-2  text-black p-10 text-left">
           <h2 class="card-title text-black font-medium mb-10 text-3xl">User Pair</h2>
-
           <ul class="mx-auto">
             {#each Object.entries($userPairStore) as [key, value]}
               <li class="mb-2">
@@ -141,12 +148,11 @@
         </div>
       {/if}
       <div class="flex justify-center space-x-4 mx-auto mb-20 text-center">
-        <button class="btn btn-primary" onclick={handleLogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <button class="btn btn-secondary" onclick={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
+        <button class="btn btn-primary" on:click={handleLogout}><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="btn btn-secondary" on:click={handleViewPair}><i class="fas fa-eye"></i> Visualizza Pair</button>
       </div>
     </div>  
   {/if}
-
   <div class="bg-ableton-light-blue rounded-none text-black w-full mx-auto">
     <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue p-20">
     <h2 class="mb-10 text-5xl font-semibold break-all ">How Authentication Works in SE-2Gun</h2>

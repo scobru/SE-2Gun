@@ -183,8 +183,8 @@ import { ethers } from "ethers";
         </button>
       </div>
 
-      <div class="bg-ableton-purple p-6 rounded-none text-white">
-        <h2 class="text-2xl font-semibold mb-4">Modifica Messaggio Locale</h2>
+      <div class="bg-ableton-light-blue p-6 rounded-none text-black">
+        <h2 class="text-2xl font-semibold mb-4">Modify Off-Chain Message</h2>
         <input
           type="text"
           bind:value={editNodeId}
@@ -200,9 +200,9 @@ import { ethers } from "ethers";
         <button 
           on:click={editLocalMessage} 
           disabled={isLoading || !editNodeId || !editMessage} 
-          class="w-full bg-transparent text-white p-2 hover:bg-purple-600 transition duration-300 ease-in-out"
+          class="w-full bg-transparent text-black p-2 hover:bg-purple-600 transition duration-300 ease-in-out"
         >
-          {isLoading ? "Modifica in corso..." : "Modifica Messaggio Locale"}
+          {isLoading ? "Editing in progress..." : "Edit Off-Chain Message"}
         </button>
       </div>
     </div>
@@ -211,21 +211,23 @@ import { ethers } from "ethers";
       <p class="text-red-500 mb-4">{error}</p>
     {/if}
 
-    {#if savedMessage}
-      <div class=" p-6 rounded-none bg-ableton-light-blue text-black ">
-        <h2 class="text-2xl font-semibold mb-4">Saved Message</h2>
+    <div class=" w-full bg-ableton-light-blue text-black rounded-none ">
+      {#if savedMessage}
+      <div class=" p-10 rounded-none ">
+        <h2 class="text-3xl font-semibold mb-4">Saved Message</h2>
         <p class="mb-2">{savedMessage}</p>
         <p class="text-sm text-gray-600">Node ID: {nodeId}</p>
         {#if txHash}
           <p class="text-sm text-gray-600">Transaction Hash: {txHash}</p>
         {/if}
       </div>
-    {/if}
+      {/if}
 
     {#if verificationResult}
-      <div class=" p-6 rounded-none bg-ableton-blue text-white   mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Verification Result</h2>
-        <p class={verificationResult.ok ? "text-green-500" : "text-red-500"}>
+      <div class=" p-10 rounded-none     mb-8">
+        <h2 class="text-3xl font-semibold mb-4">Verification Result</h2>
+        <p class={verificationResult.ok ? "text-green-500 text-xl" : "text-red-500 text-xl"}>
+          {verificationResult.ok ? "🎉" : "✖️"}
           {verificationResult.message}
         </p>
         {#if verificationResult.updater}
@@ -238,6 +240,7 @@ import { ethers } from "ethers";
         {/if}
       </div>
     {/if}
+  </div>
       <article class="prose-p:text-lg prose-ul:text-lg prose-li:text-lg prose-li:list-disc prose-li:marker:text-ableton-blue">
     <div class="bg-ableton-yellow w-full p-10 rounded-none text-black">
       <h2 class="text-5xl font-semibold mb-10">How to Use Verification</h2>

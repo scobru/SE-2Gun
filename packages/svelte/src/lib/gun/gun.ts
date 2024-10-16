@@ -12,6 +12,7 @@ import "gun/lib/store";
 import "gun/lib/rindexed";
 import "gun/lib/webrtc";
 import "gun-eth";
+import "gun/lib/yson.js";
 
 import { peers, validToken } from "../../../gun.config";
 

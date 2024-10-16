@@ -7,6 +7,7 @@ import type { IGunUserInstance } from "gun/types";
 import { auth, leave, useUser, isPair } from "./user";
 import { useGun } from "./gun";
 import SEA from "gun/sea";
+import { browser } from "$app/environment";
 const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
 export function initializeAuth() {
@@ -229,8 +230,11 @@ pass.update(p => ({
 }));
 
 function genLink(text = "", auth_url = "#/auth/") {
-  let base = encodeURIComponent(text);
-  return window.location.origin + window.location.pathname + auth_url + base;
+  if (browser) {
+    let base = encodeURIComponent(text);
+
+    return window.location.origin + window.location.pathname + auth_url + base;
+}
 }
 
 export function parseLink(link: string, auth_url = "#/auth/") {
