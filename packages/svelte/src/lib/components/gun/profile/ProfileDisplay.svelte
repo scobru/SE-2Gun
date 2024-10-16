@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useUser, updateProfile, addProfileField } from "$lib/gun/user";
+  import { useUser, updateProfile, addProfileField , loadUserProfile} from "$lib/gun/user";
   import { onMount } from "svelte";
   
   let { user } = useUser();

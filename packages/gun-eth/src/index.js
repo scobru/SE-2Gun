@@ -140,7 +140,7 @@ Gun.chain.createAndStoreEncryptedPair = async function (address, signature) {
     const gun = this;
     const pair = await SEA.pair();
     const encryptedPair = await SEA.encrypt(JSON.stringify(pair), signature);
-    await gun.get("users").get(address).put({ encryptedPair });
+    await gun.get("gun-eth").get("users").get(address).put({ encryptedPair });
     console.log("Encrypted pair stored for:", address);
   } catch (error) {
     console.error("Error creating and storing encrypted pair:", error);
@@ -157,6 +157,7 @@ Gun.chain.getAndDecryptPair = async function (address, signature) {
   try {
     const gun = this;
     const encryptedData = await gun
+      .get("gun-eth")
       .get("users")
       .get(address)
       .get("encryptedPair")

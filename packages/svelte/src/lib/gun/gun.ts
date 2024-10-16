@@ -13,7 +13,7 @@ import "gun/lib/rindexed";
 import "gun/lib/webrtc";
 import "gun-eth";
 
-import { peers } from "../../../gun.config";
+import { peers, validToken } from "../../../gun.config";
 
 // https://github.com/amark/gun/wiki/volunteer.dht
 // https://github.com/draeder/gun-relays
@@ -97,7 +97,7 @@ Gun.on("opt", function (ctx) {
     var to = this.to;
     // Adds headers for put
     msg.headers = {
-      token: "test",
+      token: validToken,
     };
     to.next(msg); // pass to next middleware
   });
