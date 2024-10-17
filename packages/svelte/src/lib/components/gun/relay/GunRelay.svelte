@@ -19,8 +19,10 @@
   </script>
   
   <div class="relative text-left bg-ableton-purple p-10">
+    <h2 class="card-title text-black font-medium text-2xl text-white mb-5">Relays</h2>
+
     <button class="flex" on:click={toggleOpen}>
-      <div class="btn btn-primary text-xl -mt-1 text-base-content">Open Relays</div>
+      <div class="btn btn-primary text-xl -mt-1 text-white">Open Relays</div>
       {#if text}
         <div class="ml-2 font-bold">{text}</div>
       {/if}
