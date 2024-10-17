@@ -52,15 +52,6 @@
           >
             <span class="link">Scobru</span>
           </a>
-          at
-          <a
-            class="flex items-center justify-center gap-1"
-            href="https://github.com/plancia/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span class="link">Plancia</span>
-          </a>
         </div>
         <span>·</span>
         <div class="text-center">

@@ -82,6 +82,7 @@
     "tiny-secp256k1": "^2.2.3",
     "url-regex": "^5.0.0",
     "viem": "^2.21.7",
+    "vis-data": "^7.1.9",
     "vis-network": "^9.1.9",
     "vite-plugin-svelte": "^3.0.1"
   }

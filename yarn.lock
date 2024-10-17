@@ -2412,6 +2412,7 @@ __metadata:
     url-regex: ^5.0.0
     vercel: ^34.0.0
     viem: ^2.21.7
+    vis-data: ^7.1.9
     vis-network: ^9.1.9
     vite: ^5.0.3
     vite-plugin-svelte: ^3.0.1
@@ -15291,6 +15292,16 @@ __metadata:
     typescript:
       optional: true
   checksum: a93ef2520f1a0fc9682fe73e6a034b0c91408d036bf561cde47e14fe3993f648ffc0bba3aeda89f4a5f161c6325e93b5d8a76f4add2f79ebf15e1cc2ae53d2b4
+  languageName: node
+  linkType: hard
+
+"vis-data@npm:^7.1.9":
+  version: 7.1.9
+  resolution: "vis-data@npm:7.1.9"
+  peerDependencies:
+    uuid: ^3.4.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
+    vis-util: ^5.0.1
+  checksum: d299e5c9c301e9ecfaa3bd40eea0f89320ed2c8053e1105896d197561bc8927a08d715db33ba085efdedcaef08621b22fbdb32698fe611f94a2d9fac6e3f48b2
   languageName: node
   linkType: hard
 

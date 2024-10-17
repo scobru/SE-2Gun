@@ -3,6 +3,7 @@ import { useGun } from "./gun";
 import { useUser } from "./user";
 import SEA from "gun/sea";
 import { gunAvatar } from "gun-avatar"
+import { browser } from '$app/environment';
 
 export function useAvatar(pub: string, size: number) {
   const gun = useGun();
@@ -55,8 +56,12 @@ export function useAvatar(pub: string, size: number) {
       });
   };
 
+
   const setDefaultAvatar = () => {
-    avatar.set(gunAvatar({ pub, size }));
+    const avatarUrl = gunAvatar({ pub, size });
+
+      avatar.set(avatarUrl);
+    
   };
 
   gun

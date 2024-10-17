@@ -3,11 +3,11 @@
   import "gun/sea";
   import { onMount } from "svelte";
   import { get, writable } from "svelte/store";
-  import { currentUser, gun } from "$lib/stores";
+  import { gun } from "$lib/stores";
   import { Network } from "vis-network/standalone";
-  import type { IGunInstance } from "gun";
+  import { browser } from "$app/environment";
 
-  let gunInstance: IGunInstance<any> | null = null;
+  let gunInstance: any;
   let nodeData = writable({});
   let nodePath = writable("");
   let errorMessage = "";
@@ -21,11 +21,11 @@
 
   function initGun() {
     if (get(gun) === null) {
-      gunInstance = gun.set(Gun(get(customRelay)));
+      gunInstance = gun.set(new Gun(get(customRelay)));
     } else {
       gunInstance = get(gun);
     }
-    gunInstance.on("hi", peer => {
+    gunInstance.on("hi", (peer: any) => {
       console.log("Connected to peer:", peer);
     });
     initNetwork();
@@ -54,14 +54,18 @@
         stabilization: { iterations: 150 },
       },
     };
-    network = new Network(container, data, options);
-    network.on("click", function (params) {
-      if (params.nodes.length > 0) {
-        const nodeId = params.nodes[0];
-        nodePath.set(nodeId); // Aggiorna l'input box
-        loadNodeData(nodeId); // Carica i dati del nodo
-      }
-    });
+    if (browser) {
+      network = new Network(container, data, options);
+    }
+    if (network) {
+      network.on("click", function (params) {
+        if (params.nodes.length > 0) {
+          const nodeId = params.nodes[0];
+          nodePath.set(nodeId); // Aggiorna l'input box
+          loadNodeData(nodeId); // Carica i dati del nodo
+        }
+      });
+    }
   }
 
   async function loadNodeData(path = $nodePath) {
@@ -183,7 +187,6 @@
     <span class="block p-2 font-mono text-sm text-black">Current Relay: {$customRelay}</span>
     <input
       type="text"
-
       class="input input-bordered w-full"
       placeholder="Enter node path example: gun-eth/users"
       bind:value={$nodePath}

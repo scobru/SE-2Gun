@@ -26,20 +26,18 @@
   </div>
 
   <!-- Inizializzazione -->
-  <div class="bg-ableton-yellow mx-auto w-full p-10 text-black">
-    <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">Getting Started</h2>
+  <div class="bg-ableton-yellow mx-auto w-full p-10 text-white">
+    <section class="mb-12 ">
+      <h2 class="mb-4 text-3xl font-semibold text-black">Getting Started</h2>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-svelte">
 <span class="text-blue-600">&lt;script&gt;</span>
-  <span class="text-purple-600">import</span> <span class="text-orange-600">&#123; useGun, useUser &#125;</span> <span
-            class="text-purple-600">from</span
-          > <span class="text-green-600">'@your-org/se-2gun'</span>;
   <span class="text-purple-600">import</span> <span class="text-orange-600">&#123; createAccount &#125;</span> <span
             class="text-purple-600">from</span
           > <span class="text-green-600">"@byteatatime/wagmi-svelte"</span>;
 
   <span class="text-blue-600">const</span> <span class="text-orange-600">gun</span> = <span class="text-yellow-600"
             >useGun()</span
+
           >; <span class="text-gray-600">// Initialize GunDB</span>
   <span class="text-blue-600">const</span> <span class="text-orange-600">&#123; user &#125;</span> = <span
             class="text-yellow-600">useUser()</span
@@ -55,10 +53,10 @@
   </div>
 
   <!-- Autenticazione -->
-  <div class="bg-ableton-green w-full p-10 text-black">
+  <div class="bg-ableton-green w-full p-10 text-white">
     <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">Authentication</h2>
-      <p class="mb-4">SE-2Gun provides Ethereum-based authentication:</p>
+      <h2 class="mb-4 text-3xl font-semibold text-black">Authentication</h2>
+      <p class="mb-4 text-black">SE-2Gun provides Ethereum-based authentication:</p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code>
 <span class="text-purple-600">import</span> <span class="text-orange-600">&#123; signIn, login, logout &#125;</span
           > <span class="text-purple-600">from</span> <span class="text-green-600">"$lib/gun/auth"</span>;
@@ -97,10 +95,10 @@
   </div>
 
   <!-- Gestione del profilo utente -->
-  <div class="bg-ableton-orange w-full p-10 text-black">
+  <div class="bg-ableton-orange w-full p-10 text-white">
     <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">User Profile Management</h2>
-      <p class="mb-4">Manage user profiles with these functions:</p>
+      <h2 class="mb-4 text-3xl font-semibold text-black">User Profile Management</h2>
+      <p class="mb-4 text-black">Manage user profiles with these functions:</p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-javascript">
 <span class="text-purple-600">import</span> <span class="text-orange-600"
             >&#123; loadUserProfile, saveUserProfile, addProfileField &#125;</span
@@ -123,10 +121,10 @@
   </div>
 
   <!-- SHINE -->
-  <div class="bg-ableton-beige w-full p-10 text-black">
+  <div class="bg-ableton-beige w-full p-10 text-white">
     <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">SHINE (Secure Hash Integrity Network Ethereum)</h2>
-      <p class="mb-4">Use SHINE for data verification on the blockchain:</p>
+      <h2 class="mb-4 text-3xl font-semibold t  text-black">SHINE (Secure Hash Integrity Network Ethereum)</h2>
+      <p class="mb-4 text-black">Use SHINE for data verification on the blockchain:</p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-javascript">
 <span class="text-blue-600">async function</span> <span class="text-yellow-600">saveMessage</span>() &#123;
   <span class="text-blue-600">const</span> <span class="text-orange-600">gunInstance</span> = <span
@@ -174,12 +172,12 @@
   </div>
 
   <!-- Componenti -->
-  <div class="bg-ableton-light-blue w-full p-10 text-black">
+  <div class="bg-ableton-light-blue w-full p-10 text-white">
     <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">Components</h2>
+      <h2 class="mb-4 text-3xl font-semibold text-black">Components</h2>
 
-      <h3 class="mb-2 text-2xl font-medium">AccountProfile.svelte</h3>
-      <p class="mb-4">
+      <h3 class="mb-2 text-2xl font-medium text-black">AccountProfile.svelte</h3>
+      <p class="mb-4 text-black">
         Displays account information including the public key, color, pulse, blink status, and last login.
       </p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-svelte">
@@ -191,8 +189,8 @@
           >=&#123;userPublicKey&#125; /&gt;
       </code></pre>
 
-      <h3 class="mb-2 mt-6 text-2xl font-medium">AccountAvatar.svelte</h3>
-      <p class="mb-4">Shows the user's avatar with options to upload a new one if it's the current user's profile.</p>
+      <h3 class="mb-2 mt-6 text-2xl font-medium text-black">AccountAvatar.svelte</h3>
+      <p class="mb-4 text-black">Shows the user's avatar with options to upload a new one if it's the current user's profile.</p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-svelte">
 <span class="text-purple-600">import</span> <span class="text-orange-600">AccountAvatar</span> <span
             class="text-purple-600">from</span
@@ -204,8 +202,8 @@
           >=&#123;2&#125; /&gt;
       </code></pre>
 
-      <h3 class="mb-2 mt-6 text-2xl font-medium">ProfileDisplay.svelte</h3>
-      <p class="mb-4">
+      <h3 class="mb-2 mt-6 text-2xl font-medium text-black">ProfileDisplay.svelte</h3>
+      <p class="mb-4 text-black">
         Allows viewing and editing user profile information with dynamic addition and removal of fields.
       </p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-svelte">
@@ -216,8 +214,8 @@
 &lt;<span class="text-blue-600">ProfileDisplay</span> /&gt;
       </code></pre>
 
-      <h3 class="mb-2 mt-6 text-2xl font-medium">Usage Example</h3>
-      <p class="mb-4">Here's how you might use these components together on a user profile page:</p>
+      <h3 class="mb-2 mt-6 text-2xl font-medium text-black">Usage Example</h3>
+      <p class="mb-4 text-black">Here's how you might use these components together on a user profile page:</p>
       <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4"><code class="language-svelte">
 &lt;<span class="text-purple-600">script</span>&gt;
 <span class="text-purple-600">import</span> &#123; <span class="text-orange-600">useUser</span> &#125; <span
@@ -244,15 +242,15 @@
   &lt;<span class="text-blue-600">div</span> <span class="text-yellow-600">class</span>=<span class="text-green-600"
             >"w-full md:w-1/3"</span
           >&gt;
-    &lt;<span class="text-blue-600">AccountAvatar</span> <span class="text-yellow-600">pub</span
+    &lt;<span class="text-blue-600 text-black">AccountAvatar</span> <span class="text-yellow-600">pub</span
           >=&#123;$user.pub&#125; <span class="text-yellow-600">size</span>=&#123;128&#125; /&gt;
-    &lt;<span class="text-blue-600">AccountProfile</span> <span class="text-yellow-600">pub</span
+    &lt;<span class="text-blue-600 text-black">AccountProfile</span> <span class="text-yellow-600">pub</span
           >=&#123;$user.pub&#125; /&gt;
   &lt;/<span class="text-blue-600">div</span>&gt;
   &lt;<span class="text-blue-600">div</span> <span class="text-yellow-600">class</span>=<span class="text-green-600"
             >"w-full md:w-2/3"</span
           >&gt;
-    &lt;<span class="text-blue-600">ProfileDisplay</span> /&gt;
+    &lt;<span class="text-blue-600 text-black">ProfileDisplay</span> /&gt;
   &lt;/<span class="text-blue-600">div</span>&gt;
 &lt;/<span class="text-blue-600">div</span>&gt;
       </code></pre>
@@ -260,12 +258,12 @@
   </div>
 
   <!-- Funzioni aggiuntive -->
-  <div class="bg-ableton-green w-full p-10 text-black">
+  <div class="bg-ableton-green w-full p-10 text-white">
     <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">Additional Functions</h2>
+      <h2 class="mb-4 text-3xl font-semibold text-black">Additional Functions</h2>
 
-      <h3 class="mb-2 text-2xl font-medium">User Functions</h3>
-      <ul class="list-disc space-y-2 pl-5">
+      <h3 class="mb-2 text-2xl font-medium text-black">User Functions</h3>
+      <ul class="list-disc space-y-2 pl-5 text-black  ">
         <li><strong>selectedUser:</strong> A writable store that holds the currently selected user's public key.</li>
         <li><strong>userPub:</strong> A derived store that always contains the current user's public key.</li>
         <li>
@@ -287,8 +285,8 @@
           store.
         </li>
       </ul>
-      <h3 class="mb-2 mt-6 text-2xl font-medium">Account Functions</h3>
-      <ul class="list-disc space-y-2 pl-5">
+      <h3 class="mb-2 mt-6 text-2xl font-medium text-black">Account Functions</h3>
+      <ul class="list-disc space-y-2 pl-5 text-black">
         <li>
           <strong>useAccount(pubKey: string):</strong> Sets up and manages an account for the given public key, including
           profile data and online status.

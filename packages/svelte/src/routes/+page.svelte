@@ -212,7 +212,7 @@
         <a
           href="#"
           class="btn btn-primary dark:text-base-content text-ableton-blue border-2 bg-transparent hover:bg-transparent hover:font-bold"
-          >Learn More About Becoming a Relay</a
+          >Learn More About Becoming a Relay (soon)</a
         >
       </div>
     </article>

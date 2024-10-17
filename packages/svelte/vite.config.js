@@ -1,9 +1,9 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
-import commonjs from "@rollup/plugin-commonjs";
+
 
 export default defineConfig({
-  plugins: [sveltekit(), commonjs()],
+  plugins: [sveltekit()],
   define: {
     "process.env": {}, // polyfill for web3modal
   },
@@ -12,4 +12,7 @@ export default defineConfig({
       allow: [".."],
     },
   },
+  ssr: {
+    noExternal: ['gun-avatar']
+  }
 });

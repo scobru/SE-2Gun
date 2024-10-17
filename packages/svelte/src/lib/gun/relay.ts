@@ -4,7 +4,7 @@
  * @group Database
  */
 
-import { useGun } from "./gun";
+import { useGun } from "$lib/gun/gun";
 import { derived, writable, get } from "svelte/store";
 import { browser } from "$app/environment";
 import ms from "ms";
@@ -101,6 +101,7 @@ relay.subscribe($relay => {
  * @returns {{relay: Writable<Relay>, setPeer: (url: string) => void, resetPeer: () => void}}
  */
 export function useRelay() {
+  if (browser) {
   const gun = useGun();
   const $relay = get(relay);
   
@@ -116,6 +117,7 @@ export function useRelay() {
         }
       });
   }
+}
 
   return { relay, setPeer: relay.setPeer, resetPeer: relay.resetPeer };
 }
