@@ -16,11 +16,17 @@ import "gun/lib/yson.js";
 
 import { peers, validToken } from "../../../gun.config";
 
+import { useRelay } from "./relay";
+import { get } from "svelte/store";
+
+
 // https://github.com/amark/gun/wiki/volunteer.dht
 // https://github.com/draeder/gun-relays
 
 /** @type {import('gun').IGunInstance} The main Gun instance for database operations */
 let gun;
+
+let { relay } = useRelay();
 
 /**
  * Instantiate a Gun instance for DB manipulations
@@ -31,14 +37,15 @@ let gun;
  * const gun = useGun()
  */
 export function useGun(options = { localStorage: false }) {
-  if (!gun) {
-    const opts = { peers: peers };
-    if (typeof options === "object") {
-      Object.assign(opts, options);
-    }
+  if(!gun) {
+  const opts = { peers: peers[0] };
+  if (typeof options === "object") {
+    Object.assign(opts, options);
+  }
     console.log(opts.peers);
     gun = Gun(opts);
   }
+
   return gun;
 }
 
@@ -61,7 +68,7 @@ export function useGunPath(...args) {
  * @returns {import('gun').IGunInstance}
  */
 export function createGunSecondary(options = { localStorage: false }) {
-  const gun2 = Gun({ peers: peers, ...options });
+  const gun2 = Gun({ peers: [get(relay).peer], ...options });
   return gun2;
 }
 

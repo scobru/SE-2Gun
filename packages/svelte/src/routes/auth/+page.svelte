@@ -10,14 +10,19 @@
   //import AccountProfile from "$lib/components/gun/account/AccountProfile.svelte";
   import ProfileDisplay from "$lib/components/gun/profile/ProfileDisplay.svelte";
   import { useGun } from "$lib/gun/gun";
-  import UserGraph from "$lib/components/gun/user/UserGraph.svelte";
+  import Graph from "$lib/components/gun/graph/Graph.svelte";
   import GunRelay from "$lib/components/gun/relay/GunRelay.svelte";
   import { browser } from "$app/environment";
+  import type { IGunInstance } from "gun";
 
   let errorMessage: string | null = null;
   let errorTimeoutId: number;
+  
   const userPairStore = writable(null);
   const { user } = useUser();
+
+  let gunInstance: IGunInstance<any> = useGun();
+
   let isLoading = true;
 
   onMount(() => {
@@ -73,7 +78,6 @@
   }
 
   async function handleViewPair() {
-    const gunInstance = useGun();
     const account = getAccount(wagmiConfig);
 
     if (!account.isConnected) {
@@ -127,7 +131,7 @@
             <ProfileDisplay />
           </div>
           <div class="w-full">
-            <UserGraph />
+            <Graph />
           </div>
           <div class="w-full">
             <GunRelay />

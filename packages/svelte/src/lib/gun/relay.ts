@@ -10,6 +10,7 @@ import { browser } from "$app/environment";
 import ms from "ms";
 
 import {peers} from "../../../gun.config"
+import { gun } from "$lib/stores";
 
 const defaultPeer = peers[0];
 
@@ -48,9 +49,14 @@ function createRelay() {
     subscribe,
     setPeer: (url: string) => {
       update(r => {
+        console.log(r)
         r.peer = url;
         if (browser) localStorage.setItem("peer", url);
         setTimeout(() => {
+          console.log(get(gun))
+          // set new peer on gunDB on opt
+          console.log(get(gun).opt({peers: []}))
+          get(gun).opt({peers: [url]});
           //window.location.reload();
         }, 700);
         return r;

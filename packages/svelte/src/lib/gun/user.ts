@@ -57,6 +57,7 @@ export const user = writable({
   pulse: 0,
   pulser: null,
   blink: false,
+  lastSeen: 0,
   safe: {
     saved: false,
     password: "",
@@ -163,7 +164,9 @@ function init() {
   }
 
   const pulser = setInterval(() => {
-    gun.user().get("pulse").put(Date.now());
+    const now = Date.now();
+    gun.user().get("pulse").put(now);
+    user.update(u => ({ ...u, lastSeen: now - u.pulse }));
   }, 1000);
 
   gun.user().get("epub").put(get(user).is.epub);

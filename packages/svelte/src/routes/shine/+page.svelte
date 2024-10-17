@@ -22,7 +22,7 @@ import { ethers } from "ethers";
   let editNodeId = $state("");
 
   onMount(async () => {
-    gunInstance = useGun() === null ? new Gun() : useGun();
+    gunInstance = useGun() 
   });
 
   const { address, chainId, status, isConnected } = $derived.by(createAccount());
