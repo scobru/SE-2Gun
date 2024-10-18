@@ -14,11 +14,11 @@ SE2-Gun is a powerful boilerplate that integrates ScaffoldETH2 with Gun.js and E
 
 ## Important Notice ⚠️
 
-**Attention**: Currently, this Gun.js implementation is not connected to any external relay. As a result, all data saved and managed through Gun will exclusively use your browser's local storage. This means:
+**Attention**: If you don't connect any relay in the configuration file, this Gun.js implementation will operate without external relays. Consequently, all data saved and managed through Gun will be stored exclusively in your browser's local storage. This means:
 
 1. Data will not persist across different browser sessions or devices.
 2. Data sharing between users will be limited.
-3. Clearing your browser cache will result in the loss of all saved data.
+3. All saved data will be lost when you clear your browser cache or close the browser.
 
 It is recommended to use this configuration for development and testing purposes only. For a complete and functional implementation in a production environment, it is necessary to configure and connect Gun to appropriate relays to ensure data persistence and synchronization.
 
