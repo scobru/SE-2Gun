@@ -25,6 +25,95 @@
     </section>
   </div>
 
+  <!-- Additional Information -->
+  <div class="bg-ableton-orange w-full p-10 font-medium text-black">
+    <section class="mb-12">
+      <h2 class="mb-4 text-3xl font-semibold">Additional Information</h2>
+      <p class="mb-4">
+        SE-2Gun is based on Scaffold-ETH, a framework for rapid development of decentralized applications (dApps) on
+        Ethereum.
+      </p>
+      <p class="mb-4">
+        The project integrates GunDB for decentralized data management and Wagmi for Ethereum interaction.
+      </p>
+      <p class="mb-4">
+        SE-2Gun utilizes gun-eth, a GunDB plugin for generating key pairs through Ethereum signatures.
+        <a
+          href="https://github.com/scobru/SE-2Gun/tree/main/packages/gun-eth"
+          class="text-ableton-yellow hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn more about gun-eth
+        </a>.
+      </p>
+      <p class="mb-4">
+        For rapid testing of GunDB within the Scaffold-ETH environment, there's a dedicated extension available.
+        <a
+          href="https://github.com/scobru/SE-2Gun-extension"
+          class="text-ableton-yellow hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Check out the Scaffold-ETH GunDB extension
+        </a>.
+      </p>
+      <h3 class="mb-2 text-2xl font-medium">Useful Links:</h3>
+      <ul class="list-disc space-y-2 pl-5">
+        <li>
+          <a
+            href="https://scaffoldeth.io"
+            class="text-ableton-yellow hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Scaffold-ETH Documentation
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://gun.eco/docs/"
+            class="text-ableton-yellow hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GunDB Documentation
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://wagmi.sh/"
+            class="text-ableton-yellow hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Wagmi Documentation
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/ByteAtATime/wagmi-svelte"
+            class="text-ableton-yellow hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Wagmi Svelte
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/scobru/se-2gun"
+            class="text-ableton-yellow hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            SE-2Gun GitHub Repository
+          </a>
+        </li>
+      </ul>
+    </section>
+  </div>
+
   <!-- Inizializzazione -->
   <div class="bg-ableton-yellow mx-auto w-full p-10 text-white">
     <section class="mb-12 ">
@@ -185,8 +274,7 @@
             class="text-purple-600">from</span
           > <span class="text-green-600">"$lib/components/gun/account/AccountProfile.svelte"</span>;
 
-&lt;<span class="text-blue-600">AccountProfile</span> <span class="text-yellow-600">pub</span
-          >=&#123;userPublicKey&#125; /&gt;
+&lt;<span class="text-blue-600">AccountProfile</span>  /&gt;
       </code></pre>
 
       <h3 class="mb-2 mt-6 text-2xl font-medium text-black">AccountAvatar.svelte</h3>
@@ -196,8 +284,7 @@
             class="text-purple-600">from</span
           > <span class="text-green-600">"$lib/components/gun/account/AccountAvatar.svelte"</span>;
 
-&lt;<span class="text-blue-600">AccountAvatar</span> <span class="text-yellow-600">pub</span
-          >=&#123;userPublicKey&#125; <span class="text-yellow-600">size</span>=&#123;96&#125; <span
+&lt;<span class="text-blue-600">AccountAvatar</span> <span class="text-yellow-600"><span class="text-yellow-600">size</span>=&#123;96&#125; <span
             class="text-yellow-600">border</span
           >=&#123;2&#125; /&gt;
       </code></pre>
@@ -302,94 +389,7 @@
       </ul>
     </section>
   </div>
-  <!-- Additional Information -->
-  <div class="bg-ableton-orange w-full p-10 font-medium text-black">
-    <section class="mb-12">
-      <h2 class="mb-4 text-3xl font-semibold">Additional Information</h2>
-      <p class="mb-4">
-        SE-2Gun is based on Scaffold-ETH, a framework for rapid development of decentralized applications (dApps) on
-        Ethereum.
-      </p>
-      <p class="mb-4">
-        The project integrates GunDB for decentralized data management and Wagmi for Ethereum interaction.
-      </p>
-      <p class="mb-4">
-        SE-2Gun utilizes gun-eth, a GunDB plugin for generating key pairs through Ethereum signatures.
-        <a
-          href="https://github.com/scobru/SE-2Gun/tree/main/packages/gun-eth"
-          class="text-ableton-yellow hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn more about gun-eth
-        </a>.
-      </p>
-      <p class="mb-4">
-        For rapid testing of GunDB within the Scaffold-ETH environment, there's a dedicated extension available.
-        <a
-          href="https://github.com/scobru/SE-2Gun-extension"
-          class="text-ableton-yellow hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Check out the Scaffold-ETH GunDB extension
-        </a>.
-      </p>
-      <h3 class="mb-2 text-2xl font-medium">Useful Links:</h3>
-      <ul class="list-disc space-y-2 pl-5">
-        <li>
-          <a
-            href="https://scaffoldeth.io"
-            class="text-ableton-yellow hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Scaffold-ETH Documentation
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://gun.eco/docs/"
-            class="text-ableton-yellow hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GunDB Documentation
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://wagmi.sh/"
-            class="text-ableton-yellow hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Wagmi Documentation
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/ByteAtATime/wagmi-svelte"
-            class="text-ableton-yellow hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Wagmi Svelte
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/scobru/se-2gun"
-            class="text-ableton-yellow hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            SE-2Gun GitHub Repository
-          </a>
-        </li>
-      </ul>
-    </section>
-  </div>
+  
 
   <!-- Conclusione -->
   <div class="w-full p-10">
