@@ -10,7 +10,6 @@ SE2-Gun is a powerful boilerplate that integrates ScaffoldETH2 with Gun.js and E
 - [GUN-ETH Plugin](#gun-eth-plugin)
 - [Authentication](#authentication)
 - [Inspector](#inspector)
-- [Block Explorer](#block-explorer)
 - [Dev Stack](#dev-stack)
 
 ## Important Notice ⚠️
@@ -57,15 +56,10 @@ The Inspector component provides a powerful tool for exploring and manipulating 
 
 - **Data Visualization**: View the structure and content of Gun.js data in real-time.
 - **Node Navigation**: Easily navigate through the graph structure of Gun.js data.
-- **Data Manipulation**: Add, edit, or delete nodes directly from the interface.
 - **Search Functionality**: Quickly find specific nodes or data within the Gun.js graph.
 - **Real-time Updates**: See changes to the data reflected immediately in the interface.
 
 The Inspector is an essential tool for developers working with Gun.js, providing insights into data structure and facilitating debugging and data management tasks.
-
-## Block Explorer
-
-The Block Explorer is a tool for exploring the data on the blockchain.
 
 ## Dev Stack
 
