@@ -13,6 +13,9 @@ export default defineConfig({
     },
   },
   ssr: {
-    noExternal: ['gun-avatar']
+    noExternal: ['gun-avatar','vis-network','CanvasRenderingContext2D']
+  },
+  optimizeDeps: {
+    include: ['gun-avatar']
   }
 });

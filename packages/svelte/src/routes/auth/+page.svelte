@@ -13,7 +13,6 @@
   import Graph from "$lib/components/gun/graph/Graph.svelte";
   import GunRelay from "$lib/components/gun/relay/GunRelay.svelte";
   import { browser } from "$app/environment";
-  import type { IGunInstance } from "gun";
 
   let errorMessage: string | null = null;
   let errorTimeoutId: number;
@@ -21,7 +20,7 @@
   const userPairStore = writable(null);
   const { user } = useUser();
 
-  let gunInstance: IGunInstance<any> = useGun();
+  let gunInstance: any = useGun();
 
   let isLoading = true;
 
@@ -29,10 +28,10 @@
     isLoading = false;
   });
 
-  let AccountProfile;
+  let AccountProfile: __sveltets_2_IsomorphicComponent<Record<string, never>, { [evt: string]: CustomEvent<any>; }, {}, {}, string>;
 
   onMount(async () => {
-    if (browser) {
+    if (browser && typeof CanvasRenderingContext2D !== 'undefined') {
       const module = await import('$lib/components/gun/account/AccountProfile.svelte');
       AccountProfile = module.default;
     }
@@ -45,7 +44,7 @@
     if (message) {
       errorTimeoutId = setTimeout(() => {
         errorMessage = null;
-      }, 5000);
+      }, 5000) as unknown as number;
     }
   }
 
@@ -86,7 +85,7 @@
     }
 
     try {
-      const signature = await gunInstance.createSignature("Accesso a GunDB con Ethereum");
+      const signature = await gunInstance?.createSignature("Accesso a GunDB con Ethereum");
       if (!signature) {
         setErrorMessage("Error signing message");
         return;
@@ -99,8 +98,12 @@
       } else {
         userPairStore.set(pair);
       }
-    } catch (error) {
-      setErrorMessage("Error retrieving pair: " + error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage("Errore nel recupero della coppia: " + error.message);
+      } else {
+        setErrorMessage("Errore sconosciuto nel recupero della coppia");
+      }
     }
   }
 
@@ -119,13 +122,13 @@
     </div>
   {:else}
     <div class="break-all text-center w-full">
-      <h2 class="mb-4 text-2xl font-semibold">👋 Welcome, {$user?.profile?.name || $user?.pub}!</h2>
+      <h2 class="mb-4 text-2xl font-semibold">👋 Welcome, {$user?.profile?.name! || $user?.pub}!</h2>
       <div class="container mx-auto my-10 px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="w-full">
             {#if AccountProfile}
               <svelte:component this={AccountProfile} pub={$user.pub} />
-  {/if}
+            {/if}
           </div>
           <div class="w-full">
             <ProfileDisplay />
