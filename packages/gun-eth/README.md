@@ -5,18 +5,19 @@
 
 ## Table of Contents
 
-1. [Description](#description)
-2. [Smart Contract](#smart-contract)
-3. [Key Features](#key-features)
-4. [How to Install](#how-to-install)
-5. [How to Use](#how-to-use)
-6. [Core Functions](#core-functions)
-7. [SHINE](#shine)
-8. [Standalone Mode](#standalone-mode)
-9. [Security Considerations](#security-considerations)
-10. [Contributing](#contributing)
-11. [License](#license)
-12. [Contact](#contact)
+1. [DESCRIPTION](#description)
+2. [SMART CONTRACT](#smart-contract)
+3. [KEY FEATURES](#key-features)
+4. [HOW TO INSTALL](#how-to-install)
+5. [HOW TO USE](#how-to-use)
+6. [HOW IT WORKS](#how-it-works)  
+7. [CORE FUNCTIONS](#core-functions)
+8. [SHINE](#shine)
+9. [STANDALONE MODE](#standalone-mode)
+10. [SECURITY CONSIDERATIONS](#security-considerations)
+11. [CONTRIBUTING](#contributing)
+12. [LICENSE](#license)
+13. [CONTACT](#contact)
 
 ## DESCRIPTION
 
@@ -59,6 +60,19 @@ await gun.generatePassword("YOUR_SIGNATURE");
 Learn more about Gun.js [here](https://gun.eco/docs/Getting-Started).
 
 Learn more about plugin implementation [here](https://github.com/amark/gun/wiki/Adding-Methods-to-the-Gun-Chain#abstraction-layers).
+
+
+## HOW IT WORKS
+
+### Create KeyPair
+
+
+[![](https://mermaid.ink/img/pako:eNpdUUtuwjAQvcrIGzZwgSwqJSRQhEorwqZNWLjxkFgkduSPEAJu1Fv0Yp0khaj1wh6P3s_jCyu0QBawQ61PRcWNg12cKxhWmK2T97dwtYVlskm24W71utnDbPYE0SWVpUIDJdLOHQIHSx3uvEE4SVdBJS2ceF2juz0Eo458Tb-_rjDPlnfqGs8tl2agpUm4f-DnvVmcJaow59aBq_6hR09vpSqh9OqvQtwrJGQ2sBU9F7TqgHEEEzpm6KoJEGjiLRrbl1wIg9aOMkkvs8hSp8kLhzgo4PgbRnaKn3E0MhY945miiz2bsgZNw6WgSV86SM4oTIM5C6gU3Bxz1rfVjbDcO52eVcECZzxOmdG-rFhw4LWlm28FDS2WvDS8eXRRSIr2Mnxm_6dT1nL1ofUdc_sBNpWchQ?type=png)](https://mermaid.live/edit#pako:eNpdUUtuwjAQvcrIGzZwgSwqJSRQhEorwqZNWLjxkFgkduSPEAJu1Fv0Yp0khaj1wh6P3s_jCyu0QBawQ61PRcWNg12cKxhWmK2T97dwtYVlskm24W71utnDbPYE0SWVpUIDJdLOHQIHSx3uvEE4SVdBJS2ceF2juz0Eo458Tb-_rjDPlnfqGs8tl2agpUm4f-DnvVmcJaow59aBq_6hR09vpSqh9OqvQtwrJGQ2sBU9F7TqgHEEEzpm6KoJEGjiLRrbl1wIg9aOMkkvs8hSp8kLhzgo4PgbRnaKn3E0MhY945miiz2bsgZNw6WgSV86SM4oTIM5C6gU3Bxz1rfVjbDcO52eVcECZzxOmdG-rFhw4LWlm28FDS2WvDS8eXRRSIr2Mnxm_6dT1nL1ofUdc_sBNpWchQ)
+
+### Retrive KeyPair
+----
+
+[![](https://mermaid.ink/img/pako:eNplUsluwjAQ_ZWRz_ADObQCEiggOLAc2iQHN56ABbGjsU2FAv_erBBBLs7Yb5lnT8ESLZB5LD3rv-TIycLOjxSU3yjc7kabnQcbtCTxgrDEa84lxTAcfsC42BskyElfpEADXAhCU65KgJEHxa0j_Lw3WuOKcvtGc4NJ-NBDldA1tyjg1ChDSjqDmVP-OG6Ik9rLL4J3qHZKdPr-Uz8IfayxD6QzUh26RnvNtRZBbTEtWprUCoxLkjJL6s6dwfRpMKsCOFIg8KWnuI9d6xt8dVAk0uTBXvHfM4LVHTfut18x5i-M9spBadskjvsXWjEWL4yVNHXe7j00vSWe1YmXYbD2nw7Uvkrn8NWAmmLeLxZNwQYsQ8q4FOX4FNVRxOwRM4yYV_4KTqeI1dvqXmK5s3p7VQnzLDkcMNLucGReys-mrFwuuEVf8gPx7LGLQlpNq2ZC60EdsJyrH607zP0f6c7pXw?type=png)](https://mermaid.live/edit#pako:eNplUsluwjAQ_ZWRz_ADObQCEiggOLAc2iQHN56ABbGjsU2FAv_erBBBLs7Yb5lnT8ESLZB5LD3rv-TIycLOjxSU3yjc7kabnQcbtCTxgrDEa84lxTAcfsC42BskyElfpEADXAhCU65KgJEHxa0j_Lw3WuOKcvtGc4NJ-NBDldA1tyjg1ChDSjqDmVP-OG6Ik9rLL4J3qHZKdPr-Uz8IfayxD6QzUh26RnvNtRZBbTEtWprUCoxLkjJL6s6dwfRpMKsCOFIg8KWnuI9d6xt8dVAk0uTBXvHfM4LVHTfut18x5i-M9spBadskjvsXWjEWL4yVNHXe7j00vSWe1YmXYbD2nw7Uvkrn8NWAmmLeLxZNwQYsQ8q4FOX4FNVRxOwRM4yYV_4KTqeI1dvqXmK5s3p7VQnzLDkcMNLucGReys-mrFwuuEVf8gPx7LGLQlpNq2ZC60EdsJyrH607zP0f6c7pXw)
 
 ## CORE FUNCTIONS
 
@@ -113,6 +127,11 @@ Learn more about plugin implementation [here](https://github.com/amark/gun/wiki/
 ## SHINE
 
 SHINE (Secure Hash Integrity Network Ethereum) provides a mechanism for verifying data integrity using Ethereum and Gun.js.
+
+
+[![](https://mermaid.ink/img/pako:eNplk1GTmjAQx79KJs_oICAiD9epQoX25Dq1006LPqRkPTMHiRODdx763S8Ez7N3PCXZ__73txvS4EJQwCFel-Kx2BCp0M9oyZH-PucL1e4XSZrF6BdItmYFUUzwFer1btCkSfm2ViHi2iGln05d2qQNHv_A7oim-Q9QksEeECWKoLUUFZrVPJqsOu3UGEVNZKKi5heX6M0lzuMnJUmhUCG4Aq4SstusrmWZOKIvecxpiIwTF6pzO6tiU2aWmx4OHYvgPd0u42fJzEiSjmRPSkYvilek5A0pzWegUEkU7BSSUAhJu-b-laJ4uPZNLoBf3wHuzUDhlTE1AN-uRO8E19Nt_W41AwepGRCHx_MlnLW3xmyeTyW08Y9zmxtBpm9YSECM_3crmQne5b8l08mCf-zqzii-d7CZrm5GumvN6ApbuAJZEUb1b9W0CUusNlDBEod6SYl8WGJzzE9aS2olFgde4FDJGiwsRX2_weGalDu9q7faGiJG7iWpLqdbwnHY4Ccc9pxxf-wEA9exPc92A384tPABh8NB33WDwdCxfcfxAy84WfhZCG0x6HuuZ49HI98PRjpojywMlGn2efcSzIMwNf6ahBbr9AJRuPoz?type=png)](https://mermaid.live/edit#pako:eNplk1GTmjAQx79KJs_oICAiD9epQoX25Dq1006LPqRkPTMHiRODdx763S8Ez7N3PCXZ__73txvS4EJQwCFel-Kx2BCp0M9oyZH-PucL1e4XSZrF6BdItmYFUUzwFer1btCkSfm2ViHi2iGln05d2qQNHv_A7oim-Q9QksEeECWKoLUUFZrVPJqsOu3UGEVNZKKi5heX6M0lzuMnJUmhUCG4Aq4SstusrmWZOKIvecxpiIwTF6pzO6tiU2aWmx4OHYvgPd0u42fJzEiSjmRPSkYvilek5A0pzWegUEkU7BSSUAhJu-b-laJ4uPZNLoBf3wHuzUDhlTE1AN-uRO8E19Nt_W41AwepGRCHx_MlnLW3xmyeTyW08Y9zmxtBpm9YSECM_3crmQne5b8l08mCf-zqzii-d7CZrm5GumvN6ApbuAJZEUb1b9W0CUusNlDBEod6SYl8WGJzzE9aS2olFgde4FDJGiwsRX2_weGalDu9q7faGiJG7iWpLqdbwnHY4Ccc9pxxf-wEA9exPc92A384tPABh8NB33WDwdCxfcfxAy84WfhZCG0x6HuuZ49HI98PRjpojywMlGn2efcSzIMwNf6ahBbr9AJRuPoz)
+
+
 
 #### SHINE Contract Configuration
 
