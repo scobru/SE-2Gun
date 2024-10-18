@@ -340,4 +340,34 @@ Gun.chain.shine = function (chain, nodeId, data, callback) {
   return gun;
 };
 
+
+/**
+ * Converts a Gun private key to an Ethereum account.
+ * @param {string} gunPrivateKey - The Gun private key in base64url format.
+ * @returns {Object} An object containing the Ethereum account and public key.
+ */
+Gun.chain.gunToEthAccount = function(gunPrivateKey) {
+  // Function to convert base64url to hex
+  const base64UrlToHex = (base64url) => {
+    const padding = "=".repeat((4 - (base64url.length % 4)) % 4);
+    const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/") + padding;
+    const binary = atob(base64);
+    return Array.from(binary, (char) => char.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+  };
+
+  // Convert Gun private key to hex format
+  const hexPrivateKey = "0x" + base64UrlToHex(gunPrivateKey);
+
+  // Create an Ethereum wallet from the private key
+  const wallet = new ethers.Wallet(hexPrivateKey);
+
+  // Get the public address (public key)
+  const publicKey = wallet.address;
+
+  return {
+    account: wallet,
+    publicKey: publicKey
+  };
+};
+
 module.exports = Gun;

@@ -17,14 +17,12 @@
 
   onMount(() => {
     initGun();
+    initNetwork();
   });
 
   function initGun() {
-    if (get(gun) === null) {
-      gunInstance = gun.set(new Gun(get(customRelay)));
-    } else {
-      gunInstance = get(gun);
-    }
+    gun.set(new Gun(get(customRelay)));
+    gunInstance = get(gun)
     gunInstance.on("hi", (peer: any) => {
       console.log("Connected to peer:", peer);
     });
@@ -32,6 +30,8 @@
   }
 
   function initNetwork() {
+    if (!browser || !container) return;
+
     const data = {
       nodes: [],
       edges: [],
@@ -54,18 +54,16 @@
         stabilization: { iterations: 150 },
       },
     };
-    if (browser) {
-      network = new Network(container, data, options);
-    }
-    if (network) {
-      network.on("click", function (params) {
-        if (params.nodes.length > 0) {
-          const nodeId = params.nodes[0];
-          nodePath.set(nodeId); // Aggiorna l'input box
-          loadNodeData(nodeId); // Carica i dati del nodo
-        }
-      });
-    }
+
+    network = new Network(container, data, options);
+
+    network.on("click", function (params) {
+      if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        nodePath.set(nodeId);
+        loadNodeData(nodeId);
+      }
+    });
   }
 
   async function loadNodeData(path = $nodePath) {
@@ -93,8 +91,13 @@
   }
 
   function updateGraph(data: any, rootPath: string) {
-    const nodes: { id: any; label: any }[] = [];
-    const edges: { from: any; to: any }[] = [];
+    if (!network) {
+      console.error("Network non inizializzato");
+      return;
+    }
+
+    const nodes: { id: string; label: string }[] = [];
+    const edges: { from: string; to: string }[] = [];
 
     function addNode(id: string, label: string) {
       if (!nodes.some(node => node.id === id) && id !== "#" && id !== "_") {
@@ -102,7 +105,7 @@
       }
     }
 
-    function addEdge(from: any, to: string) {
+    function addEdge(from: string, to: string) {
       if (!edges.some(edge => edge.from === from && edge.to === to)) {
         edges.push({ from, to });
       }
