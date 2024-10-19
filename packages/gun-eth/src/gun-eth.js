@@ -9,6 +9,7 @@
 })(typeof self !== "undefined" ? self : this, function (Gun, SEA, ethers) {
     console.log('Factory del plugin Gun-Eth chiamata');
 
+    const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
 
     // Funzione per verificare se ethers è disponibile
@@ -291,6 +292,10 @@
      */
     Gun.chain.createSignature = async function (message) {
         try {
+            // Verifica se il messaggio è uguale a MESSAGE_TO_SIGN
+            if (message !== MESSAGE_TO_SIGN) {
+                throw new Error("Invalid message, valid message is: " + MESSAGE_TO_SIGN);
+            }
             const signer = await getSigner();
             const signature = await signer.signMessage(message);
             console.log("Signature created:", signature);

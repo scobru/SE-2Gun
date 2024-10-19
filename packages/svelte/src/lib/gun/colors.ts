@@ -4,34 +4,42 @@
  * @group UI
  * */
 
-import ColorHash from "color-hash";
+import { browser } from '$app/environment';
+
+let ColorHash: any;
+
+if (browser) {
+  ColorHash = (await import('color-hash')).default;
+}
 
 /**
  * @typedef {'light' | 'regular' | 'deep' | 'dark'} Palette
  */
 
-const color = {
-  light: new ColorHash({
+const color: Record<string, any> = {};
+
+if (browser) {
+  color.light = new ColorHash({
     saturation: [0.05, 0.08, 0.22],
     lightness: [0.85, 0.87, 0.9],
-  }),
-  pale: new ColorHash({
+  });
+  color.pale = new ColorHash({
     saturation: [0.05, 0.42, 0.52],
     lightness: [0.75, 0.77, 0.9],
-  }),
-  regular: new ColorHash({
+  });
+  color.regular = new ColorHash({
     saturation: [0.1, 0.5, 0.7],
     lightness: [0.3, 0.5, 0.7],
-  }),
-  deep: new ColorHash({
+  });
+  color.deep = new ColorHash({
     saturation: [0.5, 0.6, 0.7],
     lightness: [0.2, 0.35, 0.4],
-  }),
-  dark: new ColorHash({
+  });
+  color.dark = new ColorHash({
     saturation: [0.02, 0.5, 0.6],
     lightness: [0.18, 0.2, 0.5],
-  }),
-};
+  });
+}
 
 /**
  * Get a color generator of a certain palette
@@ -45,8 +53,14 @@ const color = {
  * // color == '#e052ae'
  */
 export function useColor(palette = "deep") {
+  if (!browser) {
+    return {
+      hex: () => '#000000', // Fallback color for SSR
+    };
+  }
+  
   if (typeof palette == "object") {
     return new ColorHash(palette);
   }
-  return color[palette];
+  return color[palette as keyof typeof color];
 }

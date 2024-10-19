@@ -2,7 +2,7 @@
   import { wagmiConfig } from "$lib/wagmi";
   import { getAccount } from "@wagmi/core";
   import { notification } from "$lib/utils/scaffold-eth/notification";
-  import { signIn, login, logout } from "$lib/gun/auth";
+  import { signIn, login, logout, MESSAGE_TO_SIGN } from "$lib/gun/auth";
   import { useUser, loadUserProfile } from "$lib/gun/user";
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
@@ -85,7 +85,7 @@
     }
 
     try {
-      const signature = await gunInstance?.createSignature("Accesso a GunDB con Ethereum");
+      const signature = await gunInstance?.createSignature(MESSAGE_TO_SIGN);
       if (!signature) {
         setErrorMessage("Error signing message");
         return;
@@ -114,7 +114,10 @@
 
 <main class="text-left justify-center">
   {#if isLoading}
-    <p>Caricamento...</p>
+    <div class="w-full my-28 align-baseline text-center items-center">
+      <p class="text-center text-4xl animate-bounce">Loading ... </p>
+    </div>
+    
   {:else if $user?.auth === false}
     <div class="w-full my-28 align-baseline text-center items-center">
       <button class="btn btn-primary" on:click={handleSignIn}><i class="fas fa-user-plus"></i> Sign In</button>

@@ -4,7 +4,7 @@
  * @group Database
  */
 
-import Gun from "gun/gun";
+import Gun from "gun";
 import "gun/lib/then";
 import "gun/lib/radix";
 import "gun/lib/radisk";

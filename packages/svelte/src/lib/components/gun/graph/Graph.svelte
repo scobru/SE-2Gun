@@ -4,8 +4,12 @@
   import AccountAvatar from '../account/AccountAvatar.svelte';
   import { useColor } from '$lib/gun/colors';
   import { fade } from 'svelte/transition';
+  import { browser } from '$app/environment';
 
-  let colorDeep = useColor("deep");
+  let colorDeep: import("color-hash").ColorHash;
+  if(browser) {
+    colorDeep = useColor("deep");
+  }
   let graph = {};
   let gun = useGun();
 

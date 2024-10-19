@@ -12,6 +12,8 @@ let customToken = "";
 let rpcUrl = "";
 let privateKey = "";
 
+const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
+
 /**
  * Funzione per ottenere il signer
  * @returns {Promise<ethers.Signer>} Il signer.
@@ -119,6 +121,10 @@ Gun.chain.generatePassword = function (signature) {
  */
 Gun.chain.createSignature = async function (message) {
   try {
+    // Verifica se il messaggio è uguale a MESSAGE_TO_SIGN
+    if (message !== MESSAGE_TO_SIGN) {
+      throw new Error("Invalid message, valid message is: " + MESSAGE_TO_SIGN);
+    }
     const signer = await getSigner();
     const signature = await signer.signMessage(message);
     console.log("Signature created:", signature);
