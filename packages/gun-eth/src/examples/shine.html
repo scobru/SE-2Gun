@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Demo Gun-Eth Plugin</title>
+    <!-- Include Gun -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <!-- Include SEA (part of Gun) -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <!-- Include Ethers.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <!-- Include the Gun-Eth plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/gun-eth/src/gun-eth.js""></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .container {
+        max-width: 400px;
+        background-color: white;
+        border: 1px solid #000;
+        padding: 10px;
+      }
+      h1,
+      h2 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+      }
+      form {
+        margin-bottom: 15px;
+      }
+      input,
+      button {
+        display: inline-block;
+        margin: 2px 0;
+        padding: 2px;
+        font-size: 12px;
+      }
+      input {
+        width: 150px;
+      }
+      button {
+        width: 70px;
+      }
+      label {
+        display: inline-block;
+        width: 70px;
+        font-size: 12px;
+      }
+      #configStatus,
+      .result {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .result {
+        color: blue;
+      }
+      .disclaimer {
+        background-color: #ffffd0;
+        border: 1px solid #e6e600;
+        padding: 10px;
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="disclaimer">
+        <strong>⚠️</strong> This example is available only on the
+        <strong>Optimism Sepolia</strong> chain.
+      </div>
+      <h1>💎 SHINE (Secure Hash Integriry Network Ethereum)</h1>
+      <hr />
+      <h2>🔧 Configuration</h2>
+      <form id="configForm">
+        <label for="rpcUrl">RPC URL:</label>
+        <input type="text" id="rpcUrl" name="rpcUrl" required />
+        <br />
+        <label for="privateKey">Private Key:</label>
+        <input type="password" id="privateKey" name="privateKey" required />
+        <br />
+        <button type="submit">Configure</button>
+      </form>
+      <div id="configStatus">Status: Not Configured</div>
+      <hr />
+
+      <h2>🔴 Write Data to Blockchain</h2>
+      <form id="writeForm">
+        <label for="data">Data</label>
+        <br />
+        <input type="text" id="data" name="data" required />
+        <br />
+        <button type="submit">Write</button>
+      </form>
+      <div id="writeResult" class="result"></div>
+      <hr />
+
+      <h2>🔍 Verify Data on Blockchain</h2>
+      <form id="verifyForm">
+        <label for="nodeId">Node ID</label>
+        <br />
+        <input type="text" id="nodeId" name="nodeId" required />
+        <br />
+        <button type="submit">Verify</button>
+      </form>
+      <div id="verifyResult" class="result"></div>
+      <hr />
+
+      <h2>🔄 Update Node Data in Gun</h2>
+      <form id="updateForm">
+        <label for="updateNodeId">Node ID</label>
+        <br />
+        <input type="text" id="updateNodeId" name="updateNodeId" required />
+        <br />
+        <label for="editMessage">New Data</label>
+        <br />
+        <input type="text" id="editMessage" name="editMessage" required />
+        <br />
+        <button type="submit">Update</button>
+      </form>
+      <div id="updateResult" class="result"></div>
+    </div>
+
+    <script>
+      let gun;
+      let isConfigured = false;
+
+      function updateConfigStatus() {
+        const statusElement = document.getElementById("configStatus");
+        statusElement.textContent = isConfigured
+          ? "Status: Configured"
+          : "Status: Not Configured";
+        statusElement.style.color = isConfigured ? "green" : "red";
+      }
+
+      document
+        .getElementById("configForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const rpcUrl = document.getElementById("rpcUrl").value;
+          const privateKey = document.getElementById("privateKey").value;
+
+          // Configure Gun with the provided details
+          gun = Gun();
+          gun.setStandaloneConfig(rpcUrl, privateKey);
+
+          console.log("Standalone configuration set");
+          isConfigured = true;
+          updateConfigStatus();
+        });
+
+      document
+        .getElementById("writeForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          if (!isConfigured) {
+            document.getElementById("writeResult").textContent =
+              "Please configure Gun first.";
+            return;
+          }
+          const data = document.getElementById("data").value;
+          const resultElement = document.getElementById("writeResult");
+          resultElement.textContent = "Writing data...";
+
+          // Assicurati che `data` sia un oggetto JSON valido
+
+          gun.shine("optimismSepolia", null, data, function (result) {
+            console.log("Shine result:", result);
+            if (result.ok) {
+              resultElement.textContent =
+                "Data successfully written: " + result.nodeId;
+            } else {
+              resultElement.textContent = "Error writing data: " + result.err;
+            }
+          });
+        });
+
+      document
+        .getElementById("verifyForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          if (!isConfigured) {
+            document.getElementById("verifyResult").textContent =
+              "Please configure Gun first.";
+            return;
+          }
+          const nodeId = document.getElementById("nodeId").value;
+          const resultElement = document.getElementById("verifyResult");
+          resultElement.textContent = "Verifying data...";
+
+          gun.shine("optimismSepolia", nodeId, null, function (result) {
+            console.log("Verification result:", result);
+            if (result.ok) {
+              resultElement.textContent =
+                "Data successfully verified: " + result.message;
+            } else {
+              resultElement.textContent =
+                "Error verifying data: " + result.message;
+            }
+          });
+        });
+
+      document
+        .getElementById("updateForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          if (!isConfigured) {
+            document.getElementById("updateResult").textContent =
+              "Please configure Gun first.";
+            return;
+          }
+          const nodeId = document.getElementById("updateNodeId").value;
+          const editMessage = document.getElementById("editMessage").value;
+          const resultElement = document.getElementById("updateResult");
+          resultElement.textContent = "Updating data...";
+
+          gun.get(nodeId).once(function (existingData) {
+            // Prepara i nuovi dati
+            const newData = {
+              message: editMessage,
+              _contentHash: existingData._contentHash, // Manteniamo il contentHash precedente per il calcolo
+            };
+
+            // Calcola il nuovo contentHash
+            const dataString = JSON.stringify(editMessage);
+            const newContentHash = ethers.keccak256(
+              ethers.toUtf8Bytes(dataString)
+            );
+
+            // Aggiorna i dati con il nuovo contentHash
+            newData._contentHash = newContentHash;
+
+            // Update data in Gun
+            gun.get(nodeId).put(newData, function (ack) {
+              if (ack.err) {
+                console.error("Error updating data in Gun:", ack.err);
+                resultElement.textContent =
+                  "Error updating data in Gun: " + ack.err;
+              } else {
+                console.log("Data successfully updated in Gun:", nodeId);
+                resultElement.textContent =
+                  "Data successfully updated in Gun: " + nodeId;
+              }
+            });
+          });
+        });
+
+      // Inizializza lo stato di configurazione
+      updateConfigStatus();
+    </script>
+  </body>
+</html>
