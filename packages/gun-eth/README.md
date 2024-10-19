@@ -111,19 +111,7 @@ Learn more about plugin implementation [here](https://github.com/amark/gun/wiki/
   ```javascript
   gun.shine("optimismSepolia", nodeId, data, callback);
   ```
-
-- `setToken(token)`: Sets a custom token for Gun operations.
-
-  ```javascript
-  gun.setToken("yourCustomToken");
-  ```
-
-- `getToken()`: Retrieves the current custom token.
-
-  ```javascript
-  const currentToken = gun.getToken();
-  ```
-
+  
 ## SHINE
 
 SHINE (Secure Hash Integrity Network Ethereum) provides a mechanism for verifying data integrity using Ethereum and Gun.js.

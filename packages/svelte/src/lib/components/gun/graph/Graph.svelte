@@ -6,7 +6,8 @@
   import { fade } from 'svelte/transition';
   import { browser } from '$app/environment';
 
-  let colorDeep: import("color-hash").ColorHash;
+  let colorDeep;
+  
   if(browser) {
     colorDeep = useColor("deep");
   }

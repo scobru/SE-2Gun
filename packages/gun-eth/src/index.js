@@ -7,7 +7,6 @@ const SHINE_ABI = SHINE.abi;
 const SHINE_OPTIMISM_SEPOLIA = SHINE.address;
 
 let SHINE_CONTRACT_ADDRESS;
-let customToken = "";
 
 let rpcUrl = "";
 let privateKey = "";
@@ -48,38 +47,6 @@ Gun.chain.setStandaloneConfig = function (newRpcUrl, newPrivateKey) {
   console.log("Standalone configuration set");
   return this;
 };
-
-/**
- * Sets a custom token for Gun operations.
- * @param {string} token - The token to be set.
- * @returns {Gun} The Gun instance for chaining.
- */
-Gun.chain.setToken = function (token) {
-  if (typeof token === "string" && token.length > 0) {
-    customToken = token;
-    console.log("Token set successfully:", token);
-  } else {
-    console.error("Invalid token. Must be a non-empty string.");
-  }
-  return this;
-};
-
-/**
- * Retrieves the current custom token.
- * @returns {string} The current custom token.
- */
-Gun.chain.getToken = function () {
-  return customToken;
-};
-
-// Add custom token to all 'put' operations
-Gun.on("put", function (msg) {
-  const to = this.to;
-  msg.headers = {
-    token: customToken,
-  };
-  to.next(msg);
-});
 
 /**
  * Verifies an Ethereum signature.
