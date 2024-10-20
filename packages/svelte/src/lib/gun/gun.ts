@@ -4,7 +4,7 @@
  * @group Database
  */
 
-import Gun from "gun";
+import Gun from 'gun';
 import "gun/lib/then";
 import "gun/lib/radix";
 import "gun/lib/radisk";
@@ -13,6 +13,8 @@ import "gun/lib/rindexed";
 import "gun/lib/webrtc";
 import "gun-eth";
 import "gun/lib/yson.js";
+import 'gun/sea';
+import 'gun/axe';
 
 import { peers, validToken } from "../../../gun.config";
 
@@ -76,7 +78,7 @@ export function createGunSecondary(options = { localStorage: false }) {
  * SEA library
  * @constant SEA
  */
-export { default as SEA } from "gun/sea.js";
+export { default as SEA } from "gun/sea";
 
 /**
  * Get a soul for any given node

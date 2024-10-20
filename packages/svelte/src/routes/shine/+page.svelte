@@ -1,14 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Gun from "gun";
-  import { gun } from "$lib/stores";
-  import { get } from "svelte/store";
-  import "gun-eth";
   import { createAccount } from "@byteatatime/wagmi-svelte";
-  import { tick } from "svelte";
   import { useGun } from "$lib/gun/gun";
   import { ethers } from "ethers";
   import { notification } from "$lib/utils/scaffold-eth/notification";
+  import { browser } from "$app/environment";
 
   let message = $state("");
   let nodeId = $state("");
@@ -21,11 +17,15 @@
   let editMessage = $state("");
   let editNodeId = $state("");
 
+  
+  const { address, isConnected } = $derived.by(createAccount());
+
   onMount(async () => {
-    gunInstance = useGun();
+    if (browser) {
+      gunInstance = useGun();
+    }
   });
 
-  const { address, chainId, status, isConnected } = $derived.by(createAccount());
 
   async function saveMessage() {
     if (!message) {
@@ -38,11 +38,17 @@
 
     try {
       const data = message;
+      console.log("Tentativo di salvataggio del messaggio:", data);
 
       const result = await new Promise((resolve, reject) => {
-        gunInstance.shine("optimismSepolia", null, data, function (ack) {
-          if (ack && ack.err) reject(new Error(ack.err));
-          else resolve(ack);
+        gunInstance?.shine("optimismSepolia", null, data, function (ack) {
+          if (ack && ack.err) {
+            console.error("Errore di GunDB:", ack.err);
+            reject(new Error(ack.err));
+          } else {
+            console.log("Risultato di GunDB:", ack);
+            resolve(ack);
+          }
         });
       });
 
@@ -70,7 +76,7 @@
 
     try {
       const result = await new Promise((resolve, reject) => {
-        gunInstance.shine("optimismSepolia", nodeId, null, function (ack) {
+        gunInstance?.shine("optimismSepolia", nodeId, null, function (ack) {
           if (ack && ack.err) reject(new Error(ack.err));
           else resolve(ack);
         });
@@ -105,7 +111,7 @@
     try {
       // Recupera il dato esistente
       const existingData = await new Promise(resolve => {
-        gunInstance.get(editNodeId).once(data => resolve(data));
+        gunInstance?.get(editNodeId).once(data => resolve(data));
       });
 
       // Prepara i nuovi dati
@@ -122,7 +128,7 @@
       newData._contentHash = newContentHash;
 
       // Modifica il messaggio e il _contentHash localmente su Gun
-      gunInstance.get(editNodeId).put(newData, ack => {
+      gunInstance?.get(editNodeId).put(newData, ack => {
         if (ack.err) {
           throw new Error(ack.err);
         }
@@ -148,7 +154,7 @@
     </p>
   </article>
 
-  {#if isConnected}
+  {#if address && isConnected}
     <div class="mb-8 grid grid-cols-1 gap-8 p-8 md:grid-cols-2">
       <div class="bg-ableton-orange rounded-none p-6 text-black">
         <h2 class="mb-4 text-2xl font-semibold">Save Message</h2>
@@ -160,7 +166,7 @@
         />
         <!-- svelte-ignore event_directive_deprecated -->
         <button
-          on:click={saveMessage}
+          onclick={saveMessage}
           disabled={isLoading}
           class="hover:bg-ableton-beige w-full bg-transparent p-2 font-semibold capitalize text-white transition duration-300 ease-in-out hover:text-black"
         >
@@ -177,7 +183,7 @@
           class="mb-4 w-full border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
         />
         <button
-          on:click={verifyMessage}
+          onclick={verifyMessage}
           disabled={isLoading || !nodeId}
           class="w-full bg-transparent p-2 text-black transition duration-300 ease-in-out hover:bg-green-600"
         >
@@ -200,7 +206,7 @@
           class="mb-4 w-full border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
         />
         <button
-          on:click={editLocalMessage}
+          onclick={editLocalMessage}
           disabled={isLoading || !editNodeId || !editMessage}
           class="w-full bg-transparent p-2 text-black transition duration-300 ease-in-out hover:bg-purple-600"
         >

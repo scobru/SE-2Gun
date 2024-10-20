@@ -1,0 +1,23 @@
+diff --git a/node_modules/gun/sea/shim.js b/node_modules/gun/sea/shim.js
+index 32d4eb5..f33474c 100644
+--- a/node_modules/gun/sea/shim.js
++++ b/node_modules/gun/sea/shim.js
+@@ -23,7 +23,9 @@
+     }
+     if(!api.TextDecoder)
+     {
+-      const { TextEncoder, TextDecoder } = require((u+'' == typeof MODULE?'.':'')+'./lib/text-encoding', 1);
++      // const { TextEncoder, TextDecoder } = require((u+'' == typeof MODULE?'.':'')+'./lib/text-encoding', 1);
++      // TODO: check if this is correct
++      const { TextEncoder, TextDecoder } = require('text-encoding');
+       api.TextDecoder = TextDecoder;
+       api.TextEncoder = TextEncoder;
+     }
+diff --git a/node_modules/gun/stats.radata b/node_modules/gun/stats.radata
+new file mode 100644
+index 0000000..2a96eb9
+--- /dev/null
++++ b/node_modules/gun/stats.radata
+@@ -0,0 +1 @@
++{"all":{"stats stash":[[1729448497498,4]]},"cpu":{"loadavg":[0,0,0],"stack":0,"system":16250000,"user":35546000},"dam":{"in":{"count":0,"done":0},"out":{"count":0,"done":0}},"memory":{"arrayBuffers":7900550,"external":52883840,"freemem":3212517376,"heapTotal":269832192,"heapUsed":229445976,"rss":388804608,"totalmem":16946872320},"node":{"count":0},"over":5012,"peers":{"count":1,"time":0},"rad":{"get":{"count":0,"time":{}},"put":{"count":0,"time":{}}},"stay":{},"up":{"count":4,"start":1729357528270,"time":3416.5487658}}
+\ No newline at end of file

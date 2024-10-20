@@ -1,7 +1,6 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
-
 export default defineConfig({
   plugins: [sveltekit()],
   define: {
@@ -9,13 +8,18 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: [".."],
+      allow: [".."], // Allow access to parent directories
     },
   },
   ssr: {
-    noExternal: ['gun-avatar','vis-network','CanvasRenderingContext2D']
+    noExternal: ['gun-avatar', 'vis-network', 'CanvasRenderingContext2D']
   },
   optimizeDeps: {
-    include: ['gun-avatar']
+    include: ['ws']
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/]
+    }
   }
 });
