@@ -30,6 +30,7 @@
 
 <div class="flex flex-col min-h-screen">
   <Header />
+  <!-- svelte-ignore slot_element_deprecated -->
   <div class="flex-1">
     <slot />
   </div>

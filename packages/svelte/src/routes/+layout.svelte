@@ -34,6 +34,7 @@
 <Toaster />
 
 <WagmiProvider config={wagmiConfig}>
+  <!-- svelte-ignore slot_element_deprecated -->
   <ScaffoldEthApp>
     <slot />
   </ScaffoldEthApp>

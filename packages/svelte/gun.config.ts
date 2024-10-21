@@ -1,4 +1,4 @@
-export const peers = ["https://gun-relay.scobrudot.dev/gun", "https://peer.wallie.io/gun"];
+export const peers = ["https://gun-relay.scobrudot.dev/gun", "https://peer.wallie.io/gun","http://localhost:3000/gun"];
 
 import env from "dotenv";
 
