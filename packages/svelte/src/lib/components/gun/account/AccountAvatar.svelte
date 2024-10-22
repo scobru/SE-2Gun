@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
     import { useAvatar } from '$lib/gun/avatar';
     import { useUser } from '$lib/gun/user';
     import { onMount, createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
+    
     const { user } = useUser();
 
     export let size: number = 96;
@@ -11,11 +13,17 @@
     let fileInput: HTMLInputElement;
     let avatarLoaded = false;
     
-    let { avatar: avatarStore, blink, uploadAvatar, uploadStatus, updateAvatar } = useAvatar($user.pub, size);
+
+
+   
+        let { avatar: avatarStore, blink, uploadAvatar, uploadStatus, updateAvatar } =  useAvatar($user.pub || "", size);
+      
     
-    $: console.log("Avatar nel componente:", $avatarStore);
+   
     onMount(() => {
-        updateAvatar();
+        if(typeof window !== "undefined") {
+            updateAvatar();
+        }
     });
     
     async function handleFileChange(event: Event) {

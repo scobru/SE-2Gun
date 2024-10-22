@@ -10,7 +10,7 @@ import { browser } from "$app/environment";
 import ms from "ms";
 
 import {peers} from "../../../gun.config"
-import { gun } from "$lib/stores";
+
 
 const defaultPeer = peers[0];
 

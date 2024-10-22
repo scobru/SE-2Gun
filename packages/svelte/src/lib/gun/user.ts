@@ -7,10 +7,13 @@
  * @group Users
  */
 
-import SEA from "gun/sea";
-import { useGun } from "./gun";
+import {SEA } from "$lib/gun/gun"
 import { writable, derived, get } from "svelte/store";
 import { debounce } from "lodash-es";
+import { useGun } from "./gun";
+
+const gunInstance = useGun();
+
 
 /**
  * @type {{ pub: string }}
@@ -92,8 +95,8 @@ let pairReads = 0;
  */
 function pair() {
   console.log("User pair read", ++pairReads);
-  const gun = useGun();
-  return gun.user()?._?.sea;
+  const gunInstance = useGun();
+  return gunInstance?.user()?._?.sea;
 }
 
 /**
@@ -106,15 +109,15 @@ function pair() {
  */
 export function useUser() {
   if (!get(user).initiated) {
-    const gun = useGun();
-    gun.user().recall({ sessionStorage: true }, () => {
+    gunInstance?.user().recall({ sessionStorage: true }, () => {
       console.log("User recalled");
     });
 
-    gun.on("auth", () => {
+    gunInstance.on("auth", () => {
       init();
       console.log("User authenticated");
     });
+
     user.update(u => ({ ...u, initiated: true }));
   }
 
@@ -135,20 +138,18 @@ export function useUser() {
  */
 
 export async function auth(pair: any, cb = (pair: any) => {}) {
-  const gun = useGun();
 
   if (!isPair(pair)) {
     console.log("incorrect pair", pair);
     return;
   }
 
-  gun.user().auth(pair, async (ack: { err: any }) => {
+  gunInstance.user().auth(pair, async (ack: { err: any }) => {
     if (ack.err) {
       console.error("Errore di autenticazione:", ack.err);
       cb(ack);
     } else {
-      const { user } = useUser();
-      user.update(u => ({ ...u, auth: true, pub: gun.user().is.alias }));
+      user.update(u => ({ ...u, auth: true, pub: gunInstance.user().is.alias }));
       console.log("Successo autenticazione");
       cb(ack);
     }
@@ -156,8 +157,9 @@ export async function auth(pair: any, cb = (pair: any) => {}) {
 }
 
 function init() {
-  const gun = useGun();
-  user.update(u => ({ ...u, is: gun.user().is, db: gun.user() }));
+  const gunInstance = useGun();
+
+  user.update(u => ({ ...u, is: gunInstance.user().is, db: gunInstance.user() }));
 
   if (get(user).pulser) {
     clearInterval(get(user).pulser);
@@ -165,20 +167,20 @@ function init() {
 
   const pulser = setInterval(() => {
     const now = Date.now();
-    gun.user().get("pulse").put(now);
+    gunInstance.user().get("pulse").put(now);
     user.update(u => ({ ...u, lastSeen: now - u.pulse }));
   }, 1000);
 
-  gun.user().get("epub").put(get(user).is.epub);
+  gunInstance.user().get("epub").put(get(user).is.epub);
 
-  gun
+  gunInstance
     .user()
     .get("pulse")
     .on(d => {
       user.update(u => ({ ...u, blink: !u.blink, pulse: d }));
     });
 
-  gun
+  gunInstance
     .user()
     .get("safe")
     .map()
@@ -186,7 +188,7 @@ function init() {
       user.update(u => ({ ...u, safe: { ...u.safe, [k]: d } }));
     });
 
-  gun
+  gunInstance
     .user()
     .get("profile")
     .get("name")
@@ -206,14 +208,14 @@ function init() {
  **/
 export function leave() {
   console.log("User logout");
-  const gun = useGun();
+  const gunInstance = useGun();
   const userValue = get(user);
   const is = !!userValue?.is;
   user.update(u => ({ ...u, initiated: false, auth: false }));
   if (userValue.pulser) {
     clearInterval(userValue.pulser);
   }
-  gun.user().leave();
+  gunInstance.user().leave();
   setTimeout(() => {
     if (is && !pair()) {
       user.update(u => ({ ...u, is: null }));
@@ -243,8 +245,12 @@ export function isMine(soul: string | any[]) {
  */
 export const updateProfile = debounce((field: string, data: string) => {
   if (field && data !== undefined) {
-    const gun = useGun();
-    gun.user().get("profile").get(field).put(data);
+    const gunInstance = useGun();
+    gunInstance.user().get("profile").get(field).put(data);
+
+    if (field == "name") {
+      user.update(u => ({ ...u, name: data }));
+    }
   }
 }, 300);
 
@@ -261,11 +267,11 @@ export function isPair(pair: { pub: any; epub: any; priv: any; epriv: any }) {
  * Carica il profilo dell'utente da Gun
  */
 export function loadUserProfile() {
-  const gun = useGun();
+  const gunInstance = useGun();
   const userStore = get(user);
 
   if (userStore?.is && userStore?.is?.pub) {
-    gun
+    gunInstance
       .user()
       .get("profile")
       .map()
@@ -278,10 +284,15 @@ export function loadUserProfile() {
         }
       });
   }
+
+  // aggiorna il campo "name"
+  if (userStore.profile && userStore.profile.name) {
+    user.update(u => ({ ...u, name: userStore.profile.name }));
+  }
 }
 
 export function addProfileField(title: string, initialValue: string = "") {
-  const gun = useGun();
+  const gunInstance = useGun();
   const userStore = get(user);
 
   // Verifica se il campo esiste già nel profilo
@@ -291,7 +302,7 @@ export function addProfileField(title: string, initialValue: string = "") {
   }
 
   // Se il campo non esiste, lo aggiungiamo
-  gun
+  gunInstance
     .user()
     .get("profile")
     .get(title)
@@ -311,9 +322,9 @@ export function addProfileField(title: string, initialValue: string = "") {
 
 export function updateProfileField(field: string, value: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const gun = useGun();
+    const gunInstance = useGun();
     console.log(`Tentativo di aggiornamento del campo '${field}' con valore:`, value);
-    gun
+    gunInstance
       .user()
       .get("profile")
       .get(field)
@@ -336,8 +347,8 @@ export function updateProfileField(field: string, value: string): Promise<void> 
 }
 
 export function removeProfileField(field: string) {
-  const gun = useGun();
-  gun
+  const gunInstance = useGun();
+  gunInstance
     .user()
     .get("profile")
     .get(field)
@@ -359,10 +370,10 @@ export function removeProfileField(field: string) {
  * @param {Object} profile - Oggetto profilo completo
  */
 export function saveUserProfile(profile: { [s: string]: unknown } | ArrayLike<unknown>) {
-  const gun = useGun();
+  const gunInstance = useGun();
   console.log(" di salvataggio dell'intero profilo:", profile);
   Object.entries(profile).forEach(([key, value]) => {
-    gun
+    gunInstance
       .user()
       .get("profile")
       .get(key)

@@ -1,21 +1,22 @@
-import "gun-eth";
 import { getAccount } from "@wagmi/core";
 import { derived, get, writable } from "svelte/store";
 import { notification } from "$lib/utils/scaffold-eth/notification";
 import { wagmiConfig } from "$lib/wagmi";
 import type { IGunUserInstance } from "gun/types";
 import { auth, leave, useUser, isPair } from "./user";
-import { useGun } from "./gun";
-import SEA from "gun/sea";
+import { SEA, useGun } from "$lib/gun/gun";
+
 import { browser } from "$app/environment";
 
 export const MESSAGE_TO_SIGN = "Accesso a GunDB con Ethereum";
 
-export function initializeAuth() {
-  const gun = useGun();
+const gunInstance = useGun();
 
-  gun.user().recall({ sessionStorage: true }, async ack => {
-    const user = gun.user();
+const { user } = useUser();
+
+
+export function initializeAuth() {
+  gunInstance.user().recall({ sessionStorage: true }, async ack => {
     if ("err" in ack) {
       console.error("Errore nel recupero della sessione:", ack.err);
     } else if (user.is && user.is.alias) {
@@ -23,12 +24,12 @@ export function initializeAuth() {
     }
   });
 
-  gun.user().on("auth", async () => {
+  gunInstance.user().on("auth", async () => {
     console.log("Utente autenticato:", user.is.alias as string);
     await loadUserData(user);
   });
 
-  return gun.user();
+  return gunInstance.user();
 }
 
 async function loadUserData(user: IGunUserInstance) {
@@ -48,10 +49,6 @@ export async function signIn(): Promise<string | null> {
   
   const gunInstance = useGun();
   const account = getAccount(wagmiConfig);
-  const { user } = useUser();
-
-  // check if pair exist on gun for this address
-
 
   try {
     if (!account.isConnected) {
@@ -112,7 +109,7 @@ export async function login(sig?: string): Promise<string | null> {
   }
 
   console.log("Accesso in corso...");
-  const gunInstance = useGun();
+  const gunInstance = useGun()
   try {
     if (!account.address) {
       return "Nessun account Ethereum connesso";
@@ -215,11 +212,10 @@ export const pass = writable<Auth>({
   set: () => {},
 });
 
-const { user } = useUser();
 
 // Derived stores for links
 const passLink = derived([pass], ([$pass]) => genLink($pass.safe?.enc));
-const pairLink = derived([user], ([$user]) => genLink(JSON.stringify($user.pair())));
+const pairLink = derived([user], ([$user]) => genLink(JSON.stringify(user.pair)));
 
 // Update links in the pass store
 pass.update(p => ({
@@ -248,8 +244,8 @@ let initiated = false;
 
 export function useAuth() {
   if (!initiated) {
-    const gun = useGun();
-    gun
+    const gunInstance = useGun();
+    gunInstance
       .user()
       .get("safe")
       .map()
@@ -288,23 +284,23 @@ export function useAuth() {
 }
 
 export async function hasPass(pub: string) {
-  const gun = useGun();
-  return await gun.get(`~${pub}`).get("safe").get("enc").then();
+  const gunInstance = useGun();
+  return await gunInstance.get(`~${pub}`).get("safe").get("enc").then();
 }
 
 async function authWithPass(pub: string, passphrase: string) {
-  const gun = useGun();
-  let encPair = await gun.get(`~${pub}`).get("safe").get("enc").then();
+  const gunInstance = useGun();
+  let encPair = await gunInstance.get(`~${pub}`).get("safe").get("enc").then();
   let pair = await SEA.decrypt(encPair, passphrase);
   auth(pair);
 }
 
 async function setPass(text: string) {
-  const gun = useGun();
+  const gunInstance = useGun();
   let encPair = await SEA.encrypt(get(user).pair(), text);
   let encPass = await get(user).encrypt(text);
-  gun.user().get("safe").get("enc").put(encPair);
-  gun.user().get("safe").get("pass").put(encPass);
+  gunInstance.user().get("safe").get("enc").put(encPair);
+  gunInstance.user().get("safe").get("pass").put(encPass);
 }
 
 export function useAuthLink(data: string, passPhrase: string) {

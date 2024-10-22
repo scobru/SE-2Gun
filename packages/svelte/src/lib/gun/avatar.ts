@@ -2,7 +2,7 @@ import { derived, writable, get } from "svelte/store";
 import { useGun } from "./gun";
 import { useUser } from "./user";
 import SEA from "gun/sea";
-import { browser } from '$app/environment';
+import { gunAvatar } from "gun-avatar";
 
 export function useAvatar(pub: string, size: number) {
   const gun = useGun();

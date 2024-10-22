@@ -44,11 +44,18 @@
       label: "Inspect",
       href: "/inspect",
     },
-    /* {
-      label: "Debug Contracts",
-      href: "/debug",
-      icon: BugAnt,
-    }, */
+    {
+      label: "Notes",
+      href: "/notes"
+    },
+    {
+      label: "Post",
+      href: "/post"
+    },
+    {
+      label: "Chat",
+      href: "/chat"
+    }
   ];
 
   const isCurrentPage = derived(page, $page => (href: string) => {

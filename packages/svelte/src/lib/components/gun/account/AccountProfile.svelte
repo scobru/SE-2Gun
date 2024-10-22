@@ -1,15 +1,11 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { get, writable } from "svelte/store";
+    import {  writable } from "svelte/store";
     import { useUser } from "$lib/gun/user";
     import AccountAvatar from "./AccountAvatar.svelte";
 
     let { user } = useUser();
     let account = writable(null);
     let lastPulse: any;
-    let isInitialized = false;
-
-    $: console.log("user pub", $user?.pub);
 
 
     $: if ($account) {

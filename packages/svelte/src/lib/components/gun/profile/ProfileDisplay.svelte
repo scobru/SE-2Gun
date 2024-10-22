@@ -2,13 +2,14 @@
   import { useUser, updateProfile, addProfileField , loadUserProfile} from "$lib/gun/user";
   import { onMount } from "svelte";
   
-  let { user } = useUser();
+  const { user } = useUser();
+
   let newFieldName = "";
   let newFieldValue = "";
   let editMode: { [key: string]: boolean } = {};
   let editFields: { [key: string]: string } = {};
 
-  $: profileFields = Object.entries($user.profile || {});
+  $: profileFields = Object.entries($user .profile || {});
 
   function handleUpdate(key: string) {
     updateProfile(key, editFields[key]);

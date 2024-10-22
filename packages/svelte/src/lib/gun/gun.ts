@@ -4,7 +4,7 @@
  * @group Database
  */
 
-import Gun from 'gun';
+import Gun from "gun/gun";
 import "gun/lib/then";
 import "gun/lib/radix";
 import "gun/lib/radisk";
@@ -12,23 +12,19 @@ import "gun/lib/store";
 import "gun/lib/rindexed";
 import "gun/lib/webrtc";
 import "gun-eth";
-import "gun/lib/yson.js";
-import 'gun/sea';
-import 'gun/axe';
 
 import { peers, validToken } from "../../../gun.config";
-
-import { useRelay } from "./relay";
 import { get } from "svelte/store";
+import { relay } from "./relay";
 
+const opts = { peers: peers[0] };
+
+let gun: any ;
 
 // https://github.com/amark/gun/wiki/volunteer.dht
 // https://github.com/draeder/gun-relays
 
 /** @type {import('gun').IGunInstance} The main Gun instance for database operations */
-let gun;
-
-let { relay } = useRelay();
 
 /**
  * Instantiate a Gun instance for DB manipulations
@@ -39,16 +35,15 @@ let { relay } = useRelay();
  * const gun = useGun()
  */
 export function useGun(options = { localStorage: false }) {
-  if(!gun) {
-  const opts = { peers: peers[0] };
-  if (typeof options === "object") {
-    Object.assign(opts, options);
-  }
-    console.log(opts.peers);
-    gun = Gun(opts);
-  }
-
-  return gun;
+	if (!gun) {
+		const opts = { peers: [relay.peer] };
+		if (typeof options === "object") {
+			Object.assign(opts, options);
+		}
+		console.log(opts.peers);
+		gun = Gun(opts);
+	}
+	return gun;
 }
 
 /**

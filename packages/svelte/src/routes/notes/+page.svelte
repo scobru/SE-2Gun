@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
     import { onMount } from "svelte";
-    import Gun from "gun/gun";
-
     import DOMPurify from "dompurify";
-    import { currentUser, gun } from "$lib/stores";
     import { goto } from "$app/navigation";
     import { get, writable } from "svelte/store";
+    import { SEA, useGun } from "$lib/gun/gun";
+
     import AuthModal from "$lib/components/AuthModal.svelte";
 
 
-  
-    let user;
-    const SEA = Gun.SEA;
+    const gunInstance = useGun();
+
+    let user: any;
+
     let hash = "";
     let isLoading = writable(true);
     let isEditing = false;
@@ -25,13 +25,12 @@
     let errorMessage = "";
     let showAuthLink = false;
   
-    let posts = [];
-    let userPair;
+    let posts: any[] = [];
+    let userPair: any;
   
-    let gunInstance = get(gun);
-  
-    onMount(async () => {
-      console.log("gun", get(gun));
+
+    onMount( () => {
+      console.log("gun", gunInstance);
   
       if (!gunInstance) {
         console.error("Gun instance not initialized");
@@ -49,27 +48,27 @@
       console.log("UserPair caricato:", userPair);
   
       if (hash) {
-        await loadPost(hash);
-      } else if (!userPair || !get(currentUser)) {
+         loadPost(hash);
+      } else if (!userPair ) {
         console.log("Utente non autenticato");
         errorMessage = "Please click on VIEW PAIR in the auth page";
         showAuthLink = true;
       } else {
         console.log("Utente autenticato, caricamento post...");
-        await loadUserPosts();
+        loadUserPosts();
         isEditing = false;
       }
       isLoading.set(false);
     });
   
-    $: {
+    /* $: {
       if ($currentUser) {
         loadUserPosts();
       }
-    }
+    } */
   
     async function loadPost(postHash) {
-      if (!gun) {
+      if (!gunInstance) {
         console.error("Gun instance not initialized");
         errorMessage = "Errore di caricamento. Riprova più tardi.";
         return;
@@ -78,7 +77,7 @@
       try {
         const publicPost = await new Promise((resolve, reject) => {
           gunInstance
-            .get("gungra.ph")
+            .get("gun-eth").get("notes")
             .get(postHash)
             .on((data, key) => {
               if (data) {
@@ -102,7 +101,7 @@
           // Se non è un post pubblico e l'utente è autenticato, prova a caricare il post privato
           const privatePost = await new Promise((resolve, reject) => {
             user
-              .get("gungra.ph")
+              .get("gun-eth").get("notes")
               .get(postHash)
               .on((data, key) => {
                 if (data) {
@@ -140,7 +139,7 @@
       user = gunInstance.user();
       console.log("Inizio caricamento post utente");
       return new Promise(resolve => {
-        user.get("gungra.ph").once(async data => {
+        user.get("gun-eth").get("notes").once(async data => {
           console.log("Dati ricevuti:", data);
           if (data) {
             const keys = Object.keys(data).filter(key => key !== "_");
@@ -209,12 +208,12 @@
   
         if (isPublic) {
           console.log("Pubblicazione/modifica post pubblico");
-          await gunInstance.get("gungra.ph").get(hash).put(postString);
+          await gunInstance.get("gun-eth").get("notes").get(hash).put(postString);
         } else {
           console.log("Pubblicazione/modifica post privato");
           const encryptedData = await SEA.encrypt(postString, userPair);
           console.log("Dati criptati", encryptedData);
-          await user.get("gungra.ph").get(hash).put(encryptedData);
+          await user.get("gun-eth").get("notes").get(hash).put(encryptedData);
         }
   
         // Incrementa il contatore dei post solo se stiamo creando un nuovo post
@@ -237,7 +236,7 @@
     }
   
     async function incrementTotalPosts() {
-      const totalPostsRef = gunInstance.get("gungra.ph").get("total_post");
+      const totalPostsRef = gunInstance.get("gun-eth").get("notes").get("total_post");
       totalPostsRef.once(data => {
         const currentTotal = data || 0;
         totalPostsRef.put(currentTotal + 1);
@@ -245,10 +244,10 @@
     }
   
     async function deletePost(postId) {
-      let postRef = user.get("gungra.ph").get(postId);
+      let postRef = user.get("gun-eth").get("notes").get(postId);
       console.log("Post da eliminare:", postRef);
       await postRef.put(null); // Imposta il contenuto del nodo a null
-      await user.get("gungra.ph").unset(postRef); // Rimuovi il nodo dal set
+      await user.get("gun-eth").get("notes").unset(postRef); // Rimuovi il nodo dal set
       posts = posts.filter(p => p.id !== postId);
     }
   
@@ -389,7 +388,7 @@
       </div>
     {/if}
   </main>
-  <AuthModal {isLoading} />
+  <!-- <AuthModal {isLoading=true} /> -->
   
   <style>
     :global(body) {

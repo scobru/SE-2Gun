@@ -3,7 +3,8 @@
   import { get, writable } from "svelte/store";
   import { Network } from "vis-network/standalone";
   import { browser } from "$app/environment";
-  import { gun } from "$lib/stores";
+  import type { peers } from "../../../gun.config";
+  import { useGun } from "$lib/gun/gun";
 
   let gunInstance: any;
   let nodeData = writable({});
@@ -19,8 +20,9 @@
   });
 
   function initGun() {
-    gun.set(new Gun(get(customRelay)));
-    gunInstance = get(gun);
+    
+    gunInstance = useGun( { peers: customRelay });
+
     gunInstance.on("hi", (peer: any) => {
       console.log("Connected to peer:", peer);
     });
