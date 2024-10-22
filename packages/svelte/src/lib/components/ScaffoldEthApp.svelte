@@ -3,6 +3,7 @@
   import { createNativeCurrencyPrice } from "$lib/runes/nativeCurrencyPrice.svelte";
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
+  import GunEthApp from "./GunEthApp.svelte";
   import { reconnect } from "@wagmi/core";
   import { wagmiConfig } from "$lib/wagmi";
   import { untrack } from "svelte";
@@ -28,11 +29,13 @@
   });
 </script>
 
-<div class="flex flex-col min-h-screen">
+<div class="flex min-h-screen flex-col">
   <Header />
   <!-- svelte-ignore slot_element_deprecated -->
   <div class="flex-1">
-    <slot />
+    <GunEthApp>
+      <slot />
+    </GunEthApp>
   </div>
   <Footer />
 </div>

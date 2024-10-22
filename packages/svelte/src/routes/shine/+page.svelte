@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { createAccount } from "@byteatatime/wagmi-svelte";
-  import { useGun } from "$lib/gun/gun";
+  import { gun } from "$lib/stores";
   import { ethers } from "ethers";
   import { notification } from "$lib/utils/scaffold-eth/notification";
   import { browser } from "$app/environment";
@@ -17,7 +17,8 @@
   let editMessage = $state("");
   let editNodeId = $state("");
 
-  
+  gunInstance = get(gun);
+
   const { address, isConnected } = $derived.by(createAccount());
 
   onMount(async () => {
@@ -25,7 +26,6 @@
       gunInstance = useGun();
     }
   });
-
 
   async function saveMessage() {
     if (!message) {
